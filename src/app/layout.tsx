@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { JetBrains_Mono, Manrope, Spectral } from "next/font/google";
+import { Caveat, JetBrains_Mono, Manrope, Spectral } from "next/font/google";
 import { site } from "@/content/site";
 import "./globals.css";
 
@@ -20,6 +20,16 @@ const spectral = Spectral({
 const jetbrains = JetBrains_Mono({
   variable: "--font-jetbrains",
   subsets: ["latin", "cyrillic"],
+  display: "swap",
+});
+
+/* Рукописний шрифт — лише для імен авторів відгуків. Читати цілу
+ * цитату рукописом важко, а підпис-від-руки дає відчуття справжнього
+ * відгуку, не заважаючи читанню. */
+const caveat = Caveat({
+  variable: "--font-hand",
+  subsets: ["latin", "cyrillic"],
+  weight: ["600"],
   display: "swap",
 });
 
@@ -81,7 +91,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="uk"
-      className={`${manrope.variable} ${spectral.variable} ${jetbrains.variable} antialiased`}
+      className={`${manrope.variable} ${spectral.variable} ${jetbrains.variable} ${caveat.variable} antialiased`}
     >
       <body className="grain bg-paper text-ink">
         <a

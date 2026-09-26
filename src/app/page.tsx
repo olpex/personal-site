@@ -162,15 +162,26 @@ function About() {
 /* ── Відгуки слухачів ─────────────────────────────────────────── */
 
 function Reviews() {
-  const featured = site.reviews.filter((r) => r.featured);
+  /* Групуємо за напрямом: читач одразу бачить, що відгуки покривають
+     всі курси, а не лише ШІ. Порядок груп — як у переліку напрямів. */
+  const order = [
+    "ШІ та штучний інтелект",
+    "Кібербезпека й цифрова безпека",
+    "Графічний дизайн",
+    "Технології комп'ютерної обробки інформації",
+  ];
+  const groups = order
+    .map((name) => ({ name, items: site.reviews.filter((r) => r.group === name) }))
+    .filter((g) => g.items.length > 0);
+
   return (
     <Section id="reviews" title="Відгуки">
       <p className="reveal mb-10 max-w-xl text-base leading-relaxed text-muted">
-        Слухачі залишають оцінку після кожного курсу. Це відгуки, де мене названо
-        поіменно — з опитування, яке проводить ЛЦПТО ДСЗ.
+        Слухачі заповнюють анкету після кожного курсу. Нижче — схвальні
+        відгуки за напрямами, які я викладаю, з іменами авторів і датами.
       </p>
 
-      <dl className="reveal mb-12 flex flex-wrap gap-x-14 gap-y-6">
+      <dl className="reveal mb-14 flex flex-wrap gap-x-14 gap-y-6">
         {site.reviewStats.map((stat) => (
           <div key={stat.k}>
             <dt className="label">{stat.k}</dt>
@@ -181,32 +192,51 @@ function Reviews() {
         ))}
       </dl>
 
-      <ul className="grid grid-cols-1 gap-px border border-line bg-line md:grid-cols-2">
-        {featured.map((review) => (
-          <li
-            key={review.author}
-            className="reveal flex flex-col gap-4 bg-paper p-6 md:p-7"
-          >
-            <span aria-hidden className="h-0.5 w-10 shrink-0 bg-accent" />
-            <blockquote className="text-base leading-relaxed text-ink-soft">
-              {review.quote}
-            </blockquote>
-            <div className="mt-auto pt-2">
-              <p className="text-sm font-bold tracking-[-0.01em]">
-                {review.author}
-              </p>
-              <p className="label mt-1">
-                {review.course} · {review.date}
-              </p>
+      <div className="reveal space-y-14">
+        {groups.map((group) => (
+          <div key={group.name}>
+            {/* Заголовок напряму + лічильник: тримає ритм і показує обсяг */}
+            <div className="mb-5 flex items-baseline justify-between gap-4 border-b border-line pb-3">
+              <h3 className="text-base font-bold tracking-[-0.01em]">
+                {group.name}
+              </h3>
+              <span className="label shrink-0">
+                {group.items.length}{" "}
+                {group.items.length === 1 ? "відгук" : group.items.length < 5 ? "відгуки" : "відгуків"}
+              </span>
             </div>
-          </li>
-        ))}
-      </ul>
 
-      <p className="reveal mt-6 max-w-2xl text-xs leading-relaxed text-muted">
-        Відгуки наведено без правок, як їх написали слухачі. Джерело —
-        опитування після завершення курсів; показуємо лише ті, де викладача
-        названо особисто.
+            <ul className="grid grid-cols-1 gap-px border border-line bg-line md:grid-cols-2">
+              {group.items.map((review) => (
+                <li
+                  key={`${review.author}-${review.quote.slice(0, 24)}`}
+                  className="flex flex-col gap-4 bg-paper p-6 md:p-7"
+                >
+                  <span aria-hidden className="h-0.5 w-10 shrink-0 bg-accent" />
+                  <blockquote className="text-base leading-relaxed text-ink-soft">
+                    {review.quote}
+                  </blockquote>
+                  <div className="mt-auto pt-2">
+                    {/* Підпис помітно менший за цитату — має читатись як
+                        підпис під текстом, а не змагатися з ним. */}
+                    <p className="hand text-lg leading-tight text-ink">
+                      {review.author}
+                    </p>
+                    <p className="label mt-2">
+                      {review.course} · {review.date}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      <p className="reveal mt-8 max-w-2xl text-xs leading-relaxed text-muted">
+        Відгуки наведено дослівно, як їх написали слухачі. Джерело — анкета
+        ЛЦПТО ДСЗ після завершення курсів. Показано схвальні відгуки за
+        напрямами, які я викладаю.
       </p>
     </Section>
   );
