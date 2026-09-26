@@ -12,11 +12,6 @@ function Hero() {
         {/* Текстова колонка */}
         <div className="flex flex-col justify-between lg:col-span-7">
           <div>
-            <p className="label reveal flex items-center gap-3">
-              <span aria-hidden className="inline-block h-px w-8 bg-accent" />
-              {site.location}
-            </p>
-
             <h1 className="reveal display mt-6 text-[clamp(2.5rem,8.5vw,6rem)]">
               {site.name}
             </h1>
