@@ -2,6 +2,7 @@ import Image from "next/image";
 import { site } from "@/content/site";
 import { Footer, Header } from "@/components/chrome";
 import Reveal from "@/components/reveal";
+import CertIndex from "@/components/cert-index";
 
 /* ── Hero ─────────────────────────────────────────────────────── */
 
@@ -17,7 +18,7 @@ function Hero() {
 
           <p className="reveal mt-6 max-w-xl text-lg leading-relaxed text-ink-soft md:text-xl">
             {site.role}
-            <span aria-hidden className="mx-2 text-accent">
+            <span aria-hidden className="mx-2 text-accent-ink">
               ·
             </span>
             <span className="serif-accent text-ink">{site.orgShort}</span>
@@ -30,7 +31,7 @@ function Hero() {
           <div className="reveal mt-9 flex flex-wrap items-center gap-3">
             <a
               href="#work"
-              className="group inline-flex min-h-12 items-center gap-3 bg-accent px-6 py-3 text-sm font-semibold text-paper transition-colors hover:bg-ink"
+              className="lift group inline-flex min-h-12 items-center gap-3 bg-accent-solid px-6 py-3 text-sm font-semibold text-white hover:bg-ink"
             >
               Дивитись проєкти
               <span
@@ -42,7 +43,7 @@ function Hero() {
             </a>
             <a
               href={`mailto:${site.email}`}
-              className="inline-flex min-h-12 items-center border border-line-strong px-6 py-3 text-sm font-semibold transition-colors hover:border-accent hover:text-accent"
+              className="inline-flex min-h-12 items-center border border-line-strong px-6 py-3 text-sm font-semibold transition-colors hover:border-accent-ink hover:text-accent-ink-ink"
             >
               Написати листа
             </a>
@@ -72,16 +73,36 @@ function Hero() {
 
         {/* Смуга фактів — окремий рядок сітки, тому на мобільному вона
             стоїть ПІСЛЯ портрета, а на десктопі підіймається під кнопки
-            й закриває порожнечу в лівій колонці. */}
-        <dl className="reveal grid grid-cols-2 gap-x-6 gap-y-6 border-t border-line pt-8 sm:grid-cols-4 lg:col-span-7 lg:col-start-1 lg:row-start-2 lg:self-end">
-          {site.facts.map((fact) => (
-            <div key={fact.k}>
-              <dt className="label">{fact.k}</dt>
-              <dd className="mt-2 text-sm font-semibold leading-snug text-ink-soft">
-                {fact.v}
-              </dd>
-            </div>
-          ))}
+            й закриває порожнечу в лівій колонці.
+            Факт, значення якого починається з числа, дістає велику цифру:
+            «71%» очима читається за частку секунди, а той самий текст
+            дрібним кеглем губиться серед інших трьох. */}
+        <dl className="reveal grid grid-cols-2 gap-x-6 gap-y-7 border-t border-line pt-8 sm:grid-cols-4 lg:col-span-7 lg:col-start-1 lg:row-start-2 lg:self-end">
+          {site.facts.map((fact) => {
+            const parts = fact.v.match(/^(\d+(?:[.,]\d+)?%?)\s*(.*)$/);
+            const figure = parts?.[1];
+            const rest = parts?.[2];
+
+            return (
+              <div key={fact.k}>
+                <dt className="label">{fact.k}</dt>
+                {figure ? (
+                  <dd className="mt-2.5">
+                    <span className="stat-figure block text-4xl text-ink md:text-5xl">
+                      {figure}
+                    </span>
+                    <span className="mt-1.5 block text-sm font-medium leading-snug text-ink-soft">
+                      {rest}
+                    </span>
+                  </dd>
+                ) : (
+                  <dd className="mt-2.5 text-sm font-semibold leading-snug text-ink-soft">
+                    {fact.v}
+                  </dd>
+                )}
+              </div>
+            );
+          })}
         </dl>
       </div>
 
@@ -90,6 +111,22 @@ function Hero() {
       <p className="shell mt-6 text-xs leading-relaxed text-muted">{site.factsNote}</p>
     </section>
   );
+}
+
+/* Анкори для індексу тем: кирилиця в id валідна, але транслітерація
+   дає коротші й читабельніші посилання. */
+function slug(text: string) {
+  const map: Record<string, string> = {
+    а: "a", б: "b", в: "v", г: "h", ґ: "g", д: "d", е: "e", є: "ie", ж: "zh",
+    з: "z", и: "y", і: "i", ї: "i", й: "i", к: "k", л: "l", м: "m", н: "n",
+    о: "o", п: "p", р: "r", с: "s", т: "t", у: "u", ф: "f", х: "kh", ц: "ts",
+    ч: "ch", ш: "sh", щ: "shch", ь: "", ю: "iu", я: "ia", "'": "", " ": "-",
+  };
+  return text
+    .toLowerCase()
+    .split("")
+    .map((c) => map[c] ?? c)
+    .join("");
 }
 
 /* ── Маркі-стрічка ────────────────────────────────────────────── */
@@ -105,7 +142,7 @@ function Keywords() {
             className="label flex shrink-0 items-center gap-6 pr-6 text-ink-soft"
           >
             {word}
-            <span className="text-accent">◆</span>
+            <span className="text-accent-ink">◆</span>
           </span>
         ))}
       </div>
@@ -119,10 +156,15 @@ function Keywords() {
 function Section({
   id,
   title,
+  aside,
   children,
 }: {
   id: string;
   title: string;
+  /* Липкий блок у лівій колонці. Порожня ліва колонка на всю висоту
+     довгої секції читалась як недороблена — aside дає оку точку
+     повернення й водночас працює як навігація по секції. */
+  aside?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
@@ -131,6 +173,14 @@ function Section({
         <div className="grid grid-cols-1 gap-y-10 lg:grid-cols-12 lg:gap-x-12">
           <div className="lg:col-span-3">
             <h2 className="reveal display text-3xl md:text-4xl">{title}</h2>
+            {/* Обгортка має розмір 64×3 — саме її бачить спостерігач
+                появи. Внутрішня смуга лише масштабується. */}
+            <span aria-hidden className="reveal mt-5 block h-[3px] w-16">
+              <span className="accent-rule" />
+            </span>
+            {aside ? (
+              <div className="mt-8 hidden lg:sticky lg:top-20 lg:block">{aside}</div>
+            ) : null}
           </div>
           <div className="lg:col-span-9">{children}</div>
         </div>
@@ -193,13 +243,13 @@ function Reviews() {
   const card = (review: (typeof site.reviews)[number], dim = false) => (
     <li
       key={`${review.author}-${review.quote.slice(0, 24)}`}
-      className={`flex flex-col gap-4 bg-paper p-6 md:p-7 ${dim ? "opacity-90" : ""}`}
+      className={`flex flex-col gap-4 ${dim ? "opacity-90" : ""}`}
     >
       <span aria-hidden className="h-0.5 w-10 shrink-0 bg-accent" />
       <blockquote className="text-base leading-relaxed text-ink-soft">
         {review.quote}
       </blockquote>
-      <div className="mt-auto pt-2">
+      <div className="pt-1">
         <p className="hand text-lg leading-tight text-ink">{review.author}</p>
         <p className="label mt-2">
           {shortGroup[review.group] ?? review.group} · {review.date}
@@ -209,7 +259,35 @@ function Reviews() {
   );
 
   return (
-    <Section id="reviews" title="Відгуки">
+    <Section
+      id="reviews"
+      title="Відгуки"
+      aside={
+        /* Найчастіше питання до відгуків — «звідки вони». Відповідь
+           стоїть поруч, а не дрібним шрифтом під секцією. */
+        <div className="space-y-4">
+          <div>
+            <p className="label">Джерело</p>
+            <p className="mt-1.5 text-sm leading-relaxed text-muted">
+              Анкета ЛЦПТО ДСЗ, яку слухачі заповнюють після курсу.
+            </p>
+          </div>
+          <div>
+            <p className="label">Відбір</p>
+            <p className="mt-1.5 text-sm leading-relaxed text-muted">
+              Подано дослівно, без правок. Лише за напрямами, які я
+              викладаю.
+            </p>
+          </div>
+          <div>
+            <p className="label">Період</p>
+            <p className="mt-1.5 text-sm leading-relaxed text-muted">
+              2025–2026.
+            </p>
+          </div>
+        </div>
+      }
+    >
       <p className="reveal mb-10 max-w-xl text-base leading-relaxed text-muted">
         Слухачі заповнюють анкету після кожного курсу. Цитати подано
         дослівно — з іменами авторів і датами.
@@ -226,13 +304,13 @@ function Reviews() {
         ))}
       </dl>
 
-      <ul className="reveal grid grid-cols-1 gap-px border border-line bg-line md:grid-cols-2">
+      <ul className="reveal review-flow">
         {featured.map((review) => card(review))}
       </ul>
 
       {rest.length > 0 ? (
         <details className="reveal group mt-6 border border-line">
-          <summary className="label flex cursor-pointer list-none items-center justify-between gap-4 p-5 text-ink-soft transition-colors hover:text-accent">
+          <summary className="label flex cursor-pointer list-none items-center justify-between gap-4 p-5 text-ink-soft transition-colors hover:text-accent-ink">
             <span>
               Показати решту {rest.length}{" "}
               {rest.length < 5 ? "відгуки" : "відгуків"}
@@ -244,7 +322,7 @@ function Reviews() {
               +
             </span>
           </summary>
-          <ul className="grid grid-cols-1 gap-px border-t border-line bg-line md:grid-cols-2">
+          <ul className="review-flow">
             {rest.map((review) => card(review, true))}
           </ul>
         </details>
@@ -265,10 +343,14 @@ function Method() {
      заняття — і лише тоді відгуки, які це підтверджують. */
   return (
     <Section id="method" title="Як я навчаю">
-      <ol className="reveal grid grid-cols-1 gap-px border border-line bg-line sm:grid-cols-2">
+      <ol className="reveal card-grid grid-cols-1 sm:grid-cols-2">
         {site.method.map((item, i) => (
-          <li key={item.title} className="flex flex-col gap-3 bg-paper p-6 md:p-8">
-            <span className="label text-accent">{String(i + 1).padStart(2, "0")}</span>
+          <li
+            key={item.title}
+            style={{ "--reveal-delay": `${i * 90}ms` } as React.CSSProperties}
+            className="flex flex-col gap-3 bg-paper-2 p-6 hover:bg-paper md:p-8"
+          >
+            <span className="label text-accent-ink">{String(i + 1).padStart(2, "0")}</span>
             <span className="text-lg font-bold leading-snug tracking-[-0.01em]">
               {item.title}
             </span>
@@ -285,13 +367,45 @@ function Work() {
      довжини й у таблиці ламались на два рядки, а стек дрібними чипами
      праворуч читався як службова колонка. Картка дає назві дихати. */
   return (
-    <Section id="work" title="Проєкти">
+    <Section
+      id="work"
+      title="Проєкти"
+      aside={
+        /* Ліва колонка на всю висоту секції лишалась білою. Коротка
+           довідка дає їй призначення і відповідає на питання, яке
+           виникає при погляді на шість курсів: за якими критеріями
+           вони складені. */
+        <dl className="space-y-5">
+          <div>
+            <dt className="label">Обсяг</dt>
+            <dd className="mt-1.5 text-sm leading-relaxed text-muted">
+              Затверджені програми — 72 і 144 години; формат — короткі
+              модулі з практикою.
+            </dd>
+          </div>
+          <div>
+            <dt className="label">Підсумок</dt>
+            <dd className="mt-1.5 text-sm leading-relaxed text-muted">
+              Де є підсумковий проєкт, слухачі захищають власну роботу —
+              проєкт на своїх даних або власний сайт.
+            </dd>
+          </div>
+          <div>
+            <dt className="label">Матеріали</dt>
+            <dd className="mt-1.5 text-sm leading-relaxed text-muted">
+              Презентації та нотатки викладача до кожного слайда —
+              у відкритому доступі.
+            </dd>
+          </div>
+        </dl>
+      }
+    >
       <p className="reveal mb-12 max-w-xl text-base leading-relaxed text-muted">
         Курси, які веду. Для кожного — що саме даю слухачам і чим
         завершується навчання.
       </p>
 
-      <ul className="reveal grid grid-cols-1 gap-px border border-line bg-line md:grid-cols-2">
+      <ul className="reveal review-flow">
         {site.projects.map((project) => {
           const inner = (
             <>
@@ -302,7 +416,7 @@ function Work() {
                 </span>
               </span>
 
-              <span className="text-xl font-bold leading-tight tracking-[-0.02em] transition-colors group-hover:text-accent md:text-2xl">
+              <span className="text-xl font-bold leading-tight tracking-[-0.02em] transition-colors group-hover:text-accent-ink-ink md:text-2xl">
                 {project.title}
               </span>
 
@@ -317,15 +431,16 @@ function Work() {
                   </span>
                 ))}
                 {project.href ? (
-                  <span className="label text-accent transition-colors group-hover:text-ink">
-                    Відкрити ↗
+                  <span className="label text-accent-ink transition-colors group-hover:text-ink">
+                    Відкрити{" "}
+                    <span aria-hidden className="nudge">↗</span>
                   </span>
                 ) : null}
               </span>
             </>
           );
           const cls =
-            "group flex h-full flex-col gap-2 bg-paper p-6 transition-colors hover:bg-paper-2 md:p-8";
+            "lift group flex h-full flex-col gap-2 bg-paper-2 p-6 hover:bg-paper md:p-8";
           return (
             <li key={project.index} className="bg-paper">
               {project.href ? (
@@ -358,13 +473,13 @@ function CertCard({ cert }: { cert: (typeof site.certificates)[number] }) {
         {cert.href ? (
           <span
             aria-hidden
-            className="shrink-0 text-[10px] tracking-[0.12em] text-accent transition-colors group-hover:text-ink"
+            className="shrink-0 text-[10px] tracking-[0.12em] text-accent-ink transition-colors group-hover:text-ink"
           >
             ↗
           </span>
         ) : null}
       </span>
-      <span className="text-[15px] font-bold leading-snug tracking-[-0.01em] transition-colors group-hover:text-accent">
+      <span className="text-[15px] font-bold leading-snug tracking-[-0.01em] transition-colors group-hover:text-accent-ink-ink">
         {cert.title}
       </span>
       <span className="mt-auto pt-1 text-sm leading-snug text-muted">
@@ -376,15 +491,16 @@ function CertCard({ cert }: { cert: (typeof site.certificates)[number] }) {
           </span>
         ) : null}
         {cert.href ? (
-          <span className="mt-2 block text-xs font-semibold tracking-wide text-accent">
-            {cert.hrefLabel ?? "Перевірити →"}
+          <span className="mt-2 block text-xs font-semibold tracking-wide text-accent-ink">
+            {cert.hrefLabel ?? "Перевірити"}{" "}
+            <span aria-hidden className="nudge">→</span>
           </span>
         ) : null}
       </span>
     </>
   );
   const cls =
-    "group flex h-full flex-col gap-2 bg-paper p-5 text-left transition-colors hover:bg-paper-2";
+    "lift group flex h-full flex-col gap-2 bg-paper-2 p-5 text-left hover:bg-paper";
 
   return (
     <li className="bg-paper">
@@ -416,7 +532,26 @@ function Certificates() {
     .filter((g) => g.items.length > 0);
 
   return (
-    <Section id="certs" title="Сертифікати">
+    <Section
+      id="certs"
+      title="Сертифікати"
+      aside={
+        /* Індекс тем замість порожньої колонки. Підсвічує поточну тему
+           при прокрутці — інакше читався б як статична довідка. */
+        <div>
+          <CertIndex
+            groups={groups.map((g) => ({
+              name: g.name,
+              slug: slug(g.name),
+              count: g.items.length,
+            }))}
+          />
+          <p className="pt-3 text-xs leading-relaxed text-muted">
+            {site.certificates.length} програм · {groups.length} теми
+          </p>
+        </div>
+      }
+    >
       <p className="reveal mb-12 max-w-xl text-base leading-relaxed text-muted">
         {site.certificates.length} програм підвищення кваліфікації за трьома
         темами. Кожна картка веде на сторінку перевірки або курсу.
@@ -424,8 +559,8 @@ function Certificates() {
 
       <div className="reveal space-y-12">
         {groups.map((group) => (
-          <div key={group.name}>
-            <div className="mb-5 flex items-baseline justify-between gap-4 border-b border-line pb-3">
+          <div key={group.name} id={`cert-${slug(group.name)}`} className="scroll-mt-16">
+            <div className="group-rule mb-6 flex items-baseline justify-between gap-4 pb-3">
               <h3 className="text-base font-bold tracking-[-0.01em]">{group.name}</h3>
               <span className="label shrink-0">
                 {group.items.length}{" "}
@@ -436,7 +571,7 @@ function Certificates() {
                     : "сертифікатів"}
               </span>
             </div>
-            <ul className="grid auto-rows-fr grid-cols-1 gap-px border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="card-grid auto-rows-fr grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {group.items.map((cert) => (
                 <CertCard key={`${cert.year}-${cert.title}`} cert={cert} />
               ))}

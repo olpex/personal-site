@@ -2,37 +2,63 @@
 
 /* ─────────────────────────────────────────────────────────────
    Design tokens
-   Palette: warm paper + ink + single burnt-amber accent.
+   Palette: white ground + near-black ink + one vivid orange accent.
    No gradients, no glassmorphism, no purple. Editorial, not "AI".
+
+   ЧОМУ БІЛЕ ТЛО: теплий папір (#f5f2ed) давав контраст до чорнила
+   16.65, але другорядний текст на ньому тримався лише 5.02 — сторінка
+   читалась як вицвіла. На білому той самий текст дає 6.35, а сірі
+   поверхні перестають зливатися з тлом.
+
+   ЧОМУ ДВА ВІДТІНКИ АКЦЕНТУ: яскравий оранжевий (#ea580c) дає 3.56
+   на білому — цього досить для смуг, меж і великого тексту (поріг 3.0),
+   але НЕ досить для дрібного (поріг 4.5). Тому дрібний акцентний текст
+   бере --accent-ink (#c0390a, 5.48). Один колір на обидві ролі або
+   блякне, або не проходить AA.
    ───────────────────────────────────────────────────────────── */
 
 :root {
-  --paper: #f5f2ed;
-  --paper-2: #ece7df;
-  --ink: #14130f;
-  --ink-soft: #2c2a24;
-  --muted: #6d675c;
-  --line: rgba(20, 19, 15, 0.14);
-  --line-strong: rgba(20, 19, 15, 0.28);
-  --accent: #c2410c;
-  --accent-soft: rgba(194, 65, 12, 0.1);
+  --paper: #ffffff;
+  --paper-2: #f7f8fa;
+  --ink: #0f1013;
+  --ink-soft: #22242a;
+  --muted: #59606a;
+  --line: rgba(15, 16, 19, 0.12);
+  --line-strong: rgba(15, 16, 19, 0.26);
+  --accent: #ea580c;
+  --accent-ink: #c0390a;
+  /* Окремий відтінок для ЗАЛИВКИ під білим текстом: яскравий #ea580c
+     дає лише 3.56, тобто не проходить AA для дрібного тексту кнопки.
+     #d1440d дає 4.62 — мінімум, який проходить. */
+  --accent-solid: #d1440d;
+  --accent-soft: rgba(234, 88, 12, 0.1);
+  --focus-ring: rgba(234, 88, 12, 0.35);
 
-  --reveal-distance: 18px;
+  --reveal-distance: 22px;
+  --reveal-delay: 0ms;
 }
 
+/* Темна тема збережена, але НЕ вмикається автоматично: власник прямо
+   попросив біле тло, і показувати йому інше залежно від налаштувань
+   системи означало б не виконати прохання. Щоб повернути автоперемикання,
+   розкоментувати блок нижче. */
+/*
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #121110;
-    --paper-2: #1b1a17;
-    --ink: #f2efe9;
-    --ink-soft: #ddd8ce;
-    --muted: #948d80;
-    --line: rgba(242, 239, 233, 0.14);
-    --line-strong: rgba(242, 239, 233, 0.3);
-    --accent: #f08c00;
-    --accent-soft: rgba(240, 140, 0, 0.12);
+    --paper: #101114;
+    --paper-2: #17191d;
+    --ink: #f5f3ef;
+    --ink-soft: #e8e4dc;
+    --muted: #9aa1ab;
+    --line: rgba(245, 243, 239, 0.14);
+    --line-strong: rgba(245, 243, 239, 0.3);
+    --accent: #ff9a1f;
+    --accent-ink: #ffab45;
+    --accent-soft: rgba(255, 154, 31, 0.14);
+    --focus-ring: rgba(255, 154, 31, 0.4);
   }
 }
+*/
 
 @theme inline {
   --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
@@ -47,6 +73,8 @@
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
   --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-solid: var(--accent-solid);
   --color-accent-soft: var(--accent-soft);
 }
 
@@ -174,7 +202,46 @@
     }
   }
 
-  /* Paper grain — keeps large flat areas from looking synthetic */
+  /* Сітка карток: на теплому папері карти біліли на його тлі й тримали
+   форму самі. На білому тлі так не працює — усе зливається в масу.
+   Тому картки отримують підкладку --paper-2, а проміжок задається
+   через gap, а не через спільну межу кольором тла. */
+.card-grid {
+  display: grid;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+
+.card-grid > li,
+.card-grid > * {
+  background: var(--paper-2);
+}
+
+/* Відгуки: цитати різної довжини. У звичайній сітці рядок вирівнюється
+   за найвищою карткою, і в короткій цитаті між текстом і підписом
+   лишається діра (виміряно 172px). Колонки укладають картки за їхньою
+   висотою — дір немає, а кожна картка дістає власну межу. */
+.review-flow {
+  columns: 1;
+}
+
+@media (min-width: 768px) {
+  .review-flow {
+    columns: 2;
+    column-gap: 1.25rem;
+  }
+}
+
+.review-flow > li {
+  break-inside: avoid;
+  border: 1px solid var(--line);
+  background: var(--paper-2);
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Paper grain — keeps large flat areas from looking synthetic */
   .grain::before {
     content: "";
     position: fixed;
@@ -194,14 +261,90 @@
   opacity: 0;
   transform: translateY(var(--reveal-distance));
   transition:
-    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay);
   will-change: opacity, transform;
 }
 
 .reveal[data-visible="true"] {
   opacity: 1;
   transform: none;
+}
+
+/* ── Смуга під заголовком ─────────────────────────────────────────
+   Акцентна смуга росте з 0 до 100% при появі секції — рух без зсуву
+   тексту.
+
+   ПАСТКА: спостерігач появи має threshold 0.08, а елемент зі
+   scaleX(0) має нульову площу — ratio завжди 0, подія ніколи не
+   настає, і смуга лишається невидимою НАЗАВЖДИ. Тому .reveal
+   ставимо на ЗОВНІШНЮ обгортку (вона має повний розмір 64×3),
+   а масштабується вже внутрішня смуга. */
+.accent-rule {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.15s;
+}
+
+/* Межа під заголовком ГРУПИ (напряму, теми): на білому тонка сіра
+   лінія зникала. Двошарова межа — чорнильна згори й акцентна знизу —
+   дає орієнтир, не додаючи нічого зайвого. */
+.group-rule {
+  position: relative;
+  border-bottom: 1px solid var(--ink);
+}
+
+.group-rule::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  width: 2.5rem;
+  height: 2px;
+  background: var(--accent);
+}
+
+.reveal[data-visible="true"] > .accent-rule {
+  transform: scaleX(1);
+}
+
+/* Лічильник секції: велика цифра, що поводиться як ілюстрація, а не
+   як службовий текст. Порожня без контенту — тому лише там, де є що
+   показати. */
+.stat-figure {
+  font-family: var(--font-sans), sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 0.85;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Рух під курсором — тільки там, де елемент і так клікабельний.
+   Підняття на 2px читається як відгук, а не як анімація заради анімації. */
+.lift {
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.35s ease,
+    border-color 0.35s ease;
+}
+
+.lift:hover {
+  transform: translateY(-2px);
+}
+
+/* Стрілка, що «їде» вбік — для посилань на перевірку та відкриття. */
+.nudge {
+  display: inline-block;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.group:hover .nudge,
+a:hover .nudge {
+  transform: translateX(3px);
 }
 
 .marquee-track {
@@ -266,7 +409,14 @@
     animation: none;
   }
 
-  .link-underline {
+  .link-underline,
+  .lift,
+  .nudge,
+  .accent-rule {
     transition: none;
+  }
+
+  .accent-rule {
+    transform: scaleX(1);
   }
 }
