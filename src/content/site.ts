@@ -45,9 +45,9 @@ export const site = {
   statement:
     "Вчу вебдизайну, штучного інтелекту та SMM — і будую курси, які доводять студентів до результату.",
   email: "hello@example.com",
-  /** Шлях до фото на зріст. Поклади файл у /public/portrait.jpg */
-  portrait: "/portrait.svg",
-  portraitAlt: "Портрет на повний зріст",
+  /** Шлях до фото в /public. Поклади файл у /public/portrait.jpg */
+  portrait: "/portrait.jpg",
+  portraitAlt: "Особистий портрет",
 
   /* ── Про мене ─────────────────────────────────────────────── */
   about: [

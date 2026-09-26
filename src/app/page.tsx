@@ -74,12 +74,14 @@ function Hero() {
                 fill
                 priority
                 sizes="(max-width: 1024px) 100vw, 40vw"
-                className="object-cover object-top"
+                className="object-cover object-center"
               />
             </div>
             {/* Бурштинова смуга — прив'язка до акценту */}
             <span aria-hidden className="absolute -bottom-3 left-0 h-1.5 w-24 bg-accent" />
-            <figcaption className="label mt-7">{site.portraitAlt}</figcaption>
+            <figcaption className="label mt-7">
+              {site.shortName} — {site.role}
+            </figcaption>
           </figure>
         </div>
       </div>
