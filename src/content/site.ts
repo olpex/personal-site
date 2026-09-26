@@ -165,7 +165,7 @@ export const site = {
   socials: [
     { label: "LinkedIn", href: "https://linkedin.com/in/oleg-p-42225a111/" },
     { label: "YouTube — @youritperson", href: "https://youtube.com/@youritperson" },
-    { label: "Telegram", href: "https://t.me/User132309" },
+    { label: "Telegram — @User132309", href: "https://t.me/User132309" },
   ] as Social[],
 
   /* ── Сертифікати — дослівно з резюме (додаткова освіта) ─────── */
