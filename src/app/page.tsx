@@ -180,44 +180,51 @@ function Work() {
       </p>
 
       <ul className="divide-y divide-line border-y border-line">
-        {site.projects.map((project) => (
-          <li
-            key={project.index}
-            className="reveal grid grid-cols-1 gap-x-8 gap-y-3 py-7 md:grid-cols-12 md:items-baseline"
-          >
-            <span className="label md:col-span-1">{project.index}</span>
+        {site.projects.map((project) => {
+          const Cell = project.href ? "a" : "div";
+          const cellProps = project.href
+            ? { href: project.href, target: "_blank", rel: "noopener noreferrer" }
+            : {};
+          return (
+            <li key={project.index} className="reveal">
+              <Cell
+                {...cellProps}
+                className="group grid grid-cols-1 gap-x-8 gap-y-3 py-7 md:grid-cols-12 md:items-baseline"
+              >
+                <span className="label md:col-span-1">{project.index}</span>
 
-            <span className="md:col-span-4">
-              <span className="block text-xl font-bold tracking-[-0.02em] md:text-2xl">
-                {project.title}
-              </span>
-              <span className="label mt-1.5 block">
-                {project.kind} · {project.year}
-              </span>
-            </span>
-
-            <span className="text-sm leading-relaxed text-muted md:col-span-5">
-              {project.outcome}
-            </span>
-
-            <span className="flex flex-wrap items-center gap-2 md:col-span-2 md:justify-end">
-              {project.stack.length > 0 ? (
-                project.stack.map((tool) => (
-                  <span
-                    key={tool}
-                    className="label border border-line px-2 py-1 text-ink-soft"
-                  >
-                    {tool}
+                <span className="md:col-span-4">
+                  <span className="block text-xl font-bold tracking-[-0.02em] transition-colors group-hover:text-accent md:text-2xl">
+                    {project.title}
                   </span>
-                ))
-              ) : (
-                <span aria-hidden className="label opacity-0">
-                  —
+                  <span className="label mt-1.5 block">
+                    {project.kind} · {project.year}
+                  </span>
                 </span>
-              )}
-            </span>
-          </li>
-        ))}
+
+                <span className="text-sm leading-relaxed text-muted md:col-span-5">
+                  {project.outcome}
+                </span>
+
+                <span className="flex flex-wrap items-center gap-2 md:col-span-2 md:justify-end">
+                  {project.stack.map((tool) => (
+                    <span
+                      key={tool}
+                      className="label border border-line px-2 py-1 text-ink-soft"
+                    >
+                      {tool}
+                    </span>
+                  ))}
+                  {project.href ? (
+                    <span className="label text-accent transition-colors group-hover:text-ink">
+                      Відкрити ↗
+                    </span>
+                  ) : null}
+                </span>
+              </Cell>
+            </li>
+          );
+        })}
       </ul>
     </Section>
   );
