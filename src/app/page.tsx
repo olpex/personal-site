@@ -652,8 +652,8 @@ export default function Home() {
         <Keywords />
         <About />
         <Method />
-        <Reviews />
         <Work />
+        <Reviews />
         <Certificates />
         <Contact />
       </main>

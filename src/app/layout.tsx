@@ -136,8 +136,8 @@ function breadcrumbSchema() {
     { name: "Головна", url: site.url },
     { name: "Про мене", url: `${site.url}#about` },
     { name: "Як навчаю", url: `${site.url}#method` },
-    { name: "Відгуки", url: `${site.url}#reviews` },
     { name: "Проєкти", url: `${site.url}#work` },
+    { name: "Відгуки", url: `${site.url}#reviews` },
     { name: "Сертифікати", url: `${site.url}#certs` },
     { name: "Контакти", url: `${site.url}#contact` },
   ];

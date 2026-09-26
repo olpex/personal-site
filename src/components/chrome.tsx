@@ -10,12 +10,9 @@ export function Header() {
         >
           {[
             { href: "#about", label: "Про мене", wide: false },
-            /* «Як навчаю» ховаємо лише на найвужчих екранах (<400px):
-               п'ять пунктів там не вміщаються, а секція лишається
-               досяжною прокруткою. На решті ширин — видно. */
             { href: "#method", label: "Як навчаю", wide: true },
-            { href: "#reviews", label: "Відгуки", wide: false },
             { href: "#work", label: "Проєкти", wide: false },
+            { href: "#reviews", label: "Відгуки", wide: false },
             { href: "#certs", label: "Сертифікати", wide: false },
           ].map((item) => (
             <a
