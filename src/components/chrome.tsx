@@ -9,18 +9,16 @@ export function Header() {
           className="nav-tight flex items-center gap-3 md:gap-7"
         >
           {[
-            { href: "#about", label: "Про мене", wide: false },
-            { href: "#method", label: "Як навчаю", wide: true },
-            { href: "#work", label: "Проєкти", wide: false },
-            { href: "#reviews", label: "Відгуки", wide: false },
-            { href: "#certs", label: "Сертифікати", wide: false },
+            { href: "#about", label: "Про мене" },
+            { href: "#method", label: "Як навчаю" },
+            { href: "#work", label: "Проєкти" },
+            { href: "#reviews", label: "Відгуки" },
+            { href: "#certs", label: "Сертифікати" },
           ].map((item) => (
             <a
               key={item.href}
               href={item.href}
-              className={`label link-underline h-11 items-center whitespace-nowrap text-ink-soft ${
-                item.wide ? "flex max-[399px]:hidden" : "flex"
-              }`}
+              className="label link-underline flex h-11 items-center whitespace-nowrap text-ink-soft"
             >
               {item.label}
             </a>
