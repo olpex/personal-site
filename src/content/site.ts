@@ -168,22 +168,22 @@ export const site = {
     { label: "Telegram — @User132309", href: "https://t.me/User132309" },
   ] as Social[],
 
-  /* ── Сертифікати — дослівно з резюме (додаткова освіта) ─────── */
+  /* ── Сертифікати — дослівно з резюме, відсортовано за роком ─── */
   certificates: [
+    { title: "Google AI", issuer: "Google", year: "2026" },
+    { title: "Design Prompts for Everyday Work Tasks", issuer: "Google", year: "2026" },
+    { title: "Академія ШІ для освітян", issuer: "Google", year: "2025" },
+    { title: "AI-tools for Education", issuer: "EPAM", year: "2025" },
+    { title: "OSINT — розвідка з відкритих джерел та інфобезпека", issuer: "Prometheus", year: "2025" },
+    { title: "Фактчек: довіряй-перевіряй", issuer: "EdEra / VoxUkraine", year: "2025" },
     { title: "Google Cybersecurity", issuer: "Google", year: "2024", note: "6 міс., сертифікат" },
-    { title: "Кібербезпека для освітян", issuer: "Skills4Recovery", year: "2024", note: "1 міс." },
     { title: "Кібербезпека для освітян — просунутий рівень для тренерів", issuer: "Skills4Recovery", year: "2024" },
+    { title: "Кібербезпека для освітян", issuer: "Skills4Recovery", year: "2024", note: "1 міс." },
     { title: "Introduction to Cybersecurity", issuer: "Cisco Networking Academy", year: "2024" },
     { title: "Cybersecurity Foundation", issuer: "Palo Alto Networks", year: "2024" },
     { title: "Основи кібербезпеки для бізнесу", issuer: "GOOGLE / ISSP", year: "2024" },
-    { title: "OSINT — розвідка з відкритих джерел та інфобезпека", issuer: "Prometheus", year: "2025" },
-    { title: "AI-tools for Education", issuer: "EPAM", year: "2025" },
-    { title: "Академія ШІ для освітян", issuer: "Google", year: "2025" },
-    { title: "Фактчек: довіряй-перевіряй", issuer: "EdEra / VoxUkraine", year: "2025" },
-    { title: "Design Prompts for Everyday Work Tasks", issuer: "Google", year: "2026" },
-    { title: "Google AI", issuer: "Google", year: "2026" },
-    { title: "Опанування функціоналу Moodle 4.0", issuer: "Skills4Recovery", year: "2023" },
     { title: "Адміністрування Moodle 4.0", issuer: "Skills4Recovery", year: "2023" },
+    { title: "Опанування функціоналу Moodle 4.0", issuer: "Skills4Recovery", year: "2023" },
   ] as Certificate[],
 
   keywords: [
