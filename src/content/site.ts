@@ -1,9 +1,7 @@
 /**
  * ЄДИНЕ МІСЦЕ ДЛЯ КОНТЕНТУ САЙТУ.
- * Джерела: резюме Олег Паращук (2026-08-18) + сторінки ЛЦПТО ДСЗ — лише
- * обсяги курсів (72/144 год) з Реєстру програм 2026. Загальна інформація
- * про заклад (підпорядкування, фінансування Фондом, 16/19 професій,
- * адреса/телефон центру) — навмисно не виноситься: сайт про викладача.
+ * Джерела: резюме Олег Паращук (2026-08-18) + LinkedIn oleg-p-42225a111 + ЛЦПТО Реєстр (години).
+ * Загальна інформація про заклад — навмисно не виноситься.
  */
 
 export type Project = {
@@ -34,14 +32,14 @@ export type Certificate = {
   issuer: string;
   year: string;
   note?: string;
+  /** Пряме посилання для перевірки: credential або сторінка курсу */
+  href?: string;
+  /** Підпис посилання, що побачить відвідувач */
+  hrefLabel?: string;
+  credentialId?: string;
 };
 
 export const site = {
-  /* ── Ідентичність ───────────────────────────────────────────
-   * Посада й категорія — дослівно з резюме + сторінки кадрів ЛЦПТО:
-   * «Викладач інформаційних технологій — спеціаліст вищої категорії»,
-   * 7 профільних предметів для 4112/4113 + інформбезпека + англ. за ПС.
-   */
   name: "Паращук Олег Леонідович",
   shortName: "О. Паращук",
   role: "Викладач інформаційних технологій",
@@ -50,16 +48,10 @@ export const site = {
   location: "Львів",
   statement:
     "Викладаю п'ять напрямів — від обробки інформації та «Цифрового світу» до ШІ, кібербезпеки/OSINT і вебдизайну — як інтенсивні модулі, де кожен слухач завершує з готовим проєктом і чіткими критеріями оцінювання.",
-  // Контакт — з резюме (публічний)
   email: "olppara@gmail.com",
   portrait: "/portrait.jpg",
   portraitAlt: "Паращук Олег Леонідович — портрет",
 
-  /* ── Про мене ───────────────────────────────────────────────
-   * Відібрано лише викладацьке з резюме; нерелевантне (касир, менеджер,
-   * інженер Ощадбанку тощо) — опущено. Освіта: Даугавпілський університет,
-   * бакалавр інформатики/математики (1989–1994) + бакалавр економіки (1995–2000).
-   */
   about: [
     "Викладач інформаційних технологій — спеціаліст вищої категорії. З вересня 2019 викладаю у ЛЦПТО ДСЗ: 7 профільних предметів для професій 4112 «Оператор комп'ютерного набору» та 4113 «Оператор з обробки інформації та ПЗ» — інформаційна безпека й англійська за професійним спрямуванням включно. Старт викладання — 1994 (математика та інформатика, Латвія), з 2000 — комп'ютерні курси PROMIS, з 2004 — інформатика у львівській СЗШ №35. Загалом понад 30 років у викладанні; останні 7 — безперервно в ЛЦПТО ДСЗ.",
     "Будую курси як короткі модулі з практикою на реальних кейсах слухачів і щоденним зворотним зв'язком. Пояснюю складне простою мовою — без води й жаргону. Під це системно навчаюсь сам: Google Cybersecurity (2024), Cisco Introduction to Cybersecurity, Palo Alto Cybersecurity Foundation, Prometheus OSINT та кібербезпека для освітян (просунутий рівень), EPAM AI-tools for Education, Google Академія ШІ, Moodle 4.0 — адміністрування й функціонал.",
@@ -68,13 +60,9 @@ export const site = {
     { k: "Категорія", v: "Спеціаліст вищої категорії" },
     { k: "Стаж викладання", v: "з 1994 · 7 років у ЛЦПТО ДСЗ" },
     { k: "Програм", v: "5 напрямів · 72–144 год" },
-    { k: "Сертифікація", v: "14+ · Google · Cisco · Prometheus" },
+    { k: "Сертифікація", v: "20 · Google · Cisco · Prometheus" },
   ],
 
-  /* ── Проєкти — 5 напрямів викладання ─────────────────────────
-   * Назви — з кадрового блоку ЛЦПТО; години — з Реєстру освітніх програм
-   * підвищення кваліфікації ЛЦПТО на 2026 (єдине, що взято із сайту закладу).
-   */
   projects: [
     {
       index: "01",
@@ -132,7 +120,6 @@ export const site = {
     },
   ] as Project[],
 
-  /* ── Досвід — лише викладацьке (з резюме) ─────────────────── */
   experience: [
     {
       period: "09.2019 — дотепер",
@@ -158,32 +145,177 @@ export const site = {
     },
   ] as Experience[],
 
-  /* ── Освіта (з резюме) — для секції досвіду/про мене ──────── */
   educationLabel: "Освіта: Даугавпілський університет — бакалавр інформатики та математики (1989–1994), бакалавр економіки (1995–2000)",
 
-  /* ── Посилання — лише особисті/навчальні (з резюме) ───────── */
   socials: [
     { label: "LinkedIn", href: "https://linkedin.com/in/oleg-p-42225a111/" },
     { label: "YouTube — @youritperson", href: "https://youtube.com/@youritperson" },
     { label: "Telegram — @User132309", href: "https://t.me/User132309" },
   ] as Social[],
 
-  /* ── Сертифікати — дослівно з резюме, відсортовано за роком ─── */
+  /* ── Сертифікати ──────────────────────────────────────────────
+   * Звірено з резюме (14) + LinkedIn (10). Резюме містило узагальнене
+   * "Google AI" — на LinkedIn це 6 окремих сертифікатів Google (лютий 2026)
+   * з верифікованими ID. Додано відсутній на сайті GIZ/Articulate (LinkedIn).
+   * Для кожного — href: або прямий credential (Coursera/Credly), або
+   * офіційна сторінка курсу (Prometheus, EdEra, Google, Palo Alto, EPAM).
+   * Сортування: newest-first.
+   */
   certificates: [
-    { title: "Google AI", issuer: "Google", year: "2026" },
-    { title: "Design Prompts for Everyday Work Tasks", issuer: "Google", year: "2026" },
-    { title: "Академія ШІ для освітян", issuer: "Google", year: "2025" },
-    { title: "AI-tools for Education", issuer: "EPAM", year: "2025" },
-    { title: "OSINT — розвідка з відкритих джерел та інфобезпека", issuer: "Prometheus", year: "2025" },
-    { title: "Фактчек: довіряй-перевіряй", issuer: "EdEra / VoxUkraine", year: "2025" },
-    { title: "Google Cybersecurity", issuer: "Google", year: "2024", note: "6 міс., сертифікат" },
-    { title: "Кібербезпека для освітян — просунутий рівень для тренерів", issuer: "Skills4Recovery", year: "2024" },
-    { title: "Кібербезпека для освітян", issuer: "Skills4Recovery", year: "2024", note: "1 міс." },
-    { title: "Introduction to Cybersecurity", issuer: "Cisco Networking Academy", year: "2024" },
-    { title: "Cybersecurity Foundation", issuer: "Palo Alto Networks", year: "2024" },
-    { title: "Основи кібербезпеки для бізнесу", issuer: "GOOGLE / ISSP", year: "2024" },
-    { title: "Адміністрування Moodle 4.0", issuer: "Skills4Recovery", year: "2023" },
-    { title: "Опанування функціоналу Moodle 4.0", issuer: "Skills4Recovery", year: "2023" },
+    // 2026 — Google (Coursera) — верифіковані на Oleg Parashchuk
+    {
+      title: "AI Fundamentals",
+      issuer: "Google · Coursera",
+      year: "2026",
+      credentialId: "JGBEAPJC7LL5",
+      href: "https://www.coursera.org/account/accomplishments/records/JGBEAPJC7LL5",
+      hrefLabel: "Перевірити сертифікат на Coursera",
+    },
+    {
+      title: "Design Prompts for Everyday Work Tasks",
+      issuer: "Google · Coursera",
+      year: "2026",
+      credentialId: "UW8TH8BBE3XG",
+      href: "https://www.coursera.org/account/accomplishments/records/UW8TH8BBE3XG",
+      hrefLabel: "Перевірити сертифікат на Coursera",
+    },
+    {
+      title: "AI for Writing and Communicating",
+      issuer: "Google · Coursera",
+      year: "2026",
+      credentialId: "CRSZ2RZ5WF42",
+      href: "https://www.coursera.org/account/accomplishments/records/CRSZ2RZ5WF42",
+      hrefLabel: "Перевірити сертифікат на Coursera",
+    },
+    {
+      title: "AI for Data Analysis",
+      issuer: "Google · Coursera",
+      year: "2026",
+      credentialId: "XV4KAQSSP9NM",
+      href: "https://www.coursera.org/account/accomplishments/records/XV4KAQSSP9NM",
+      hrefLabel: "Перевірити сертифікат на Coursera",
+    },
+    {
+      title: "AI for Content Creation",
+      issuer: "Google · Coursera",
+      year: "2026",
+      credentialId: "MFFQBYPAOPT9",
+      href: "https://www.coursera.org/account/accomplishments/records/MFFQBYPAOPT9",
+      hrefLabel: "Перевірити сертифікат на Coursera",
+    },
+    {
+      title: "AI for Research and Insights",
+      issuer: "Google · Coursera",
+      year: "2026",
+      credentialId: "UMGRIEWG1CZM",
+      href: "https://www.coursera.org/account/accomplishments/records/UMGRIEWG1CZM",
+      hrefLabel: "Перевірити сертифікат на Coursera",
+    },
+    {
+      title: "AI for Brainstorming and Planning",
+      issuer: "Google · Coursera",
+      year: "2026",
+      credentialId: "K9MXJ6FHOV05",
+      href: "https://www.coursera.org/account/accomplishments/records/K9MXJ6FHOV05",
+      hrefLabel: "Перевірити сертифікат на Coursera",
+    },
+    // 2025
+    {
+      title: "Академія ШІ для освітян",
+      issuer: "Google",
+      year: "2025",
+      href: "https://prometheus.org.ua/prometheus-free/ai-expert",
+      hrefLabel: "Сторінка курсу (Prometheus / Google)",
+    },
+    {
+      title: "AI-tools for Education",
+      issuer: "EPAM",
+      year: "2025",
+      href: "https://www.epam.com/industries/education/epam-dial-for-education",
+      hrefLabel: "Програма EPAM DIAL for Education",
+    },
+    {
+      title: "OSINT — розвідка з відкритих джерел та інфобезпека",
+      issuer: "Prometheus",
+      year: "2025",
+      href: "https://prometheus.org.ua/prometheus-free/osint-open-source-intelligence/",
+      hrefLabel: "Сторінка курсу на Prometheus",
+    },
+    {
+      title: "Фактчек: довіряй-перевіряй",
+      issuer: "EdEra / VoxUkraine",
+      year: "2025",
+      href: "https://study.ed-era.com/courses/course/5129",
+      hrefLabel: "Сторінка курсу на EdEra",
+    },
+    // 2024
+    {
+      title: "Google Cybersecurity — спеціалізація (8 курсів)",
+      issuer: "Google · Coursera",
+      year: "2024",
+      note: "6 міс., сертифікат",
+      credentialId: "UWNNNRLVUU74",
+      href: "https://www.coursera.org/account/accomplishments/specialization/UWNNNRLVUU74",
+      hrefLabel: "Перевірити спеціалізацію на Coursera",
+    },
+    {
+      title: "Кібербезпека для освітян — просунутий рівень для тренерів",
+      issuer: "Skills4Recovery · Mondo / GIZ",
+      year: "2024",
+      href: "https://mondo.org.ee/uk/projektid/skills4recovery/",
+      hrefLabel: "Програма Skills4Recovery",
+    },
+    {
+      title: "Кібербезпека для освітян",
+      issuer: "Skills4Recovery · Mondo / GIZ",
+      year: "2024",
+      note: "1 міс.",
+      href: "https://mondo.org.ee/uk/projektid/skills4recovery/",
+      hrefLabel: "Програма Skills4Recovery",
+    },
+    {
+      title: "Introduction to Cybersecurity",
+      issuer: "Cisco Networking Academy",
+      year: "2024",
+      href: "https://www.credly.com/badges/f674c228-0348-431b-b6c8-e6dcfc07f792/linked_in_profile",
+      hrefLabel: "Перевірити бейдж на Credly",
+    },
+    {
+      title: "Cybersecurity Foundation",
+      issuer: "Palo Alto Networks",
+      year: "2024",
+      href: "https://www.paloaltonetworks.com/services/education/academy/educator",
+      hrefLabel: "Програма Palo Alto Cybersecurity Academy",
+    },
+    {
+      title: "Основи кібербезпеки для бізнесу",
+      issuer: "GOOGLE / ISSP",
+      year: "2024",
+      href: "https://rsvp.withgoogle.com/events/cybersecurity-sme-ua",
+      hrefLabel: "Програма Google «Безпечніше з Google»",
+    },
+    {
+      title: "Створюємо електронний навчальний контент в Articulate",
+      issuer: "GIZ (Німеччина) & Техноматика",
+      year: "2024",
+      href: "https://www.giz.de/en/worldwide/132119.html",
+      hrefLabel: "Проєкт GIZ — опис програми",
+    },
+    // 2023
+    {
+      title: "Адміністрування Moodle 4.0",
+      issuer: "Skills4Recovery · Mondo / GIZ",
+      year: "2023",
+      href: "https://mondo.org.ee/uk/projektid/skills4recovery/",
+      hrefLabel: "Програма Skills4Recovery",
+    },
+    {
+      title: "Опанування функціоналу Moodle 4.0",
+      issuer: "Skills4Recovery · Mondo / GIZ",
+      year: "2023",
+      href: "https://mondo.org.ee/uk/projektid/skills4recovery/",
+      hrefLabel: "Програма Skills4Recovery",
+    },
   ] as Certificate[],
 
   keywords: [

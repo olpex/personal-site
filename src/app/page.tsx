@@ -253,27 +253,76 @@ function Certificates() {
   return (
     <Section id="certs" index="04" title="Сертифікати">
       <p className="reveal mb-10 max-w-xl text-base leading-relaxed text-muted">
-        {site.certificates.length} програм підвищення кваліфікації — щоб те, що я
-        викладаю, було підкріплене практикою й актуальними інструментами.
+        {site.certificates.length} програм підвищення кваліфікації — кожна з
+        посиланням на перевірку. Натисни картку, щоб відкрити сертифікат або
+        сторінку курсу.
       </p>
 
       <ul className="reveal grid grid-cols-1 gap-px border border-line bg-line sm:grid-cols-2">
-        {site.certificates.map((cert) => (
-          <li
-            key={`${cert.year}-${cert.title}`}
-            className="flex flex-col gap-2 bg-paper p-6"
-          >
-            <span className="label">{cert.year}</span>
-            <span className="text-base font-bold leading-snug tracking-[-0.01em]">
-              {cert.title}
-            </span>
-            <span className="mt-auto pt-1 text-sm text-muted">
-              {cert.issuer}
-              {cert.note ? ` · ${cert.note}` : ""}
-            </span>
-          </li>
-        ))}
+        {site.certificates.map((cert) => {
+          const inner = (
+            <>
+              <span className="label flex items-center justify-between gap-2">
+                <span>{cert.year}</span>
+                {cert.href ? (
+                  <span
+                    aria-hidden
+                    className="shrink-0 text-[10px] tracking-[0.12em] text-accent transition-colors group-hover:text-ink"
+                  >
+                    ↗
+                  </span>
+                ) : null}
+              </span>
+              <span className="text-base font-bold leading-snug tracking-[-0.01em] transition-colors group-hover:text-accent">
+                {cert.title}
+              </span>
+              <span className="mt-auto pt-1 text-sm leading-snug text-muted">
+                <span>{cert.issuer}</span>
+                {cert.note ? <span> · {cert.note}</span> : null}
+                {cert.credentialId ? (
+                  <span className="block pt-1 font-mono text-[11px] tracking-wide text-muted/80">
+                    ID {cert.credentialId}
+                  </span>
+                ) : null}
+                {cert.href ? (
+                  <span className="mt-2 block text-xs font-semibold tracking-wide text-accent group-hover:underline">
+                    {cert.hrefLabel ?? "Перевірити →"}
+                  </span>
+                ) : null}
+              </span>
+            </>
+          );
+          const cls =
+            "group flex flex-col gap-2 bg-paper p-6 text-left transition-colors hover:bg-paper-2";
+          return cert.href ? (
+            <li key={`${cert.year}-${cert.title}`} className="bg-paper">
+              <a
+                href={cert.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${cert.title} — ${cert.hrefLabel ?? "відкрити перевірку"}`}
+                className={cls}
+              >
+                {inner}
+              </a>
+            </li>
+          ) : (
+            <li
+              key={`${cert.year}-${cert.title}`}
+              className="flex flex-col gap-2 bg-paper p-6"
+            >
+              {inner}
+            </li>
+          );
+        })}
       </ul>
+
+      <p className="reveal mt-6 max-w-2xl text-xs leading-relaxed text-muted">
+        Посилання з позначкою ↗ відкриваються в новій вкладці. Сертифікати
+        Coursera / Credly верифікуються за ID на ім&apos;я Oleg Parashchuk; для
+        інших програм — офіційна сторінка курсу, де видається сертифікат після
+        завершення.
+      </p>
     </Section>
   );
 }
