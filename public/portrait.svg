@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" width="600" height="800" role="img" aria-label="Місце для фото на повний зріст">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e7e2d8"/>
+      <stop offset="1" stop-color="#d8d2c5"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#14130f" stroke-opacity="0.06" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="600" height="800" fill="url(#bg)"/>
+  <rect width="600" height="800" fill="url(#grid)"/>
+
+  <!-- Силует фігури на повний зріст -->
+  <g fill="#14130f" fill-opacity="0.14">
+    <circle cx="300" cy="196" r="66"/>
+    <path d="M300 268c-72 0-118 44-130 108l-26 152c-3 18 8 30 24 30h264c16 0 27-12 24-30l-26-152c-12-64-58-108-130-108z"/>
+    <rect x="188" y="546" width="52" height="196" rx="18"/>
+    <rect x="360" y="546" width="52" height="196" rx="18"/>
+  </g>
+
+  <!-- Бурштиновий акцент -->
+  <rect x="48" y="740" width="96" height="6" fill="#c2410c"/>
+
+  <!-- Підпис -->
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#14130f" fill-opacity="0.5">
+    <text x="48" y="56" font-size="15" letter-spacing="2.4">ФОТО · 3:4</text>
+    <text x="48" y="82" font-size="13" letter-spacing="1.6" fill-opacity="0.4">заміни на /public/portrait.jpg</text>
+  </g>
+</svg>
