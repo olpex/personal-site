@@ -36,6 +36,9 @@
 
   --reveal-distance: 22px;
   --reveal-delay: 0ms;
+  /* Ледь помітне заокруглення: 5px читається як навмисна деталь,
+     а не як «картки з bootstrap». Більше — і сторінка стає м'якою. */
+  --radius-card: 5px;
 }
 
 /* Темна тема збережена, але НЕ вмикається автоматично: власник прямо
@@ -202,20 +205,35 @@
     }
   }
 
-  /* Сітка карток: на теплому папері карти біліли на його тлі й тримали
+  /* Сітка карток: на теплому папері картки біліли на його тлі й тримали
    форму самі. На білому тлі так не працює — усе зливається в масу.
-   Тому картки отримують підкладку --paper-2, а проміжок задається
-   через gap, а не через спільну межу кольором тла. */
+   Тому картки мають підкладку --paper-2 і ВЛАСНУ межу.
+
+   Чому не спільна 1px-межа, як було раніше: із заокругленнями кути
+   сусідніх карток наїжджали один на одного й сітка виглядала поламаною.
+   Реальний проміжок + радіус роблять картки картками, а не комірками
+   таблиці. */
 .card-grid {
   display: grid;
-  gap: 1px;
-  background: var(--line);
-  border: 1px solid var(--line);
+  gap: 0.75rem;
 }
 
-.card-grid > li,
-.card-grid > * {
+.card-grid > li {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
   background: var(--paper-2);
+}
+
+/* Елемент, що заповнює картку (посилання або обгортка вмісту), мусить
+   успадкувати радіус, інакше його прямокутне тло вилазить за
+   заокруглені кути.
+
+   ПАСТКА: НЕ використовувати `.card-grid > li > *` — у картках методу
+   діти є звичайними `<span>` у flex-колонці, і `height: 100%` розтягнув
+   би кожен із них на всю висоту картки. Тому — окремий клас. */
+.card-inner {
+  height: 100%;
+  border-radius: inherit;
 }
 
 /* Відгуки: цитати різної довжини. У звичайній сітці рядок вирівнюється
@@ -234,11 +252,42 @@
 }
 
 .review-flow > li {
+  position: relative;
   break-inside: avoid;
   border: 1px solid var(--line);
+  border-radius: var(--radius-card);
   background: var(--paper-2);
   padding: 1.5rem;
   margin-bottom: 1.25rem;
+}
+
+/* ── Мікроанімації картки відгуку ────────────────────────────────
+   Три рухи, і жоден не додає нових елементів:
+   1) наявна акцентна смуга ВИДОВЖУЄТЬСЯ при наведенні (була 2.5rem);
+   2) картка підіймається на 3px і дістає м'яку тінь;
+   3) рукописний підпис автора підсвічується акцентом.
+   Перший рух і є та «ледь помітна» деталь, якої не було: смуга
+   реагує на курсор, а не просто стоїть. */
+.review-dash {
+  display: block;
+  height: 2px;
+  width: 2.5rem;
+  flex-shrink: 0;
+  background: var(--accent);
+  transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.review-card:hover .review-dash,
+.review-card:focus-within .review-dash {
+  width: 100%;
+}
+
+.review-card .hand {
+  transition: color 0.35s ease;
+}
+
+.review-card:hover .hand {
+  color: var(--accent-ink);
 }
 
 /* Paper grain — keeps large flat areas from looking synthetic */
@@ -257,6 +306,27 @@
    Motion — scroll reveal, marquee, underline
    ───────────────────────────────────────────────────────────── */
 
+/* ── ПОЗА шаром: ці правила мусять перекривати .reveal (що також
+   поза шаром). @layer utilities має найнижчу специфічність, тому
+   hover-/transition-правила, що взаємодіють із .reveal, ТІЛЬКИ тут. */
+.card-grid > li,
+.review-flow > li {
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+.card-grid > li:hover,
+.review-flow > li:hover,
+.review-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--line-strong);
+  box-shadow: 0 10px 30px -18px rgba(15, 16, 19, 0.4);
+}
+.review-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 34px -20px rgba(15, 16, 19, 0.45);
+}
 .reveal {
   opacity: 0;
   transform: translateY(var(--reveal-distance));
@@ -412,8 +482,22 @@ a:hover .nudge {
   .link-underline,
   .lift,
   .nudge,
-  .accent-rule {
+  .accent-rule,
+  .card-grid > li,
+  .review-flow > li,
+  .review-dash,
+  .review-card .hand {
     transition: none;
+  }
+
+  .card-grid > li:hover,
+  .review-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .review-card:hover .review-dash {
+    width: 2.5rem;
   }
 
   .accent-rule {

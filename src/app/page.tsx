@@ -240,12 +240,13 @@ function Reviews() {
   const featured = site.reviews.filter((r) => r.featured);
   const rest = site.reviews.filter((r) => !r.featured);
 
-  const card = (review: (typeof site.reviews)[number], dim = false) => (
+  const card = (review: (typeof site.reviews)[number], dim = false, i = 0) => (
     <li
+      style={{ "--reveal-delay": `${Math.min(i, 5) * 70}ms` } as React.CSSProperties}
       key={`${review.author}-${review.quote.slice(0, 24)}`}
-      className={`flex flex-col gap-4 ${dim ? "opacity-90" : ""}`}
+      className={`review-card reveal flex flex-col gap-4 ${dim ? "opacity-90" : ""}`}
     >
-      <span aria-hidden className="h-0.5 w-10 shrink-0 bg-accent" />
+      <span aria-hidden className="review-dash" />
       <blockquote className="text-base leading-relaxed text-ink-soft">
         {review.quote}
       </blockquote>
@@ -305,7 +306,7 @@ function Reviews() {
       </dl>
 
       <ul className="reveal review-flow">
-        {featured.map((review) => card(review))}
+        {featured.map((review, i) => card(review, false, i))}
       </ul>
 
       {rest.length > 0 ? (
@@ -323,7 +324,7 @@ function Reviews() {
             </span>
           </summary>
           <ul className="review-flow">
-            {rest.map((review) => card(review, true))}
+            {rest.map((review, i) => card(review, true, i))}
           </ul>
         </details>
       ) : null}
@@ -348,7 +349,7 @@ function Method() {
           <li
             key={item.title}
             style={{ "--reveal-delay": `${i * 90}ms` } as React.CSSProperties}
-            className="flex flex-col gap-3 bg-paper-2 p-6 hover:bg-paper md:p-8"
+            className="reveal flex flex-col gap-3 bg-paper-2 p-6 md:p-8"
           >
             <span className="label text-accent-ink">{String(i + 1).padStart(2, "0")}</span>
             <span className="text-lg font-bold leading-snug tracking-[-0.01em]">
@@ -405,7 +406,7 @@ function Work() {
         завершується навчання.
       </p>
 
-      <ul className="reveal review-flow">
+      <ul className="reveal card-grid grid-cols-1 md:grid-cols-2">
         {site.projects.map((project) => {
           const inner = (
             <>
@@ -440,7 +441,7 @@ function Work() {
             </>
           );
           const cls =
-            "lift group flex h-full flex-col gap-2 bg-paper-2 p-6 hover:bg-paper md:p-8";
+            "card-inner group flex h-full flex-col gap-2 p-6 md:p-8";
           return (
             <li key={project.index} className="bg-paper">
               {project.href ? (
@@ -500,7 +501,7 @@ function CertCard({ cert }: { cert: (typeof site.certificates)[number] }) {
     </>
   );
   const cls =
-    "lift group flex h-full flex-col gap-2 bg-paper-2 p-5 text-left hover:bg-paper";
+    "card-inner reveal group flex h-full flex-col gap-2 p-5 text-left";
 
   return (
     <li className="bg-paper">
