@@ -28,10 +28,10 @@ function Hero() {
             {site.statement}
           </p>
 
-          <div className="reveal mt-9 flex flex-wrap items-center gap-3">
+          <div className="reveal mt-9 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <a
               href="#work"
-              className="lift group inline-flex min-h-12 items-center gap-3 bg-accent-solid px-6 py-3 text-sm font-semibold text-white hover:bg-ink"
+              className="lift group inline-flex min-h-12 items-center justify-center gap-3 bg-accent-solid px-6 py-3 text-sm font-semibold text-white hover:bg-ink sm:justify-start"
             >
               Дивитись проєкти
               <span
@@ -43,7 +43,7 @@ function Hero() {
             </a>
             <a
               href={`mailto:${site.email}`}
-              className="inline-flex min-h-12 items-center border border-line-strong px-6 py-3 text-sm font-semibold transition-colors hover:border-accent-ink hover:text-accent-ink-ink"
+              className="inline-flex min-h-12 items-center justify-center border border-line-strong px-6 py-3 text-sm font-semibold transition-colors hover:border-accent-ink hover:text-accent-ink sm:justify-start"
             >
               Написати листа
             </a>
@@ -416,7 +416,7 @@ function Work() {
                 </span>
               </span>
 
-              <span className="text-xl font-bold leading-tight tracking-[-0.02em] transition-colors group-hover:text-accent-ink-ink md:text-2xl">
+              <span className="text-xl font-bold leading-tight tracking-[-0.02em] transition-colors group-hover:text-accent-ink md:text-2xl">
                 {project.title}
               </span>
 
@@ -479,7 +479,7 @@ function CertCard({ cert }: { cert: (typeof site.certificates)[number] }) {
           </span>
         ) : null}
       </span>
-      <span className="text-[15px] font-bold leading-snug tracking-[-0.01em] transition-colors group-hover:text-accent-ink-ink">
+      <span className="text-[15px] font-bold leading-snug tracking-[-0.01em] transition-colors group-hover:text-accent-ink">
         {cert.title}
       </span>
       <span className="mt-auto pt-1 text-sm leading-snug text-muted">
