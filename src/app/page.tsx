@@ -17,12 +17,16 @@ function Hero() {
               {site.location}
             </p>
 
-            <h1 className="reveal display mt-6 text-[clamp(3rem,11vw,7.5rem)]">
+            <h1 className="reveal display mt-6 text-[clamp(2.5rem,8.5vw,6rem)]">
               {site.name}
             </h1>
 
             <p className="reveal mt-6 max-w-xl text-lg leading-relaxed text-ink-soft md:text-xl">
-              {site.role}. <span className="serif-accent text-ink">{site.org}</span>.
+              {site.role}
+              <span aria-hidden className="mx-2 text-accent">
+                ·
+              </span>
+              <span className="serif-accent text-ink">{site.org}</span>
             </p>
 
             <p className="reveal mt-5 max-w-lg text-base leading-relaxed text-muted">
