@@ -162,36 +162,9 @@ function About() {
           </p>
         ))}
       </div>
-
-      {/* Заклад — дані з lcptodcz.lviv.ua */}
-      <div className="reveal mt-12 max-w-2xl border-l-2 border-accent pl-6">
-        <p className="label">Місце роботи</p>
-        <a
-          href={site.orgLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-3 block text-xl font-bold leading-snug tracking-[-0.02em] transition-colors hover:text-accent"
-        >
-          {site.org} ↗
-        </a>
-        <p className="mt-4 text-sm leading-relaxed text-muted">
-          Державний професійно-технічний навчальний заклад у системі Державної
-          служби зайнятості. Підпорядкований через Львівський обласний центр
-          зайнятості.
-        </p>
-        <address className="mt-5 space-y-1 text-sm not-italic text-muted">
-          <p>{site.orgContacts.address}</p>
-          <p>
-            <a href={`mailto:${site.orgContacts.email}`} className="link-underline">
-              {site.orgContacts.email}
-            </a>
-            {" · "}
-            <a href={`tel:${site.orgContacts.phone.replace(/\D/g, "")}`} className="link-underline">
-              {site.orgContacts.phone}
-            </a>
-          </p>
-        </address>
-      </div>
+      <p className="reveal mt-8 max-w-2xl border-l-2 border-accent pl-6 text-sm leading-relaxed text-muted">
+        {site.educationLabel}
+      </p>
     </Section>
   );
 }
@@ -202,56 +175,49 @@ function Work() {
   return (
     <Section id="work" index="02" title="Проєкти">
       <p className="reveal mb-10 max-w-xl text-base leading-relaxed text-muted">
-        Шість робіт, які показують як я думаю. Для кожної — що саме я зробив і що
-        змінилося.
+        Курси, які веду. Для кожного — що саме даю слухачам і чим завершується
+        навчання.
       </p>
 
       <ul className="divide-y divide-line border-y border-line">
-        {site.projects.map((project) => {
-          const Tag = project.href ? "a" : "div";
-          return (
-            <li key={project.index} className="reveal">
-              <Tag
-                {...(project.href
-                  ? { href: project.href, target: "_blank", rel: "noopener noreferrer" }
-                  : {})}
-                className="group grid grid-cols-1 gap-x-8 gap-y-3 py-7 md:grid-cols-12 md:items-baseline"
-              >
-                <span className="label md:col-span-1">{project.index}</span>
+        {site.projects.map((project) => (
+          <li
+            key={project.index}
+            className="reveal grid grid-cols-1 gap-x-8 gap-y-3 py-7 md:grid-cols-12 md:items-baseline"
+          >
+            <span className="label md:col-span-1">{project.index}</span>
 
-                <span className="md:col-span-4">
-                  <span className="block text-xl font-bold tracking-[-0.02em] transition-colors group-hover:text-accent md:text-2xl">
-                    {project.title}
+            <span className="md:col-span-4">
+              <span className="block text-xl font-bold tracking-[-0.02em] md:text-2xl">
+                {project.title}
+              </span>
+              <span className="label mt-1.5 block">
+                {project.kind} · {project.year}
+              </span>
+            </span>
+
+            <span className="text-sm leading-relaxed text-muted md:col-span-5">
+              {project.outcome}
+            </span>
+
+            <span className="flex flex-wrap items-center gap-2 md:col-span-2 md:justify-end">
+              {project.stack.length > 0 ? (
+                project.stack.map((tool) => (
+                  <span
+                    key={tool}
+                    className="label border border-line px-2 py-1 text-ink-soft"
+                  >
+                    {tool}
                   </span>
-                  <span className="label mt-1.5 block">
-                    {project.kind} · {project.year}
-                  </span>
+                ))
+              ) : (
+                <span aria-hidden className="label opacity-0">
+                  —
                 </span>
-
-                <span className="text-sm leading-relaxed text-muted md:col-span-5">
-                  {project.outcome}
-                </span>
-
-                <span className="flex flex-wrap items-center gap-2 md:col-span-2 md:justify-end">
-                  {project.stack.length > 0 ? (
-                    project.stack.map((tool) => (
-                      <span
-                        key={tool}
-                        className="label border border-line px-2 py-1 text-ink-soft"
-                      >
-                        {tool}
-                      </span>
-                    ))
-                  ) : (
-                    <span aria-hidden className="label opacity-0">
-                      —
-                    </span>
-                  )}
-                </span>
-              </Tag>
-            </li>
-          );
-        })}
+              )}
+            </span>
+          </li>
+        ))}
       </ul>
     </Section>
   );
