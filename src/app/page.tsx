@@ -223,35 +223,11 @@ function Work() {
   );
 }
 
-/* ── Досвід ───────────────────────────────────────────────────── */
-
-function Experience() {
-  return (
-    <Section id="experience" index="03" title="Досвід">
-      <ol className="divide-y divide-line border-y border-line">
-        {site.experience.map((item) => (
-          <li
-            key={`${item.period}-${item.role}`}
-            className="reveal grid grid-cols-1 gap-x-8 gap-y-2 py-6 md:grid-cols-12 md:items-baseline"
-          >
-            <span className="label md:col-span-3">{item.period}</span>
-            <span className="text-lg font-bold md:col-span-4">{item.role}</span>
-            <span className="text-sm text-ink-soft md:col-span-5">
-              {item.org}
-              {item.note ? <span className="block text-muted">{item.note}</span> : null}
-            </span>
-          </li>
-        ))}
-      </ol>
-    </Section>
-  );
-}
-
 /* ── Сертифікати ──────────────────────────────────────────────── */
 
 function Certificates() {
   return (
-    <Section id="certs" index="04" title="Сертифікати">
+    <Section id="certs" index="03" title="Сертифікати">
       <p className="reveal mb-10 max-w-xl text-base leading-relaxed text-muted">
         {site.certificates.length} програм підвищення кваліфікації — кожна з
         посиланням на перевірку. Натисни картку, щоб відкрити сертифікат або
@@ -331,7 +307,7 @@ function Certificates() {
 
 function Contact() {
   return (
-    <Section id="contact" index="05" title="Контакти">
+    <Section id="contact" index="04" title="Контакти">
       <p className="reveal max-w-2xl text-2xl font-bold leading-snug tracking-[-0.02em] md:text-4xl">
         Відкритий до викладання, консультацій і спільних курсів.
       </p>
@@ -375,7 +351,6 @@ export default function Home() {
         <Keywords />
         <About />
         <Work />
-        <Experience />
         <Certificates />
         <Contact />
       </main>
