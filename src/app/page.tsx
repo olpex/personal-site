@@ -93,8 +93,7 @@ function Hero() {
             стоїть ПІСЛЯ портрета, а на десктопі підіймається під кнопки
             й закриває порожнечу в лівій колонці.
             Факт, значення якого починається з числа, дістає велику цифру:
-            «71%» очима читається за частку секунди, а той самий текст
-            дрібним кеглем губиться серед інших трьох. */}
+            «54» очима читається за частку секунди. */}
         <dl className="reveal order-4 lg:order-none grid grid-cols-2 gap-x-6 gap-y-7 border-t border-line pt-8 sm:grid-cols-4 lg:col-span-7 lg:col-start-1 lg:row-start-2 lg:self-end">
           {site.facts.map((fact) => {
             const parts = fact.v.match(/^(\d+(?:[.,]\d+)?%?)\s*(.*)$/);
