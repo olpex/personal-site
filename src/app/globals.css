@@ -154,6 +154,16 @@
     max-width: 84rem;
   }
 
+  /* Header nav — на вузьких екранах трекінг доводиться ущільнювати,
+     інакше чотири пункти не вміщаються вже з 320px. Тримаємо правило
+     тут, поруч із .gutter і .shell, щоб горизонтальний ритм мав одне
+     джерело правди. */
+  @media (max-width: 399px) {
+    .nav-tight .label {
+      letter-spacing: 0.02em;
+    }
+  }
+
   /* Paper grain — keeps large flat areas from looking synthetic */
   .grain::before {
     content: "";
@@ -188,6 +198,25 @@
   display: flex;
   width: max-content;
   animation: marquee 44s linear infinite;
+}
+
+/* Затухання по краях: без нього літери обрізаються посередині й
+   стрічка читається як помилка верстки, а не як навмисний рух. */
+.marquee {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 5rem,
+    #000 calc(100% - 5rem),
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 5rem,
+    #000 calc(100% - 5rem),
+    transparent
+  );
 }
 
 .marquee:hover .marquee-track {

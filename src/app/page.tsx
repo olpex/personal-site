@@ -10,62 +10,50 @@ function Hero() {
     <section id="top" className="gutter relative">
       <div className="shell grid grid-cols-1 gap-y-12 pt-14 md:pt-20 lg:grid-cols-12 lg:gap-x-12">
         {/* Текстова колонка */}
-        <div className="flex flex-col justify-between lg:col-span-7">
-          <div>
-            <h1 className="reveal display mt-6 text-[clamp(2.5rem,8.5vw,6rem)]">
-              {site.name}
-            </h1>
+        <div className="lg:col-span-7 lg:row-start-1">
+          <h1 className="reveal display text-[clamp(2.5rem,8.5vw,6rem)]">
+            {site.name}
+          </h1>
 
-            <p className="reveal mt-6 max-w-xl text-lg leading-relaxed text-ink-soft md:text-xl">
-              {site.role}
-              <span aria-hidden className="mx-2 text-accent">
-                ·
+          <p className="reveal mt-6 max-w-xl text-lg leading-relaxed text-ink-soft md:text-xl">
+            {site.role}
+            <span aria-hidden className="mx-2 text-accent">
+              ·
+            </span>
+            <span className="serif-accent text-ink">{site.orgShort}</span>
+          </p>
+
+          <p className="reveal mt-5 max-w-lg text-base leading-relaxed text-muted">
+            {site.statement}
+          </p>
+
+          <div className="reveal mt-9 flex flex-wrap items-center gap-3">
+            <a
+              href="#work"
+              className="group inline-flex min-h-12 items-center gap-3 bg-accent px-6 py-3 text-sm font-semibold text-paper transition-colors hover:bg-ink"
+            >
+              Дивитись проєкти
+              <span
+                aria-hidden
+                className="transition-transform duration-300 group-hover:translate-y-0.5"
+              >
+                ↓
               </span>
-              <span className="serif-accent text-ink">{site.orgShort}</span>
-            </p>
-
-            <p className="reveal mt-5 max-w-lg text-base leading-relaxed text-muted">
-              {site.statement}
-            </p>
-
-            <div className="reveal mt-9 flex flex-wrap items-center gap-3">
-              <a
-                href="#work"
-                className="group inline-flex items-center gap-3 bg-ink px-6 py-3 text-sm font-semibold text-paper transition-colors hover:bg-accent"
-              >
-                Дивитись проєкти
-                <span
-                  aria-hidden
-                  className="transition-transform duration-300 group-hover:translate-y-0.5"
-                >
-                  ↓
-                </span>
-              </a>
-              <a
-                href={`mailto:${site.email}`}
-                className="inline-flex items-center border border-line-strong px-6 py-3 text-sm font-semibold transition-colors hover:border-accent hover:text-accent"
-              >
-                Написати листа
-              </a>
-            </div>
+            </a>
+            <a
+              href={`mailto:${site.email}`}
+              className="inline-flex min-h-12 items-center border border-line-strong px-6 py-3 text-sm font-semibold transition-colors hover:border-accent hover:text-accent"
+            >
+              Написати листа
+            </a>
           </div>
-
-          {/* Смуга фактів під кнопками */}
-          <dl className="reveal mt-14 grid grid-cols-2 gap-x-6 gap-y-6 border-t border-line pt-8 sm:grid-cols-4">
-            {site.facts.map((fact) => (
-              <div key={fact.k}>
-                <dt className="label">{fact.k}</dt>
-                <dd className="mt-2 text-sm font-semibold leading-snug text-ink-soft">
-                  {fact.v}
-                </dd>
-              </div>
-            ))}
-          </dl>
         </div>
 
-        {/* Портрет */}
-        <div className="reveal lg:col-span-5">
-          <figure className="relative">
+        {/* Портрет. На десктопі займає обидва рядки сітки — так смуга
+            фактів лягає під кнопки, закриваючи порожнечу ліворуч, а
+            портрет лишається високим. */}
+        <div className="reveal lg:col-span-5 lg:col-start-8 lg:row-span-2 lg:row-start-1">
+          <figure className="lg:sticky lg:top-20">
             <div className="relative aspect-[3/4] w-full overflow-hidden bg-paper-2">
               <Image
                 src={site.portrait}
@@ -76,13 +64,25 @@ function Hero() {
                 className="object-cover object-center"
               />
             </div>
-            {/* Бурштинова смуга — прив'язка до акценту */}
-            <span aria-hidden className="absolute -bottom-3 left-0 h-1.5 w-24 bg-accent" />
-            <figcaption className="label mt-7">
-              {site.shortName} — {site.role}
-            </figcaption>
+            {/* Бурштинова смуга на всю ширину — свідома базова лінія,
+                а не обірваний маркер. */}
+            <span aria-hidden className="mt-4 block h-1.5 w-full bg-accent" />
           </figure>
         </div>
+
+        {/* Смуга фактів — окремий рядок сітки, тому на мобільному вона
+            стоїть ПІСЛЯ портрета, а на десктопі підіймається під кнопки
+            й закриває порожнечу в лівій колонці. */}
+        <dl className="reveal grid grid-cols-2 gap-x-6 gap-y-6 border-t border-line pt-8 sm:grid-cols-4 lg:col-span-7 lg:col-start-1 lg:row-start-2 lg:self-end">
+          {site.facts.map((fact) => (
+            <div key={fact.k}>
+              <dt className="label">{fact.k}</dt>
+              <dd className="mt-2 text-sm font-semibold leading-snug text-ink-soft">
+                {fact.v}
+              </dd>
+            </div>
+          ))}
+        </dl>
       </div>
     </section>
   );
@@ -114,12 +114,10 @@ function Keywords() {
 
 function Section({
   id,
-  index,
   title,
   children,
 }: {
   id: string;
-  index: string;
   title: string;
   children: React.ReactNode;
 }) {
@@ -128,10 +126,7 @@ function Section({
       <div className="shell border-t border-line py-16 md:py-24">
         <div className="grid grid-cols-1 gap-y-10 lg:grid-cols-12 lg:gap-x-12">
           <div className="lg:col-span-3">
-            <h2 className="reveal flex items-baseline gap-4">
-              <span className="label">{index}</span>
-              <span className="display text-3xl md:text-4xl">{title}</span>
-            </h2>
+            <h2 className="reveal display text-3xl md:text-4xl">{title}</h2>
           </div>
           <div className="lg:col-span-9">{children}</div>
         </div>
@@ -144,7 +139,7 @@ function Section({
 
 function About() {
   return (
-    <Section id="about" index="01" title="Про мене">
+    <Section id="about" title="Про мене">
       <div className="max-w-2xl space-y-5">
         {site.about.map((paragraph, i) => (
           <p
@@ -164,11 +159,64 @@ function About() {
   );
 }
 
+/* ── Відгуки слухачів ─────────────────────────────────────────── */
+
+function Reviews() {
+  const featured = site.reviews.filter((r) => r.featured);
+  return (
+    <Section id="reviews" title="Відгуки">
+      <p className="reveal mb-10 max-w-xl text-base leading-relaxed text-muted">
+        Слухачі залишають оцінку після кожного курсу. Це відгуки, де мене названо
+        поіменно — з опитування, яке проводить ЛЦПТО ДСЗ.
+      </p>
+
+      <dl className="reveal mb-12 flex flex-wrap gap-x-14 gap-y-6">
+        {site.reviewStats.map((stat) => (
+          <div key={stat.k}>
+            <dt className="label">{stat.k}</dt>
+            <dd className="mt-1.5 text-sm font-semibold leading-snug text-ink-soft">
+              {stat.v}
+            </dd>
+          </div>
+        ))}
+      </dl>
+
+      <ul className="grid grid-cols-1 gap-px border border-line bg-line md:grid-cols-2">
+        {featured.map((review) => (
+          <li
+            key={review.author}
+            className="reveal flex flex-col gap-4 bg-paper p-6 md:p-7"
+          >
+            <span aria-hidden className="h-0.5 w-10 shrink-0 bg-accent" />
+            <blockquote className="text-base leading-relaxed text-ink-soft">
+              {review.quote}
+            </blockquote>
+            <div className="mt-auto pt-2">
+              <p className="text-sm font-bold tracking-[-0.01em]">
+                {review.author}
+              </p>
+              <p className="label mt-1">
+                {review.course} · {review.date}
+              </p>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      <p className="reveal mt-6 max-w-2xl text-xs leading-relaxed text-muted">
+        Відгуки наведено без правок, як їх написали слухачі. Джерело —
+        опитування після завершення курсів; показуємо лише ті, де викладача
+        названо особисто.
+      </p>
+    </Section>
+  );
+}
+
 /* ── Проєкти: індексний список ────────────────────────────────── */
 
 function Work() {
   return (
-    <Section id="work" index="02" title="Проєкти">
+    <Section id="work" title="Проєкти">
       <p className="reveal mb-10 max-w-xl text-base leading-relaxed text-muted">
         Курси, які веду. Для кожного — що саме даю слухачам і чим завершується
         навчання.
@@ -229,7 +277,7 @@ function Work() {
 
 function Certificates() {
   return (
-    <Section id="certs" index="03" title="Сертифікати">
+    <Section id="certs" title="Сертифікати">
       <p className="reveal mb-10 max-w-xl text-base leading-relaxed text-muted">
         {site.certificates.length} програм підвищення кваліфікації — кожна з
         посиланням на перевірку. Натисни картку, щоб відкрити сертифікат або
@@ -309,7 +357,7 @@ function Certificates() {
 
 function Contact() {
   return (
-    <Section id="contact" index="04" title="Контакти">
+    <Section id="contact" title="Контакти">
       <p className="reveal max-w-2xl text-2xl font-bold leading-snug tracking-[-0.02em] md:text-4xl">
         Відкритий до викладання, консультацій і спільних курсів.
       </p>
@@ -318,19 +366,19 @@ function Contact() {
         {/* Email видимим текстом — конвертує краще за будь-яку форму */}
         <a
           href={`mailto:${site.email}`}
-          className="link-underline w-fit text-xl font-bold tracking-[-0.02em] md:text-3xl"
+          className="link-underline flex h-12 w-fit items-center text-xl font-bold tracking-[-0.02em] md:text-3xl"
         >
           {site.email}
         </a>
 
-        <ul className="flex flex-wrap gap-x-8 gap-y-3 border-t border-line pt-8">
+        <ul className="flex flex-wrap gap-x-8 gap-y-1 border-t border-line pt-7">
           {site.socials.map((social) => (
             <li key={social.label}>
               <a
                 href={social.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="label link-underline text-ink-soft"
+                className="label link-underline flex h-11 items-center text-ink-soft"
               >
                 {social.label} ↗
               </a>
@@ -352,6 +400,7 @@ export default function Home() {
         <Hero />
         <Keywords />
         <About />
+        <Reviews />
         <Work />
         <Certificates />
         <Contact />
