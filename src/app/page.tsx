@@ -84,6 +84,10 @@ function Hero() {
           ))}
         </dl>
       </div>
+
+      {/* Цифра без джерела на сайті викладача читається як реклама —
+          підписуємо її походження прямо під смугою фактів. */}
+      <p className="shell mt-6 text-xs leading-relaxed text-muted">{site.factsNote}</p>
     </section>
   );
 }
@@ -162,23 +166,53 @@ function About() {
 /* ── Відгуки слухачів ─────────────────────────────────────────── */
 
 function Reviews() {
-  /* Групуємо за напрямом: читач одразу бачить, що відгуки покривають
-     всі курси, а не лише ШІ. Порядок груп — як у переліку напрямів. */
+  /* Двадцять цитат поспіль робили секцію найважчою на сторінці — 41%
+     її висоти, і відгуки заступали те, що людина вміє. Схвальні цитати
+     працюють як доказ, а не як архів, тому на видноті вісім найповніших
+     за змістом, а решта — під розкриттям, доступна тим, хто читає уважно.
+     Нічого не викинуто: до всіх двадцяти можна дійти. */
   const order = [
     "ШІ та штучний інтелект",
     "Кібербезпека й цифрова безпека",
     "Графічний дизайн",
     "Технології комп'ютерної обробки інформації",
   ];
-  const groups = order
-    .map((name) => ({ name, items: site.reviews.filter((r) => r.group === name) }))
-    .filter((g) => g.items.length > 0);
+
+  /* Довга назва напряму в кожній картці повторювалась і перетворювалась
+     на шум — підписуємо коротко, але незмінно. */
+  const shortGroup: Record<string, string> = {
+    "ШІ та штучний інтелект": "ШІ",
+    "Кібербезпека й цифрова безпека": "Кібербезпека",
+    "Графічний дизайн": "Графічний дизайн",
+    "Технології комп'ютерної обробки інформації": "Обробка інформації",
+  };
+
+  const featured = site.reviews.filter((r) => r.featured);
+  const rest = site.reviews.filter((r) => !r.featured);
+
+  const card = (review: (typeof site.reviews)[number], dim = false) => (
+    <li
+      key={`${review.author}-${review.quote.slice(0, 24)}`}
+      className={`flex flex-col gap-4 bg-paper p-6 md:p-7 ${dim ? "opacity-90" : ""}`}
+    >
+      <span aria-hidden className="h-0.5 w-10 shrink-0 bg-accent" />
+      <blockquote className="text-base leading-relaxed text-ink-soft">
+        {review.quote}
+      </blockquote>
+      <div className="mt-auto pt-2">
+        <p className="hand text-lg leading-tight text-ink">{review.author}</p>
+        <p className="label mt-2">
+          {shortGroup[review.group] ?? review.group} · {review.date}
+        </p>
+      </div>
+    </li>
+  );
 
   return (
     <Section id="reviews" title="Відгуки">
       <p className="reveal mb-10 max-w-xl text-base leading-relaxed text-muted">
-        Слухачі заповнюють анкету після кожного курсу. Нижче — схвальні
-        відгуки за напрямами, які я викладаю, з іменами авторів і датами.
+        Слухачі заповнюють анкету після кожного курсу. Цитати подано
+        дослівно — з іменами авторів і датами.
       </p>
 
       <dl className="reveal mb-14 flex flex-wrap gap-x-14 gap-y-6">
@@ -192,57 +226,59 @@ function Reviews() {
         ))}
       </dl>
 
-      <div className="reveal space-y-14">
-        {groups.map((group) => (
-          <div key={group.name}>
-            {/* Заголовок напряму + лічильник: тримає ритм і показує обсяг */}
-            <div className="mb-5 flex items-baseline justify-between gap-4 border-b border-line pb-3">
-              <h3 className="text-base font-bold tracking-[-0.01em]">
-                {group.name}
-              </h3>
-              <span className="label shrink-0">
-                {group.items.length}{" "}
-                {group.items.length === 1 ? "відгук" : group.items.length < 5 ? "відгуки" : "відгуків"}
-              </span>
-            </div>
+      <ul className="reveal grid grid-cols-1 gap-px border border-line bg-line md:grid-cols-2">
+        {featured.map((review) => card(review))}
+      </ul>
 
-            <ul className="grid grid-cols-1 gap-px border border-line bg-line md:grid-cols-2">
-              {group.items.map((review) => (
-                <li
-                  key={`${review.author}-${review.quote.slice(0, 24)}`}
-                  className="flex flex-col gap-4 bg-paper p-6 md:p-7"
-                >
-                  <span aria-hidden className="h-0.5 w-10 shrink-0 bg-accent" />
-                  <blockquote className="text-base leading-relaxed text-ink-soft">
-                    {review.quote}
-                  </blockquote>
-                  <div className="mt-auto pt-2">
-                    {/* Підпис помітно менший за цитату — має читатись як
-                        підпис під текстом, а не змагатися з ним. */}
-                    <p className="hand text-lg leading-tight text-ink">
-                      {review.author}
-                    </p>
-                    <p className="label mt-2">
-                      {review.course} · {review.date}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
+      {rest.length > 0 ? (
+        <details className="reveal group mt-6 border border-line">
+          <summary className="label flex cursor-pointer list-none items-center justify-between gap-4 p-5 text-ink-soft transition-colors hover:text-accent">
+            <span>
+              Показати решту {rest.length}{" "}
+              {rest.length < 5 ? "відгуки" : "відгуків"}
+            </span>
+            <span
+              aria-hidden
+              className="shrink-0 text-lg leading-none transition-transform duration-300 group-open:rotate-45"
+            >
+              +
+            </span>
+          </summary>
+          <ul className="grid grid-cols-1 gap-px border-t border-line bg-line md:grid-cols-2">
+            {rest.map((review) => card(review, true))}
+          </ul>
+        </details>
+      ) : null}
 
       <p className="reveal mt-8 max-w-2xl text-xs leading-relaxed text-muted">
-        Відгуки наведено дослівно, як їх написали слухачі. Джерело — анкета
-        ЛЦПТО ДСЗ після завершення курсів. Показано схвальні відгуки за
-        напрямами, які я викладаю.
+        Відгуки наведено дослівно, без редакторських правок. Показано схвальні
+        відгуки за напрямами, які я викладаю.
       </p>
     </Section>
   );
 }
 
-/* ── Проєкти: індексний список ────────────────────────────────── */
+/* ── Як я навчаю ───────────────────────────────────────────────── */
+
+function Method() {
+  /* Ставимо одразу після «Про мене»: спершу хто я, потім як веду
+     заняття — і лише тоді відгуки, які це підтверджують. */
+  return (
+    <Section id="method" title="Як я навчаю">
+      <ol className="reveal grid grid-cols-1 gap-px border border-line bg-line sm:grid-cols-2">
+        {site.method.map((item, i) => (
+          <li key={item.title} className="flex flex-col gap-3 bg-paper p-6 md:p-8">
+            <span className="label text-accent">{String(i + 1).padStart(2, "0")}</span>
+            <span className="text-lg font-bold leading-snug tracking-[-0.01em]">
+              {item.title}
+            </span>
+            <span className="text-sm leading-relaxed text-muted">{item.body}</span>
+          </li>
+        ))}
+      </ol>
+    </Section>
+  );
+}
 
 function Work() {
   /* Проєкти як картки, а не 12-колонкова таблиця: назви курсів різної
@@ -465,6 +501,7 @@ export default function Home() {
         <Hero />
         <Keywords />
         <About />
+        <Method />
         <Reviews />
         <Work />
         <Certificates />
