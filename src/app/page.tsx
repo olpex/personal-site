@@ -26,7 +26,7 @@ function Hero() {
               <span aria-hidden className="mx-2 text-accent">
                 ·
               </span>
-              <span className="serif-accent text-ink">{site.org}</span>
+              <span className="serif-accent text-ink">{site.orgShort}</span>
             </p>
 
             <p className="reveal mt-5 max-w-lg text-base leading-relaxed text-muted">
@@ -161,6 +161,36 @@ function About() {
             {paragraph}
           </p>
         ))}
+      </div>
+
+      {/* Заклад — дані з lcptodcz.lviv.ua */}
+      <div className="reveal mt-12 max-w-2xl border-l-2 border-accent pl-6">
+        <p className="label">Місце роботи</p>
+        <a
+          href={site.orgLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 block text-xl font-bold leading-snug tracking-[-0.02em] transition-colors hover:text-accent"
+        >
+          {site.org} ↗
+        </a>
+        <p className="mt-4 text-sm leading-relaxed text-muted">
+          Державний професійно-технічний навчальний заклад у системі Державної
+          служби зайнятості. Підпорядкований через Львівський обласний центр
+          зайнятості.
+        </p>
+        <address className="mt-5 space-y-1 text-sm not-italic text-muted">
+          <p>{site.orgContacts.address}</p>
+          <p>
+            <a href={`mailto:${site.orgContacts.email}`} className="link-underline">
+              {site.orgContacts.email}
+            </a>
+            {" · "}
+            <a href={`tel:${site.orgContacts.phone.replace(/\D/g, "")}`} className="link-underline">
+              {site.orgContacts.phone}
+            </a>
+          </p>
+        </address>
       </div>
     </Section>
   );
