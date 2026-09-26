@@ -6,7 +6,7 @@ export function Header() {
       <div className="shell flex h-14 items-center justify-between gap-4 md:gap-6">
         <nav
           aria-label="Основна навігація"
-          className="nav-tight flex items-center gap-3 md:gap-7"
+          className="nav-tight flex min-w-0 flex-1 items-center gap-3 overflow-x-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] md:gap-7 [&::-webkit-scrollbar]:hidden"
         >
           {[
             { href: "#about", label: "Про мене" },
@@ -14,11 +14,12 @@ export function Header() {
             { href: "#work", label: "Проєкти" },
             { href: "#reviews", label: "Відгуки" },
             { href: "#certs", label: "Сертифікати" },
+            { href: "#contact", label: "Контакти" },
           ].map((item) => (
             <a
               key={item.href}
               href={item.href}
-              className="label link-underline flex h-11 items-center whitespace-nowrap text-ink-soft"
+              className="label link-underline flex h-11 shrink-0 items-center whitespace-nowrap text-ink-soft"
             >
               {item.label}
             </a>
