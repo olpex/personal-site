@@ -9,60 +9,78 @@ import CertIndex from "@/components/cert-index";
 function Hero() {
   return (
     <section id="top" className="gutter relative">
-      <div className="shell grid grid-cols-1 gap-y-12 pt-14 md:pt-20 lg:grid-cols-12 lg:gap-x-12">
+      {/* На мобільному порядок інший, ніж на десктопі: ім'я -> роль ->
+          ПОРТРЕТ -> опис із кнопками. Портрет мусить потрапити в перший
+          екран, бо це обличчя сайту; опис читають уже після нього. Кнопка
+          «Написати» лишається доступною в липкій шапці, тож CTA не губиться.
+
+          Технічно: обгортка лівої колонки на мобільному має display:contents,
+          тому її діти стають прямими елементами сітки й піддаються order.
+          На десктопі вона знову блок — і тримає заголовок, опис і кнопки
+          разом у лівій колонці, як було. */}
+      <div className="shell grid grid-cols-1 gap-y-8 pt-6 md:pt-8 lg:grid-cols-12 lg:gap-x-12 lg:gap-y-12 lg:pt-20">
         {/* Текстова колонка */}
-        <div className="lg:col-span-7 lg:row-start-1">
-          <h1 className="reveal display text-[clamp(2.5rem,8.5vw,6rem)]">
-            {site.name}
-          </h1>
+        <div className="contents lg:block lg:col-span-7 lg:row-start-1">
+          <div className="order-1 lg:order-none">
+            <h1 className="reveal display text-[clamp(2.5rem,8.5vw,6rem)]">
+              {site.name}
+            </h1>
 
-          <p className="reveal mt-6 max-w-xl text-lg leading-relaxed text-ink-soft md:text-xl">
-            {site.role}
-            <span aria-hidden className="mx-2 text-accent-ink">
-              ·
-            </span>
-            <span className="serif-accent text-ink">{site.orgShort}</span>
-          </p>
-
-          <p className="reveal mt-5 max-w-lg text-base leading-relaxed text-muted">
-            {site.statement}
-          </p>
-
-          <div className="reveal mt-9 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-            <a
-              href="#work"
-              className="lift group inline-flex min-h-12 items-center justify-center gap-3 bg-accent-solid px-6 py-3 text-sm font-semibold text-white hover:bg-ink sm:justify-start"
-            >
-              Дивитись проєкти
-              <span
-                aria-hidden
-                className="transition-transform duration-300 group-hover:translate-y-0.5"
-              >
-                ↓
+            <p className="reveal mt-6 max-w-xl text-lg leading-relaxed text-ink-soft md:text-xl">
+              {site.role}
+              <span aria-hidden className="mx-2 text-accent-ink">
+                ·
               </span>
-            </a>
-            <a
-              href={`mailto:${site.email}`}
-              className="inline-flex min-h-12 items-center justify-center border border-line-strong px-6 py-3 text-sm font-semibold transition-colors hover:border-accent-ink hover:text-accent-ink sm:justify-start"
-            >
-              Написати листа
-            </a>
+              <span className="serif-accent text-ink">{site.orgShort}</span>
+            </p>
+          </div>
+
+          <div className="order-3 lg:order-none">
+            <p className="reveal mt-5 max-w-lg text-base leading-relaxed text-muted">
+              {site.statement}
+            </p>
+
+            <div className="reveal mt-9 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+              <a
+                href="#work"
+                className="lift group inline-flex min-h-12 items-center justify-center gap-3 bg-accent-solid px-6 py-3 text-sm font-semibold text-white hover:bg-ink sm:justify-start"
+              >
+                Дивитись проєкти
+                <span
+                  aria-hidden
+                  className="transition-transform duration-300 group-hover:translate-y-0.5"
+                >
+                  ↓
+                </span>
+              </a>
+              <a
+                href={`mailto:${site.email}`}
+                className="inline-flex min-h-12 items-center justify-center border border-line-strong px-6 py-3 text-sm font-semibold transition-colors hover:border-accent-ink hover:text-accent-ink sm:justify-start"
+              >
+                Написати листа
+              </a>
+            </div>
           </div>
         </div>
 
         {/* Портрет. На десктопі займає обидва рядки сітки — так смуга
             фактів лягає під кнопки, закриваючи порожнечу ліворуч, а
             портрет лишається високим. */}
-        <div className="reveal lg:col-span-5 lg:col-start-8 lg:row-span-2 lg:row-start-1">
-          <figure className="lg:sticky lg:top-20">
-            <div className="relative aspect-[3/4] w-full overflow-hidden bg-paper-2">
+        <div className="reveal order-2 lg:order-none lg:col-span-5 lg:col-start-8 lg:row-span-2 lg:row-start-1">
+          <figure className="mx-auto w-full max-w-[440px] lg:mx-0 lg:max-w-none lg:sticky lg:top-20">
+            {/* Кадр має вміститися в перший екран, тому його висота
+                обмежена часткою вікна (max-h), а не лише пропорцією:
+                на широкому мобільному 4:5 давало 750px — більше за екран.
+                object-top тримає голову в кадрі, обрізаючи піджак.
+                На десктопі обмеження знімається — там портрет високий. */}
+            <div className="relative aspect-[4/5] max-h-[52vh] w-full overflow-hidden bg-paper-2 md:aspect-[3/4] lg:max-h-none">
               <Image
                 src={site.portrait}
                 alt={site.portraitAlt}
                 fill
                 priority
                 sizes="(max-width: 1024px) 100vw, 40vw"
-                className="object-cover object-center"
+                className="object-cover object-[center_6%] lg:object-top"
               />
             </div>
             {/* Бурштинова смуга на всю ширину — свідома базова лінія,
@@ -77,7 +95,7 @@ function Hero() {
             Факт, значення якого починається з числа, дістає велику цифру:
             «71%» очима читається за частку секунди, а той самий текст
             дрібним кеглем губиться серед інших трьох. */}
-        <dl className="reveal grid grid-cols-2 gap-x-6 gap-y-7 border-t border-line pt-8 sm:grid-cols-4 lg:col-span-7 lg:col-start-1 lg:row-start-2 lg:self-end">
+        <dl className="reveal order-4 lg:order-none grid grid-cols-2 gap-x-6 gap-y-7 border-t border-line pt-8 sm:grid-cols-4 lg:col-span-7 lg:col-start-1 lg:row-start-2 lg:self-end">
           {site.facts.map((fact) => {
             const parts = fact.v.match(/^(\d+(?:[.,]\d+)?%?)\s*(.*)$/);
             const figure = parts?.[1];
