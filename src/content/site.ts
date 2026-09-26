@@ -297,5 +297,15 @@ export const site = {
     "Google Classroom",
   ],
 
-  url: "https://example.com",
+  /* Канонічний URL сайту — для metadataBase, OG, sitemap, robots.
+   * Порядок: явний NEXT_PUBLIC_SITE_URL → автодомен Vercel (prod → preview) →
+   * localhost для розробки. Не хардкодити домен: він зміниться після
+   * підключення власного. */
+  url:
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : "http://localhost:3111"),
 } as const;
