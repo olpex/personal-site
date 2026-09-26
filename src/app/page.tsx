@@ -247,11 +247,42 @@ function Experience() {
   );
 }
 
+/* ── Сертифікати ──────────────────────────────────────────────── */
+
+function Certificates() {
+  return (
+    <Section id="certs" index="04" title="Сертифікати">
+      <p className="reveal mb-10 max-w-xl text-base leading-relaxed text-muted">
+        {site.certificates.length} програм підвищення кваліфікації — щоб те, що я
+        викладаю, було підкріплене практикою й актуальними інструментами.
+      </p>
+
+      <ul className="reveal grid grid-cols-1 gap-px border border-line bg-line sm:grid-cols-2">
+        {site.certificates.map((cert) => (
+          <li
+            key={`${cert.year}-${cert.title}`}
+            className="flex flex-col gap-2 bg-paper p-6"
+          >
+            <span className="label">{cert.year}</span>
+            <span className="text-base font-bold leading-snug tracking-[-0.01em]">
+              {cert.title}
+            </span>
+            <span className="mt-auto pt-1 text-sm text-muted">
+              {cert.issuer}
+              {cert.note ? ` · ${cert.note}` : ""}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </Section>
+  );
+}
+
 /* ── Контакт ──────────────────────────────────────────────────── */
 
 function Contact() {
   return (
-    <Section id="contact" index="04" title="Контакти">
+    <Section id="contact" index="05" title="Контакти">
       <p className="reveal max-w-2xl text-2xl font-bold leading-snug tracking-[-0.02em] md:text-4xl">
         Відкритий до викладання, консультацій і спільних курсів.
       </p>
@@ -296,6 +327,7 @@ export default function Home() {
         <About />
         <Work />
         <Experience />
+        <Certificates />
         <Contact />
       </main>
       <Footer />

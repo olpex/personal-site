@@ -16,6 +16,7 @@ export function Header() {
             { href: "#about", label: "Про мене" },
             { href: "#work", label: "Проєкти" },
             { href: "#experience", label: "Досвід" },
+            { href: "#certs", label: "Сертифікати" },
           ].map((item) => (
             <a key={item.href} href={item.href} className="label link-underline text-ink-soft">
               {item.label}
