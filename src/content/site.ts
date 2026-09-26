@@ -36,6 +36,8 @@ export type Review = {
 };
 
 export type Certificate = {
+  /** Тематична група для заголовка блоку */
+  group: string;
   title: string;
   issuer: string;
   year: string;
@@ -300,7 +302,7 @@ export const site = {
       year: "2026",
       outcome:
         "Найбільший за обсягом курс напряму: сітки, типографіка, прототипи та публікація сайту. Фінал — захист власного сайту слухача. Інструменти: HTML/CSS, WordPress, Adobe Photoshop/Illustrator/InDesign.",
-      stack: ["Сітки", "144 год"],
+      stack: ["Сітки", "Типографіка"],
     },
     {
       index: "06",
@@ -332,8 +334,9 @@ export const site = {
    * Сортування: newest-first.
    */
   certificates: [
-    // 2026 — Google (Coursera) — верифіковані на Oleg Parashchuk
+    /* ── Штучний інтелект ── */
     {
+      group: "Штучний інтелект",
       title: "AI Fundamentals",
       issuer: "Google · Coursera",
       year: "2026",
@@ -342,6 +345,7 @@ export const site = {
       hrefLabel: "Перевірити сертифікат на Coursera",
     },
     {
+      group: "Штучний інтелект",
       title: "Design Prompts for Everyday Work Tasks",
       issuer: "Google · Coursera",
       year: "2026",
@@ -350,6 +354,7 @@ export const site = {
       hrefLabel: "Перевірити сертифікат на Coursera",
     },
     {
+      group: "Штучний інтелект",
       title: "AI for Writing and Communicating",
       issuer: "Google · Coursera",
       year: "2026",
@@ -358,6 +363,7 @@ export const site = {
       hrefLabel: "Перевірити сертифікат на Coursera",
     },
     {
+      group: "Штучний інтелект",
       title: "AI for Data Analysis",
       issuer: "Google · Coursera",
       year: "2026",
@@ -366,6 +372,7 @@ export const site = {
       hrefLabel: "Перевірити сертифікат на Coursera",
     },
     {
+      group: "Штучний інтелект",
       title: "AI for Content Creation",
       issuer: "Google · Coursera",
       year: "2026",
@@ -374,6 +381,7 @@ export const site = {
       hrefLabel: "Перевірити сертифікат на Coursera",
     },
     {
+      group: "Штучний інтелект",
       title: "AI for Research and Insights",
       issuer: "Google · Coursera",
       year: "2026",
@@ -382,6 +390,7 @@ export const site = {
       hrefLabel: "Перевірити сертифікат на Coursera",
     },
     {
+      group: "Штучний інтелект",
       title: "AI for Brainstorming and Planning",
       issuer: "Google · Coursera",
       year: "2026",
@@ -389,8 +398,8 @@ export const site = {
       href: "https://www.coursera.org/account/accomplishments/records/K9MXJ6FHOV05",
       hrefLabel: "Перевірити сертифікат на Coursera",
     },
-    // 2025
     {
+      group: "Штучний інтелект",
       title: "Академія ШІ для освітян",
       issuer: "Google",
       year: "2025",
@@ -398,13 +407,16 @@ export const site = {
       hrefLabel: "Сторінка програми «Академія ШІ для освітян»",
     },
     {
+      group: "Штучний інтелект",
       title: "AI-tools for Education",
       issuer: "EPAM · IT Ukraine",
       year: "2025",
       href: "https://itukraine.org.ua/en/teachers-internship-online-program-2025/",
       hrefLabel: "Програма Teachers Internship — AI Tools for Education",
     },
+    /* ── Кібербезпека й OSINT ── */
     {
+      group: "Кібербезпека й OSINT",
       title: "OSINT — розвідка з відкритих джерел та інфобезпека",
       issuer: "Prometheus",
       year: "2025",
@@ -412,14 +424,15 @@ export const site = {
       hrefLabel: "Сторінка курсу на Prometheus",
     },
     {
+      group: "Кібербезпека й OSINT",
       title: "Фактчек: довіряй-перевіряй",
       issuer: "EdEra / VoxUkraine",
       year: "2025",
       href: "https://study.ed-era.com/courses/course/5129",
       hrefLabel: "Сторінка курсу на EdEra",
     },
-    // 2024
     {
+      group: "Кібербезпека й OSINT",
       title: "Google Cybersecurity — спеціалізація (8 курсів)",
       issuer: "Google · Coursera",
       year: "2024",
@@ -429,6 +442,7 @@ export const site = {
       hrefLabel: "Перевірити спеціалізацію на Coursera",
     },
     {
+      group: "Кібербезпека й OSINT",
       title: "Кібербезпека для освітян — просунутий рівень для тренерів",
       issuer: "Skills4Recovery · Mondo / GIZ",
       year: "2024",
@@ -436,6 +450,7 @@ export const site = {
       hrefLabel: "Проєкт Skills4Recovery (GIZ)",
     },
     {
+      group: "Кібербезпека й OSINT",
       title: "Кібербезпека для освітян",
       issuer: "Skills4Recovery · Mondo / GIZ",
       year: "2024",
@@ -444,6 +459,7 @@ export const site = {
       hrefLabel: "Проєкт Skills4Recovery (GIZ)",
     },
     {
+      group: "Кібербезпека й OSINT",
       title: "Introduction to Cybersecurity",
       issuer: "Cisco Networking Academy",
       year: "2024",
@@ -451,6 +467,7 @@ export const site = {
       hrefLabel: "Перевірити бейдж на Credly",
     },
     {
+      group: "Кібербезпека й OSINT",
       title: "Cybersecurity Foundation",
       issuer: "Palo Alto Networks",
       year: "2024",
@@ -458,21 +475,24 @@ export const site = {
       hrefLabel: "Програма Palo Alto Cybersecurity Academy",
     },
     {
+      group: "Кібербезпека й OSINT",
       title: "Основи кібербезпеки для бізнесу",
       issuer: "GOOGLE / ISSP",
       year: "2024",
       href: "https://rsvp.withgoogle.com/events/cybersecurity-sme-ua",
       hrefLabel: "Програма Google «Безпечніше з Google»",
     },
+    /* ── Хмарні платформи й контент ── */
     {
+      group: "Хмарні платформи й контент",
       title: "Створюємо електронний навчальний контент в Articulate",
       issuer: "GIZ (Німеччина) & Техноматика",
       year: "2024",
       href: "https://tmx-learning.com/ua/services/interactive-learning",
       hrefLabel: "Техноматика — інтерактивні курси e-learning",
     },
-    // 2023
     {
+      group: "Хмарні платформи й контент",
       title: "Адміністрування Moodle 4.0",
       issuer: "Skills4Recovery · Mondo / GIZ",
       year: "2023",
@@ -480,6 +500,7 @@ export const site = {
       hrefLabel: "Проєкт Skills4Recovery (GIZ)",
     },
     {
+      group: "Хмарні платформи й контент",
       title: "Опанування функціоналу Moodle 4.0",
       issuer: "Skills4Recovery · Mondo / GIZ",
       year: "2023",

@@ -245,56 +245,65 @@ function Reviews() {
 /* ── Проєкти: індексний список ────────────────────────────────── */
 
 function Work() {
+  /* Проєкти як картки, а не 12-колонкова таблиця: назви курсів різної
+     довжини й у таблиці ламались на два рядки, а стек дрібними чипами
+     праворуч читався як службова колонка. Картка дає назві дихати. */
   return (
     <Section id="work" title="Проєкти">
-      <p className="reveal mb-10 max-w-xl text-base leading-relaxed text-muted">
-        Курси, які веду. Для кожного — що саме даю слухачам і чим завершується
-        навчання.
+      <p className="reveal mb-12 max-w-xl text-base leading-relaxed text-muted">
+        Курси, які веду. Для кожного — що саме даю слухачам і чим
+        завершується навчання.
       </p>
 
-      <ul className="divide-y divide-line border-y border-line">
+      <ul className="reveal grid grid-cols-1 gap-px border border-line bg-line md:grid-cols-2">
         {site.projects.map((project) => {
-          const Cell = project.href ? "a" : "div";
-          const cellProps = project.href
-            ? { href: project.href, target: "_blank", rel: "noopener noreferrer" }
-            : {};
+          const inner = (
+            <>
+              <span className="label flex items-center justify-between gap-3">
+                <span>{project.index}</span>
+                <span>
+                  {project.kind} · {project.year}
+                </span>
+              </span>
+
+              <span className="text-xl font-bold leading-tight tracking-[-0.02em] transition-colors group-hover:text-accent md:text-2xl">
+                {project.title}
+              </span>
+
+              <span className="mt-1 text-sm leading-relaxed text-muted">
+                {project.outcome}
+              </span>
+
+              <span className="mt-auto flex flex-wrap items-center gap-2 pt-5">
+                {project.stack.map((tool) => (
+                  <span key={tool} className="label border border-line px-2 py-1 text-ink-soft">
+                    {tool}
+                  </span>
+                ))}
+                {project.href ? (
+                  <span className="label text-accent transition-colors group-hover:text-ink">
+                    Відкрити ↗
+                  </span>
+                ) : null}
+              </span>
+            </>
+          );
+          const cls =
+            "group flex h-full flex-col gap-2 bg-paper p-6 transition-colors hover:bg-paper-2 md:p-8";
           return (
-            <li key={project.index} className="reveal">
-              <Cell
-                {...cellProps}
-                className="group grid grid-cols-1 gap-x-8 gap-y-3 py-7 md:grid-cols-12 md:items-baseline"
-              >
-                <span className="label md:col-span-1">{project.index}</span>
-
-                <span className="md:col-span-4">
-                  <span className="block text-xl font-bold tracking-[-0.02em] transition-colors group-hover:text-accent md:text-2xl">
-                    {project.title}
-                  </span>
-                  <span className="label mt-1.5 block">
-                    {project.kind} · {project.year}
-                  </span>
-                </span>
-
-                <span className="text-sm leading-relaxed text-muted md:col-span-5">
-                  {project.outcome}
-                </span>
-
-                <span className="flex flex-wrap items-center gap-2 md:col-span-2 md:justify-end">
-                  {project.stack.map((tool) => (
-                    <span
-                      key={tool}
-                      className="label border border-line px-2 py-1 text-ink-soft"
-                    >
-                      {tool}
-                    </span>
-                  ))}
-                  {project.href ? (
-                    <span className="label text-accent transition-colors group-hover:text-ink">
-                      Відкрити ↗
-                    </span>
-                  ) : null}
-                </span>
-              </Cell>
+            <li key={project.index} className="bg-paper">
+              {project.href ? (
+                <a
+                  href={project.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cls}
+                >
+                  {inner}
+                </a>
+              ) : (
+                <span className={cls}>{inner}</span>
+              )}
             </li>
           );
         })}
@@ -305,79 +314,105 @@ function Work() {
 
 /* ── Сертифікати ──────────────────────────────────────────────── */
 
+function CertCard({ cert }: { cert: (typeof site.certificates)[number] }) {
+  const inner = (
+    <>
+      <span className="label flex items-center justify-between gap-2">
+        <span>{cert.year}</span>
+        {cert.href ? (
+          <span
+            aria-hidden
+            className="shrink-0 text-[10px] tracking-[0.12em] text-accent transition-colors group-hover:text-ink"
+          >
+            ↗
+          </span>
+        ) : null}
+      </span>
+      <span className="text-[15px] font-bold leading-snug tracking-[-0.01em] transition-colors group-hover:text-accent">
+        {cert.title}
+      </span>
+      <span className="mt-auto pt-1 text-sm leading-snug text-muted">
+        <span>{cert.issuer}</span>
+        {cert.note ? <span> · {cert.note}</span> : null}
+        {cert.credentialId ? (
+          <span className="block pt-1.5 font-mono text-xs tracking-wide text-muted">
+            ID {cert.credentialId}
+          </span>
+        ) : null}
+        {cert.href ? (
+          <span className="mt-2 block text-xs font-semibold tracking-wide text-accent">
+            {cert.hrefLabel ?? "Перевірити →"}
+          </span>
+        ) : null}
+      </span>
+    </>
+  );
+  const cls =
+    "group flex h-full flex-col gap-2 bg-paper p-5 text-left transition-colors hover:bg-paper-2";
+
+  return (
+    <li className="bg-paper">
+      {cert.href ? (
+        <a
+          href={cert.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`${cert.title} — ${cert.hrefLabel ?? "відкрити перевірку"}`}
+          className={cls}
+        >
+          {inner}
+        </a>
+      ) : (
+        <span className={cls}>{inner}</span>
+      )}
+    </li>
+  );
+}
+
 function Certificates() {
+  /* Сертифікати згруповано за темою: двадцять карток одним списком
+     читались як рівна стіна, у якій не видно, що людина вміє. Групи
+     дають відповідь на питання «в чому я сильний», а лічильник —
+     масштаб. Порядок груп збігається з переліком напрямів на сайті. */
+  const order = ["Штучний інтелект", "Кібербезпека й OSINT", "Хмарні платформи й контент"];
+  const groups = order
+    .map((name) => ({ name, items: site.certificates.filter((c) => c.group === name) }))
+    .filter((g) => g.items.length > 0);
+
   return (
     <Section id="certs" title="Сертифікати">
-      <p className="reveal mb-10 max-w-xl text-base leading-relaxed text-muted">
-        {site.certificates.length} програм підвищення кваліфікації — кожна з
-        посиланням на перевірку. Натисни картку, щоб відкрити сертифікат або
-        сторінку курсу.
+      <p className="reveal mb-12 max-w-xl text-base leading-relaxed text-muted">
+        {site.certificates.length} програм підвищення кваліфікації за трьома
+        темами. Кожна картка веде на сторінку перевірки або курсу.
       </p>
 
-      <ul className="reveal grid grid-cols-1 gap-px border border-line bg-line sm:grid-cols-2">
-        {site.certificates.map((cert) => {
-          const inner = (
-            <>
-              <span className="label flex items-center justify-between gap-2">
-                <span>{cert.year}</span>
-                {cert.href ? (
-                  <span
-                    aria-hidden
-                    className="shrink-0 text-[10px] tracking-[0.12em] text-accent transition-colors group-hover:text-ink"
-                  >
-                    ↗
-                  </span>
-                ) : null}
+      <div className="reveal space-y-12">
+        {groups.map((group) => (
+          <div key={group.name}>
+            <div className="mb-5 flex items-baseline justify-between gap-4 border-b border-line pb-3">
+              <h3 className="text-base font-bold tracking-[-0.01em]">{group.name}</h3>
+              <span className="label shrink-0">
+                {group.items.length}{" "}
+                {group.items.length === 1
+                  ? "сертифікат"
+                  : group.items.length < 5
+                    ? "сертифікати"
+                    : "сертифікатів"}
               </span>
-              <span className="text-base font-bold leading-snug tracking-[-0.01em] transition-colors group-hover:text-accent">
-                {cert.title}
-              </span>
-              <span className="mt-auto pt-1 text-sm leading-snug text-muted">
-                <span>{cert.issuer}</span>
-                {cert.note ? <span> · {cert.note}</span> : null}
-                {cert.credentialId ? (
-                  <span className="block pt-1 font-mono text-[11px] tracking-wide text-muted/80">
-                    ID {cert.credentialId}
-                  </span>
-                ) : null}
-                {cert.href ? (
-                  <span className="mt-2 block text-xs font-semibold tracking-wide text-accent group-hover:underline">
-                    {cert.hrefLabel ?? "Перевірити →"}
-                  </span>
-                ) : null}
-              </span>
-            </>
-          );
-          const cls =
-            "group flex flex-col gap-2 bg-paper p-6 text-left transition-colors hover:bg-paper-2";
-          return cert.href ? (
-            <li key={`${cert.year}-${cert.title}`} className="bg-paper">
-              <a
-                href={cert.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${cert.title} — ${cert.hrefLabel ?? "відкрити перевірку"}`}
-                className={cls}
-              >
-                {inner}
-              </a>
-            </li>
-          ) : (
-            <li
-              key={`${cert.year}-${cert.title}`}
-              className="flex flex-col gap-2 bg-paper p-6"
-            >
-              {inner}
-            </li>
-          );
-        })}
-      </ul>
+            </div>
+            <ul className="grid auto-rows-fr grid-cols-1 gap-px border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
+              {group.items.map((cert) => (
+                <CertCard key={`${cert.year}-${cert.title}`} cert={cert} />
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
 
-      <p className="reveal mt-6 max-w-2xl text-xs leading-relaxed text-muted">
-        Посилання з позначкою ↗ відкриваються в новій вкладці. Сертифікати
-        Coursera / Credly верифікуються за ID на ім&apos;я Oleg Parashchuk; для
-        інших програм — офіційна сторінка курсу, де видається сертифікат після
-        завершення.
+      <p className="reveal mt-8 max-w-2xl text-xs leading-relaxed text-muted">
+        Сертифікати Coursera / Credly верифікуються за ID на ім&apos;я Oleg
+        Parashchuk; для інших програм — офіційна сторінка курсу, де видають
+        сертифікат після завершення.
       </p>
     </Section>
   );
