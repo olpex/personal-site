@@ -123,9 +123,6 @@ function Hero() {
         </dl>
       </div>
 
-      {/* Цифра без джерела на сайті викладача читається як реклама —
-          підписуємо її походження прямо під смугою фактів. */}
-      <p className="shell mt-6 text-xs leading-relaxed text-muted">{site.factsNote}</p>
     </section>
   );
 }
