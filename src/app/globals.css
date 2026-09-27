@@ -317,14 +317,27 @@
   color: var(--accent-ink);
 }
 
-/* Paper grain — keeps large flat areas from looking synthetic */
+/* Paper grain — keeps large flat areas from looking synthetic.
+   Base 0.05 ледь читається на білому; на hero додаємо ще шар, щоб
+   перший екран не виглядав стерильно, решта лишається спокійнішою. */
   .grain::before {
     content: "";
     position: fixed;
     inset: 0;
     z-index: 60;
     pointer-events: none;
-    opacity: 0.035;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Додаткове зерно лише на hero — поверх базового дає ~0.08 сумарно,
+     але не зачіпає довгі секції нижче. */
+  .grain-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.03;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 }

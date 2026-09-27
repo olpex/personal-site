@@ -8,7 +8,7 @@ import CertIndex from "@/components/cert-index";
 
 function Hero() {
   return (
-    <section id="top" className="gutter relative">
+    <section id="top" className="gutter grain-hero relative">
       {/* На мобільному порядок інший, ніж на десктопі: ім'я -> роль ->
           ПОРТРЕТ -> опис із кнопками. Портрет мусить потрапити в перший
           екран, бо це обличчя сайту; опис читають уже після нього. Кнопка
