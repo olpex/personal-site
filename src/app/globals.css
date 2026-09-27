@@ -587,6 +587,51 @@ a:hover .nudge {
   }
 }
 
+/* ── Стрічка розмови: бульбашки, як у месенджері ──────────────────
+   Відвідувач — темна бульбашка праворуч, власник — світла ліворуч.
+   Так одразу видно, хто що сказав, і розмову можна гортати. */
+.chat-scroll {
+  scrollbar-width: thin;
+}
+
+.chat-row-visitor {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.chat-row-owner {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.chat-bubble-visitor,
+.chat-bubble-owner {
+  max-width: 88%;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.chat-bubble-visitor {
+  background: var(--ink, #0f1013);
+  color: var(--paper, #fff);
+}
+
+.chat-bubble-owner {
+  background: var(--paper-2, #f7f8fa);
+  color: var(--ink-soft, #22242a);
+  border-left: 2px solid var(--accent, #ea580c);
+}
+
+.chat-hint {
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--muted, #6b6b6b);
+  font-style: italic;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal {
     opacity: 1;

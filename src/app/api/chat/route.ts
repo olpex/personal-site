@@ -160,6 +160,32 @@ export async function POST(request: Request) {
   // Honeypot: реальні люди цього поля не бачать.
   if (clean(payload.company, 60)) return NextResponse.json({ ok: true, id: "" });
 
+  // Закриття розмови З БОКУ ВІДВІДУВАЧА: нічого не надсилаємо в Telegram,
+  // лише повідомляємо містку, щоб власник знав, що діалог завершено.
+  if (clean(payload.action, 20) === "close") {
+    const code = clean(payload.code, 12).toLowerCase();
+    if (!/^[a-z0-9]{8}$/.test(code)) {
+      return NextResponse.json({ ok: false, error: "Невірний код." }, { status: 400 });
+    }
+    try {
+      const text = [
+        "🔒 Відвідувач закрив розмову",
+        "",
+        `Код: #${code}`,
+        "",
+        "Якщо потрібно — напишіть на пошту.",
+      ].join("\n");
+      await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: chatId, text, disable_web_page_preview: true }),
+      });
+    } catch {
+      /* не критично: розмова вже закрита на боці відвідувача */
+    }
+    return NextResponse.json({ ok: true, id: code });
+  }
+
   const name = clean(payload.name, 80);
   const message = clean(payload.message, 2000);
   if (name.length < 2) {
@@ -171,10 +197,11 @@ export async function POST(request: Request) {
 
   // Код: або наявний (продовження розмови), або новий.
   const given = clean(payload.code, 12).toLowerCase();
-  const code = /^[a-z0-9]{8}$/.test(given) ? given : ticketId();
+  const isFollowUp = /^[a-z0-9]{8}$/.test(given);
+  const code = isFollowUp ? given : ticketId();
 
   const text = [
-    "Нове питання з сайту",
+    isFollowUp ? "Уточнення з сайту" : "Нове питання з сайту",
     "",
     `Ім'я: ${name}`,
     "",
