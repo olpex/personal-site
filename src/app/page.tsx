@@ -7,6 +7,7 @@ import { Footer, Header } from "@/components/chrome";
 import Reveal from "@/components/reveal";
 import CertIndex from "@/components/cert-index";
 import FilterChips from "@/components/filter-chips";
+import ContactModal from "@/components/contact-modal";
 
 /* ── Hero ─────────────────────────────────────────────────────── */
 
@@ -647,12 +648,16 @@ function Contact() {
       </p>
 
       <div className="reveal mt-10 flex flex-col gap-8">
-        {/* Email видимим текстом — конвертує краще за будь-яку форму */}
+        {/* Основна дія — форма в модальному вікні: питання летить у Telegram,
+            а відповідь повертається туди ж, у вікно. Пошта лишається як
+            альтернатива для тих, кому зручніше писати листом. */}
+        <ContactModal trigger="button" />
+
         <a
           href={`mailto:${site.email}`}
-          className="link-underline flex h-12 w-fit items-center text-xl font-bold tracking-[-0.02em] md:text-3xl"
+          className="link-underline flex h-12 w-fit items-center text-base font-semibold tracking-[-0.01em] text-ink-soft md:text-lg"
         >
-          {site.email}
+          або {site.email}
         </a>
 
         <ul className="flex flex-wrap gap-x-8 gap-y-1 border-t border-line pt-7">

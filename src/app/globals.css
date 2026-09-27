@@ -513,11 +513,51 @@ a:hover .nudge {
   background-size: 100% 1px;
 }
 
+/* ── Модальне вікно зворотного зв'язку ────────────────────────────
+   <dialog> дає Esc, фокус-пастку й інертність фону без власного JS.
+   Своє — лише вигляд: рамка, різка тінь і поява без «стрибка». */
+.contact-dialog {
+  box-shadow: 0 30px 80px -40px rgba(15, 16, 19, 0.55);
+}
+
+.contact-dialog[open] {
+  animation: dialog-in 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.contact-dialog::backdrop {
+  animation: backdrop-in 0.28s ease;
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal {
     opacity: 1;
     transform: none;
     transition: none;
+  }
+
+  .contact-dialog[open],
+  .contact-dialog::backdrop {
+    animation: none;
   }
 
   .marquee-track {

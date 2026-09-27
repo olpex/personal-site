@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { site } from "@/content/site";
+import ContactModal from "@/components/contact-modal";
 
 const NAV = [
   { id: "about", label: "Про мене" },
@@ -99,12 +100,9 @@ export function Header() {
           })}
         </nav>
 
-        <a
-          href={`mailto:${site.email}`}
-          className="label hidden whitespace-nowrap border border-line-strong px-3 py-1.5 text-ink transition-colors hover:border-accent hover:text-accent sm:inline-flex"
-        >
-          Написати
-        </a>
+        <div className="hidden shrink-0 sm:block">
+          <ContactModal trigger="link" />
+        </div>
       </div>
     </header>
   );
