@@ -38,6 +38,10 @@ const WAIT_TIMEOUT_MS = 30 * 60 * 1000;
 const SESSION_TTL_MS = 5 * 60 * 1000;
 const CODE_AT_KEY = "oparashchuk:chat-code-at";
 
+/** Файли з чату: той самий ліміт, що й на сервері (Vercel ріже тіло ~4.5 МБ). */
+const MAX_FILE_MB = 4;
+const MAX_FILE_BYTES = MAX_FILE_MB * 1024 * 1024;
+
 
 export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
   const [open, setOpen] = useState(false);
@@ -50,6 +54,7 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
   const [closed, setClosed] = useState(false);
   const [ready, setReady] = useState(false);
   const [draft, setDraft] = useState("");
+  const [file, setFile] = useState<File | null>(null);
 
   const panelRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -59,6 +64,7 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
      відповіді — саме через це уточнення власника не доходило. */
   const activeUntil = useRef(0);
   const codeRef = useRef("");
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const keepAlive = useCallback(() => {
     activeUntil.current = Date.now() + WAIT_TIMEOUT_MS;
@@ -273,22 +279,25 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
     const form = event.currentTarget;
     const data = new FormData(form);
     const text = String(data.get("message") ?? "").trim();
-    if (text.length < 2) return;
-    setDraft(text);
+    const picked = file;
+    // Дозволяємо або текст, або файл: людина може надіслати лише документ.
+    if (text.length < 2 && !picked) return;
+    setDraft(text || (picked ? `📎 ${picked.name}` : ""));
     setState("sending");
     setError("");
     touch();
 
     try {
+      const body = new FormData();
+      body.append("name", String(data.get("name") ?? "") || read(NAME_KEY) || "Відвідувач");
+      body.append("message", text);
+      body.append("company", String(data.get("company") ?? "")); // honeypot
+      body.append("code", codeRef.current);
+      if (picked) body.append("file", picked, picked.name);
+
       const res = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: String(data.get("name") ?? "") || read(NAME_KEY) || "Відвідувач",
-          message: text,
-          company: String(data.get("company") ?? ""), // honeypot
-          code: codeRef.current,
-        }),
+        body,
       });
       const json = (await res.json()) as { ok?: boolean; id?: string; error?: string };
       if (!res.ok || !json.ok) {
@@ -311,9 +320,11 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
 
       // Оптимістично показуємо репліку одразу — сервер її зараз запише,
       // наступний опис узгодить список (чернетку замінить серверна версія).
-      setVisitor((prev) => [...prev, { text, at: new Date().toISOString().replace("Z", "").slice(0, 19) }]);
+      const shown = [text, picked ? `📎 ${picked.name}` : ""].filter(Boolean).join("\n");
+      setVisitor((prev) => [...prev, { text: shown, at: new Date().toISOString().replace("Z", "").slice(0, 19) }]);
       keepAlive();
       form.reset();
+      setFile(null);
       setDraft("");
       setState("sent");
       // Негайно підтягуємо серверну стрічку — без очікування інтервалу.
@@ -504,8 +515,8 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
                 <span className="label text-[11px]">{hasCode ? "Уточнення" : "Питання"}</span>
                 <textarea
                   name="message"
-                  required
-                  minLength={2}
+                  required={!file}
+                  minLength={file ? undefined : 2}
                   maxLength={2000}
                   rows={hasCode ? 2 : 3}
                   onInput={touch}
@@ -525,7 +536,75 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
 
               {error ? <p className="mt-2 text-xs text-accent-ink">{error}</p> : null}
 
+              {/* Файл: вибір, показ вибраного, зняття. Людина бачить назву
+                  й розмір, перш ніж надіслати — без «сюрпризів». */}
+              <input
+                ref={fileRef}
+                type="file"
+                name="file"
+                className="hidden"
+                onChange={(event) => {
+                  const picked = event.target.files?.[0] ?? null;
+                  touch();
+                  if (!picked) {
+                    setFile(null);
+                    return;
+                  }
+                  if (picked.size > MAX_FILE_BYTES) {
+                    setError(`Файл завеликий — максимум ${MAX_FILE_MB} МБ.`);
+                    setFile(null);
+                    if (fileRef.current) fileRef.current.value = "";
+                    return;
+                  }
+                  setError("");
+                  setFile(picked);
+                }}
+              />
+
+              {file ? (
+                <div className="mt-3 flex items-center gap-2 rounded-xl border border-line bg-white px-3 py-2">
+                  <span aria-hidden className="text-base leading-none">
+                    📎
+                  </span>
+                  <span className="min-w-0 flex-1 truncate text-xs text-ink-soft" title={file.name}>
+                    {file.name}
+                  </span>
+                  <span className="shrink-0 text-[10px] text-muted">
+                    {(file.size / 1024).toFixed(0)} КБ
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFile(null);
+                      if (fileRef.current) fileRef.current.value = "";
+                      touch();
+                    }}
+                    aria-label="Прибрати файл"
+                    className="shrink-0 text-sm leading-none text-muted transition-colors hover:text-ink"
+                  >
+                    ×
+                  </button>
+                </div>
+              ) : null}
+
               <div className="mt-3 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => fileRef.current?.click()}
+                  disabled={state === "sending"}
+                  title={`Прикріпити документ (до ${MAX_FILE_MB} МБ)`}
+                  aria-label="Прикріпити документ"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-line-strong bg-white text-muted shadow-sm transition-colors hover:border-ink hover:text-ink disabled:opacity-60"
+                >
+                  <svg aria-hidden viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <path
+                      d="M21.4 11.05 12.3 20.2a5 5 0 0 1-7.07-7.07l9.2-9.19a3.5 3.5 0 0 1 4.95 4.95l-9.2 9.19a2 2 0 0 1-2.82-2.82l8.48-8.49"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+
                 <button
                   type="submit"
                   disabled={state === "sending"}

@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+export const runtime = "nodejs";
+
 /**
  * Канал живого чату на сайті.
  *
@@ -27,6 +29,16 @@ const CACHE_TTL_MS = 8000;
 
 const WINDOW_MS = 10 * 60 * 1000;
 const MAX_PER_WINDOW = 10;
+
+/** Файли з чату. Стеля — ліміт тіла запиту на Vercel (~4.5 МБ), тому
+ *  тримаємо 4 МБ: більший файл платформа відкине ще до нашого коду. */
+const MAX_FILE_BYTES = 4 * 1024 * 1024;
+
+/** Виконувані формати не приймаємо — це чат, а не файлообмінник. */
+const BLOCKED_EXT = new Set([
+  "exe", "msi", "bat", "cmd", "com", "scr", "pif", "dll", "app", "action",
+  "sh", "bash", "js", "mjs", "vbs", "ps1", "jar",
+]);
 
 type ReplyEntry = {
   name?: string;
@@ -217,20 +229,51 @@ export async function POST(request: Request) {
     );
   }
 
-  let payload: Record<string, unknown>;
-  try {
-    payload = (await request.json()) as Record<string, unknown>;
-  } catch {
-    return NextResponse.json({ ok: false, error: "Некоректний запит." }, { status: 400 });
+  const ct = request.headers.get("content-type") ?? "";
+  const isMultipart = ct.includes("multipart/form-data");
+
+  let name = "";
+  let message = "";
+  let company = "";
+  let given = "";
+  let action = "";
+  let file: File | null = null;
+
+  if (isMultipart) {
+    let form: FormData;
+    try {
+      form = await request.formData();
+    } catch {
+      return NextResponse.json({ ok: false, error: "Некоректний запит." }, { status: 400 });
+    }
+    name = clean(form.get("name"), 80);
+    message = clean(form.get("message"), 2000);
+    company = clean(form.get("company"), 60);
+    given = clean(form.get("code"), 12).toLowerCase();
+    action = clean(form.get("action"), 20);
+    const f = form.get("file");
+    if (f instanceof File && f.size > 0) file = f;
+  } else {
+    let payload: Record<string, unknown>;
+    try {
+      payload = (await request.json()) as Record<string, unknown>;
+    } catch {
+      return NextResponse.json({ ok: false, error: "Некоректний запит." }, { status: 400 });
+    }
+    name = clean(payload.name, 80);
+    message = clean(payload.message, 2000);
+    company = clean(payload.company, 60);
+    given = clean(payload.code, 12).toLowerCase();
+    action = clean(payload.action, 20);
   }
 
   // Honeypot: реальні люди цього поля не бачать.
-  if (clean(payload.company, 60)) return NextResponse.json({ ok: true, id: "" });
+  if (company) return NextResponse.json({ ok: true, id: "" });
 
   // Закриття розмови З БОКУ ВІДВІДУВАЧА: нічого не надсилаємо в Telegram,
   // лише повідомляємо містку, щоб власник знав, що діалог завершено.
-  if (clean(payload.action, 20) === "close") {
-    const code = clean(payload.code, 12).toLowerCase();
+  if (action === "close") {
+    const code = given;
     if (!/^[a-z0-9]{8}$/.test(code)) {
       return NextResponse.json({ ok: false, error: "Невірний код." }, { status: 400 });
     }
@@ -253,61 +296,124 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, id: code });
   }
 
-  const name = clean(payload.name, 80);
-  const message = clean(payload.message, 2000);
   if (name.length < 2) {
     return NextResponse.json({ ok: false, error: "Як до вас звертатися?" }, { status: 400 });
   }
-  if (message.length < 2) {
-    return NextResponse.json({ ok: false, error: "Напишіть питання." }, { status: 400 });
+
+  // Достатньо тексту АБО файлу — саме щоб можна було надіслати лише документ.
+  const hasFile = Boolean(file);
+  if (!hasFile && message.length < 2) {
+    return NextResponse.json(
+      { ok: false, error: "Напишіть питання або додайте файл." },
+      { status: 400 },
+    );
+  }
+
+  if (file) {
+    if (file.size > MAX_FILE_BYTES) {
+      return NextResponse.json(
+        { ok: false, error: `Файл завеликий — максимум ${Math.round(MAX_FILE_BYTES / 1024 / 1024)} МБ.` },
+        { status: 400 },
+      );
+    }
+    if (file.size === 0) {
+      return NextResponse.json({ ok: false, error: "Файл порожній." }, { status: 400 });
+    }
+    const ext = (file.name.split(".").pop() ?? "").toLowerCase();
+    if (ext && BLOCKED_EXT.has(ext)) {
+      return NextResponse.json({ ok: false, error: "Такий тип файлу надіслати не можна." }, { status: 400 });
+    }
+    if (file.name.length > 120) {
+      return NextResponse.json({ ok: false, error: "Назва файлу занадто довга." }, { status: 400 });
+    }
   }
 
   // Код: або наявний (продовження розмови), або новий.
-  const given = clean(payload.code, 12).toLowerCase();
   const isFollowUp = /^[a-z0-9]{8}$/.test(given);
   const code = isFollowUp ? given : ticketId();
 
-  const text = [
-    isFollowUp ? "Уточнення з сайту" : "Нове питання з сайту",
-    "",
-    `Ім'я: ${name}`,
-    "",
-    message,
-    "",
-    `Код: #${code}`,
-    "",
-    "Щоб відповісти — натисніть «Відповісти» на ЦЬОМУ повідомленні.",
-  ].join("\n");
+  // Що показуємо у стрічці як репліку відвідувача. Для файлу — іконка й назва,
+  // щоб історія не залежала від того, чи браузер ще тримає сам файл.
+  const sizeKb = file ? Math.max(1, Math.round(file.size / 1024)) : 0;
+  const attachment = file ? `📎 ${file.name} (${sizeKb} КБ)` : "";
+  const visitorText = [message, attachment].filter(Boolean).join("\n") || "(файл)";
 
   // Реєструємо звернення у файлі ОДНОЧАСНО з надсиланням у Telegram: місток
-  // має бачити розмову ДО першої відповіді, інакше адресат «вгадується» —
-  // саме так відповідь про сертифікати категорії C пішла іншій людині.
-  const registered = registerTicket(code, name, message);
+  // має бачити розмову ДО першої відповіді, інакше адресат «вгадується».
+  const registered = registerTicket(code, name, visitorText);
+
+  const header = isFollowUp ? "Уточнення з сайту" : "Нове питання з сайту";
 
   try {
-    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text,
-        disable_web_page_preview: true,
-      }),
-    });
-    const json = (await res.json()) as { ok?: boolean; description?: string };
-    if (!res.ok || !json.ok) {
-      console.error("telegram send failed:", res.status, json.description);
+    let ok = false;
+    let description = "";
+
+    if (file) {
+      // Файл надсилаємо як документ: Telegram збереже оригінальну назву,
+      // а власник завантажить його одним кліком. Підпис несе код розмови,
+      // тож кнопка «Відповісти» на цьому повідомленні працює як завжди.
+      const caption = [
+        `${header} — з файлом`,
+        "",
+        `Ім'я: ${name}`,
+        "",
+        message || "(без тексту — лише файл)",
+        "",
+        `Код: #${code}`,
+        "",
+        "Щоб відповісти — натисніть «Відповісти» на ЦЬОМУ повідомленні.",
+      ].join("\n");
+
+      const tg = new FormData();
+      tg.append("chat_id", chatId);
+      tg.append("caption", caption.slice(0, 1024));
+      tg.append("document", file, file.name);
+
+      const res = await fetch(`https://api.telegram.org/bot${token}/sendDocument`, {
+        method: "POST",
+        body: tg,
+      });
+      const json = (await res.json()) as { ok?: boolean; description?: string };
+      ok = Boolean(res.ok && json.ok);
+      description = json.description ?? "";
+      if (!ok) console.error("telegram sendDocument failed:", res.status, description);
+    } else {
+      const text = [
+        header,
+        "",
+        `Ім'я: ${name}`,
+        "",
+        message,
+        "",
+        `Код: #${code}`,
+        "",
+        "Щоб відповісти — натисніть «Відповісти» на ЦЬОМУ повідомленні.",
+      ].join("\n");
+
+      const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: chatId, text, disable_web_page_preview: true }),
+      });
+      const json = (await res.json()) as { ok?: boolean; description?: string };
+      ok = Boolean(res.ok && json.ok);
+      description = json.description ?? "";
+      if (!ok) console.error("telegram send failed:", res.status, description);
+    }
+
+    if (!ok) {
       return NextResponse.json(
-        { ok: false, error: "Не вдалося надіслати питання. Спробуйте ще раз." },
+        { ok: false, error: "Не вдалося надіслати. Спробуйте ще раз." },
         { status: 502 },
       );
     }
+
     await registered.catch(() => {});
     return NextResponse.json({ ok: true, id: code });
   } catch (error) {
     console.error("telegram request error:", error);
     return NextResponse.json(
-      { ok: false, error: "Не вдалося надіслати питання. Спробуйте ще раз." },
+      { ok: false, error: "Не вдалося надіслати. Спробуйте ще раз." },
       { status: 502 },
     );
   }
