@@ -52,9 +52,14 @@ function escapeHtml(value: string) {
     .replace(/>/g, "&gt;");
 }
 
-/** Короткий читабельний ідентифікатор звернення — щоб відповідь мала до чого прив'язатись. */
+/** Короткий читабельний ідентифікатор звернення — щоб відповідь мала до чого
+ *  прив'язатись. Завжди РІВНО 8 символів base36: розпізнавач у Telegram-мості
+ *  вимагає саме такої довжини, тому частину від часу доповнюємо нулями. */
 function ticketId() {
-  return Date.now().toString(36).slice(-5) + Math.random().toString(36).slice(2, 5);
+  return (
+    Date.now().toString(36).slice(-5).padStart(5, "0") +
+    Math.random().toString(36).slice(2, 5).padEnd(3, "0")
+  );
 }
 
 export async function POST(request: Request) {
