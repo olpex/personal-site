@@ -150,7 +150,13 @@
       ]
     },
     "6ixea97o": {
-      "messages": [],
+      "messages": [
+        {
+          "text": "hi",
+          "at": "2026-09-27T18:57:32",
+          "from": "owner"
+        }
+      ],
       "name": "mike",
       "createdAt": "2026-09-27T18:56:04",
       "visitor": [
