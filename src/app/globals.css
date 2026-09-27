@@ -468,6 +468,11 @@ a:hover .nudge {
   background-size: 100% 1px;
 }
 
+/* Scroll-spy: активний пункт навігації тримає підкреслення */
+.nav-active {
+  background-size: 100% 1px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal {
     opacity: 1;
