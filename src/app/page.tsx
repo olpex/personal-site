@@ -255,29 +255,8 @@ function Reviews() {
     "Технології комп'ютерної обробки інформації": "Обробка інформації",
   };
 
-  const shortSlug: Record<string, string> = {
-    "ШІ та штучний інтелект": "shi",
-    "Кібербезпека й цифрова безпека": "kiberbezpeka",
-    "Графічний дизайн": "hrafichnyi-dyzain",
-    "Технології комп'ютерної обробки інформації": "obrobka-informatsii",
-  };
-
-  const [reviewFilter, setReviewFilter] = useState<string | null>(null);
-
-  const filteredReviews = reviewFilter
-    ? site.reviews.filter((r) => shortSlug[r.group] === reviewFilter)
-    : site.reviews;
-
-  const featured = filteredReviews.filter((r) => r.featured);
-  const rest = filteredReviews.filter((r) => !r.featured);
-
-  const reviewGroups = order
-    .map((name) => ({
-      name: shortGroup[name] ?? name,
-      slug: shortSlug[name],
-      count: site.reviews.filter((r) => r.group === name).length,
-    }))
-    .filter((g) => g.count > 0);
+  const featured = site.reviews.filter((r) => r.featured);
+  const rest = site.reviews.filter((r) => !r.featured);
 
   const card = (review: (typeof site.reviews)[number], dim = false, i = 0) => (
     <li
@@ -315,22 +294,6 @@ function Reviews() {
         </dl>
       }
     >
-      <div className="reveal mb-6">
-        <FilterChips groups={reviewGroups} onChange={setReviewFilter} />
-        {reviewFilter !== null ? (
-          <p className="mt-3 text-xs text-muted">
-            Показано {filteredReviews.length} з {site.reviews.length} ·{" "}
-            <button
-              type="button"
-              onClick={() => setReviewFilter(null)}
-              className="underline decoration-line underline-offset-4 hover:text-ink"
-            >
-              скинути фільтр
-            </button>
-          </p>
-        ) : null}
-      </div>
-
       <ul className="reveal review-flow">
         {featured.map((review, i) => card(review, false, i))}
       </ul>
