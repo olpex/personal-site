@@ -4,17 +4,17 @@ import { useEffect } from "react";
 
 /**
  * Adds data-visible="true" to every .reveal element once it scrolls into view.
- * Pure IntersectionObserver — no animation library, ~1KB, and it no-ops
- * entirely when the user prefers reduced motion (CSS handles the fallback).
+ * Pure IntersectionObserver — no animation library. Re-observes nodes that
+ * appear later (e.g. after filtering certificates), otherwise they stay at
+ * opacity 0 and look like "not rendered" / підгальмовування.
  */
 export default function Reveal() {
   useEffect(() => {
-    const nodes = Array.from(document.querySelectorAll<HTMLElement>(".reveal"));
-    if (nodes.length === 0) return;
-
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) {
-      nodes.forEach((n) => n.setAttribute("data-visible", "true"));
+      document
+        .querySelectorAll<HTMLElement>(".reveal")
+        .forEach((n) => n.setAttribute("data-visible", "true"));
       return;
     }
 
@@ -29,8 +29,30 @@ export default function Reveal() {
       { rootMargin: "0px 0px -12% 0px", threshold: 0.08 },
     );
 
-    nodes.forEach((n) => observer.observe(n));
-    return () => observer.disconnect();
+    const observe = (el: HTMLElement) => {
+      if (el.hasAttribute("data-visible")) return;
+      observer.observe(el);
+    };
+
+    document.querySelectorAll<HTMLElement>(".reveal").forEach(observe);
+
+    const mo = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        for (const node of m.addedNodes) {
+          if (!(node instanceof HTMLElement)) continue;
+          if (node.classList.contains("reveal")) observe(node);
+          node
+            .querySelectorAll<HTMLElement>(".reveal:not([data-visible])")
+            .forEach(observe);
+        }
+      }
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      observer.disconnect();
+      mo.disconnect();
+    };
   }, []);
 
   return null;
