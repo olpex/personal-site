@@ -1,8 +1,12 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import { site } from "@/content/site";
 import { Footer, Header } from "@/components/chrome";
 import Reveal from "@/components/reveal";
 import CertIndex from "@/components/cert-index";
+import FilterChips from "@/components/filter-chips";
 
 /* ── Hero ─────────────────────────────────────────────────────── */
 
@@ -251,8 +255,29 @@ function Reviews() {
     "Технології комп'ютерної обробки інформації": "Обробка інформації",
   };
 
-  const featured = site.reviews.filter((r) => r.featured);
-  const rest = site.reviews.filter((r) => !r.featured);
+  const shortSlug: Record<string, string> = {
+    "ШІ та штучний інтелект": "shi",
+    "Кібербезпека й цифрова безпека": "kiberbezpeka",
+    "Графічний дизайн": "hrafichnyi-dyzain",
+    "Технології комп'ютерної обробки інформації": "obrobka-informatsii",
+  };
+
+  const [reviewFilter, setReviewFilter] = useState<string | null>(null);
+
+  const filteredReviews = reviewFilter
+    ? site.reviews.filter((r) => shortSlug[r.group] === reviewFilter)
+    : site.reviews;
+
+  const featured = filteredReviews.filter((r) => r.featured);
+  const rest = filteredReviews.filter((r) => !r.featured);
+
+  const reviewGroups = order
+    .map((name) => ({
+      name: shortGroup[name] ?? name,
+      slug: shortSlug[name],
+      count: site.reviews.filter((r) => r.group === name).length,
+    }))
+    .filter((g) => g.count > 0);
 
   const card = (review: (typeof site.reviews)[number], dim = false, i = 0) => (
     <li
@@ -290,6 +315,22 @@ function Reviews() {
         </dl>
       }
     >
+      <div className="reveal mb-6">
+        <FilterChips groups={reviewGroups} onChange={setReviewFilter} />
+        {reviewFilter !== null ? (
+          <p className="mt-3 text-xs text-muted">
+            Показано {filteredReviews.length} з {site.reviews.length} ·{" "}
+            <button
+              type="button"
+              onClick={() => setReviewFilter(null)}
+              className="underline decoration-line underline-offset-4 hover:text-ink"
+            >
+              скинути фільтр
+            </button>
+          </p>
+        ) : null}
+      </div>
+
       <ul className="reveal review-flow">
         {featured.map((review, i) => card(review, false, i))}
       </ul>
@@ -520,6 +561,16 @@ function Certificates() {
     .map((name) => ({ name, items: site.certificates.filter((c) => c.group === name) }))
     .filter((g) => g.items.length > 0);
 
+  const [certFilter, setCertFilter] = useState<string | null>(null);
+  const certGroups = groups.map((g) => ({
+    name: g.name,
+    slug: slug(g.name),
+    count: g.items.length,
+  }));
+  const visibleGroups = certFilter
+    ? groups.filter((g) => slug(g.name) === certFilter)
+    : groups;
+
   return (
     <Section
       id="certs"
@@ -541,13 +592,28 @@ function Certificates() {
         </div>
       }
     >
+      <div className="reveal mb-6 flex flex-col gap-3">
+        <FilterChips groups={certGroups} onChange={setCertFilter} />
+        {certFilter !== null ? (
+          <p className="text-xs text-muted">
+            Показано {visibleGroups.reduce((n, g) => n + g.items.length, 0)} з {site.certificates.length} ·{" "}
+            <button
+              type="button"
+              onClick={() => setCertFilter(null)}
+              className="underline decoration-line underline-offset-4 hover:text-ink"
+            >
+              скинути фільтр
+            </button>
+          </p>
+        ) : null}
+      </div>
       <p className="reveal mb-12 max-w-xl text-base leading-relaxed text-muted">
         {site.certificates.length} програм підвищення кваліфікації за трьома
         темами. Кожна картка веде на сторінку перевірки або курсу.
       </p>
 
       <div className="reveal space-y-12">
-        {groups.map((group) => (
+        {visibleGroups.map((group) => (
           <div key={group.name} id={`cert-${slug(group.name)}`} className="scroll-mt-16">
             <div className="group-rule mb-6 flex items-baseline justify-between gap-4 pb-3">
               <h3 className="text-base font-bold tracking-[-0.01em]">{group.name}</h3>
