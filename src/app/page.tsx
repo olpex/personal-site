@@ -386,11 +386,6 @@ function Work() {
         </dl>
       }
     >
-      <p className="reveal mb-12 max-w-xl text-base leading-relaxed text-muted">
-        Курси, які веду. Для кожного — що саме даю слухачам і чим
-        завершується навчання.
-      </p>
-
       <ul className="reveal card-grid grid-cols-1 md:grid-cols-2">
         {site.projects.map((project) => {
           const inner = (
