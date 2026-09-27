@@ -379,8 +379,16 @@ function Work() {
           <div>
             <dt className="label">Матеріали</dt>
             <dd className="mt-1.5 text-sm leading-relaxed text-muted">
-              Презентації та нотатки викладача до кожного слайда —
-              у відкритому доступі.
+              Презентації та нотатки викладача до кожного слайда —{" "}
+              <a
+                href="https://cources.lovable.app/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-accent-ink underline decoration-accent/30 underline-offset-4 transition-colors hover:text-ink hover:decoration-ink/30"
+              >
+                у відкритому доступі ↗
+              </a>
+              .
             </dd>
           </div>
         </dl>
