@@ -648,16 +648,22 @@ function Contact() {
       </p>
 
       <div className="reveal mt-10 flex flex-col gap-8">
-        {/* Основна дія — форма в модальному вікні: питання летить у Telegram,
-            а відповідь повертається туди ж, у вікно. Пошта лишається як
-            альтернатива для тих, кому зручніше писати листом. */}
+        {/* Два канали, навмисно розділені:
+            • кнопка чату в куті (ChatWidget) — живе листування, відповідь
+              приходить туди ж, у вікно;
+            • ця кнопка — лист на пошту, для тих, кому зручніше поштою. */}
         <ContactModal trigger="button" />
+
+        <p className="max-w-lg text-sm leading-relaxed text-ink-soft">
+          Або запитайте в чаті — кнопка в правому нижньому куті. Питання прийде
+          мені в Telegram, і відповідь з&apos;явиться там же, у вікні чату.
+        </p>
 
         <a
           href={`mailto:${site.email}`}
           className="link-underline flex h-12 w-fit items-center text-base font-semibold tracking-[-0.01em] text-ink-soft md:text-lg"
         >
-          або {site.email}
+          {site.email}
         </a>
 
         <ul className="flex flex-wrap gap-x-8 gap-y-1 border-t border-line pt-7">

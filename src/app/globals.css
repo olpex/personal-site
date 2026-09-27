@@ -548,11 +548,58 @@ a:hover .nudge {
   }
 }
 
+/* ── Плаваюча кнопка чату + панель ────────────────────────────────
+   Кнопка живе в куті на всіх сторінках; панель розкривається з неї
+   й згортається за бездіяльності. Сесія при цьому не втрачається. */
+.chat-fab {
+  box-shadow: 0 10px 30px -12px rgba(15, 16, 19, 0.5);
+}
+
+/* Легкий «дихаючий» рух — привертає увагу, коли надійшла відповідь. */
+.chat-fab-nudge {
+  animation: fab-nudge 1.6s ease-in-out infinite;
+}
+
+@keyframes fab-nudge {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.chat-panel {
+  animation: chat-in 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: bottom right;
+  box-shadow: 0 30px 70px -30px rgba(15, 16, 19, 0.55);
+}
+
+@keyframes chat-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal {
     opacity: 1;
     transform: none;
     transition: none;
+  }
+
+  .chat-fab-nudge {
+    animation: none;
+  }
+
+  .chat-panel {
+    animation: none;
   }
 
   .contact-dialog[open],

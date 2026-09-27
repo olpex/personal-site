@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Caveat, JetBrains_Mono, Manrope, Spectral } from "next/font/google";
 import { site } from "@/content/site";
+import ChatWidget from "@/components/chat-widget";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -183,6 +184,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           Перейти до вмісту
         </a>
         {children}
+        {/* Кнопка чату показується лише коли бот налаштований: інакше
+            відвідувач натрапив би на кнопку, що видає помилку. */}
+        <ChatWidget enabled={Boolean(process.env.TELEGRAM_SITE_BOT_TOKEN)} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }} />
         <script
           type="application/ld+json"
