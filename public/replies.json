@@ -107,7 +107,13 @@
       ]
     },
     "520qts09": {
-      "messages": [],
+      "messages": [
+        {
+          "text": "ні",
+          "at": "2026-09-27T18:15:32",
+          "from": "owner"
+        }
+      ],
       "name": "Микола",
       "createdAt": "2026-09-27T18:14:56",
       "visitor": [
