@@ -274,41 +274,13 @@ function Reviews() {
   );
 
   return (
-    <Section
-      id="reviews"
-      title="Відгуки"
-      aside={
-        /* Найчастіше питання до відгуків — «звідки вони». Відповідь
-           стоїть поруч, а не дрібним шрифтом під секцією. */
-        <div className="space-y-4">
-          <div>
-            <p className="label">Джерело</p>
-            <p className="mt-1.5 text-sm leading-relaxed text-muted">
-              Анкета ЛЦПТО ДСЗ, яку слухачі заповнюють після курсу.
-            </p>
-          </div>
-          <div>
-            <p className="label">Відбір</p>
-            <p className="mt-1.5 text-sm leading-relaxed text-muted">
-              Подано дослівно, без правок. Лише за напрямами, які я
-              викладаю.
-            </p>
-          </div>
-          <div>
-            <p className="label">Період</p>
-            <p className="mt-1.5 text-sm leading-relaxed text-muted">
-              2025–2026.
-            </p>
-          </div>
-        </div>
-      }
-    >
-      <p className="reveal mb-10 max-w-xl text-base leading-relaxed text-muted">
+    <Section id="reviews" title="Відгуки">
+      <p className="reveal mb-6 max-w-xl text-base leading-relaxed text-muted">
         Слухачі заповнюють анкету після кожного курсу. Цитати подано
         дослівно — з іменами авторів і датами.
       </p>
 
-      <dl className="reveal mb-14 flex flex-wrap gap-x-14 gap-y-6">
+      <dl className="reveal mb-8 flex flex-wrap gap-x-14 gap-y-6">
         {site.reviewStats.map((stat) => (
           <div key={stat.k}>
             <dt className="label">{stat.k}</dt>
