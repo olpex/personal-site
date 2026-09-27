@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { buildRows, type LocalMsg, type OwnerMsg } from "@/lib/chat-thread";
+import { buildRows, type Msg } from "@/lib/chat-thread";
 
 /**
  * Плаваюча кнопка чату + вікно-переписка.
@@ -14,13 +14,9 @@ import { buildRows, type LocalMsg, type OwnerMsg } from "@/lib/chat-thread";
  * Це ПЕРЕПИСКА, а не одна відповідь: людина може уточнювати скільки завгодно
  * разів, і обидві сторони бачать усю розмову.
  *
- * Чому власні повідомлення зберігаються локально: сайт не має права писати
- * у репозиторій, тож репліки відвідувача живуть у localStorage цього браузера.
- * Власник бачить їх у Telegram — кожне уточнення йде окремим повідомленням.
- *
- * Порядок реплік відновлюється точно: кожна локальна репліка пам'ятає
- * `after` — скільком відповідям власника вона передувала. Тому «питання →
- * відповідь → уточнення» не переплутаються місцями.
+ * Історія живе НА СЕРВЕРІ: репліки відвідувача пише сайт, відповіді — місток
+ * із Telegram. Браузер не є джерелом правди: після перезавантаження або
+ * відкриття з іншого пристрою переписка відновиться.
  */
 
 const CODE_KEY = "oparashchuk:chat-code";
@@ -37,57 +33,6 @@ const POLL_MS = 7000;
 /** Після надсилання чекаємо відповідь не вічно. */
 const WAIT_TIMEOUT_MS = 30 * 60 * 1000;
 
-type Owner = OwnerMsg;
-type Local = LocalMsg;
-
-function read(key: string): string {
-  try {
-    return localStorage.getItem(key) ?? "";
-  } catch {
-    return "";
-  }
-}
-
-function write(key: string, value: string) {
-  try {
-    if (value) localStorage.setItem(key, value);
-    else localStorage.removeItem(key);
-  } catch {
-    /* приватний режим — просто не зберігаємо */
-  }
-}
-
-function readCode(): string {
-  const v = read(CODE_KEY);
-  return v && /^[a-z0-9]{8}$/.test(v) ? v : "";
-}
-
-function readLocal(): Local[] {
-  try {
-    const raw = JSON.parse(read(MSG_KEY) || "[]") as unknown;
-    if (!Array.isArray(raw)) return [];
-    return raw
-      .filter((m): m is Record<string, unknown> => Boolean(m) && typeof m === "object")
-      .map((m) => ({
-        text: String(m.text ?? ""),
-        at: String(m.at ?? ""),
-        after: Number.isFinite(Number(m.after)) ? Math.max(0, Number(m.after)) : 0,
-      }))
-      .filter((m) => m.text.length > 0);
-  } catch {
-    return [];
-  }
-}
-
-function stamp() {
-  const d = new Date();
-  const p = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
-}
-
-/** Точне чергування реплік — у src/lib/chat-thread.ts (там його покривають
- *  тести). Локальна репліка пам'ятає, скільком відповідям власника вона
- *  передувала, тож «питання → відповідь → уточнення» не переплутаються. */
 
 export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
   const [open, setOpen] = useState(false);
@@ -95,10 +40,11 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
   const [state, setState] = useState<"idle" | "sending" | "sent" | "closed" | "error">("idle");
   const [error, setError] = useState("");
   const [code, setCode] = useState("");
-  const [owner, setOwner] = useState<Owner[]>([]);
-  const [local, setLocal] = useState<Local[]>([]);
+  const [visitor, setVisitor] = useState<Msg[]>([]);
+  const [owner, setOwner] = useState<Msg[]>([]);
   const [closed, setClosed] = useState(false);
   const [ready, setReady] = useState(false);
+  const [draft, setDraft] = useState("");
 
   const panelRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -108,29 +54,71 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
      відповіді — саме через це уточнення власника не доходило. */
   const activeUntil = useRef(0);
   const codeRef = useRef("");
-  /* Скільки відповідей власника вже прийшло — щоб нові репліки знали своє місце. */
-  const ownerCount = useRef(0);
 
   const keepAlive = useCallback(() => {
     activeUntil.current = Date.now() + WAIT_TIMEOUT_MS;
   }, []);
 
+  function read(key: string): string {
+    try {
+      return localStorage.getItem(key) ?? "";
+    } catch {
+      return "";
+    }
+  }
+  function write(key: string, value: string) {
+    try {
+      if (value) localStorage.setItem(key, value);
+      else localStorage.removeItem(key);
+    } catch {
+      /* приватний режим — просто не зберігаємо */
+    }
+  }
+
+  // Сумісність зі старою версією: історія могла жити в MSG_KEY (localStorage).
+  // Мігруємо її в стан, а джерело правди — сервер: наступне відкриття
+  // підтягне ту саму історію з /api/chat і залежність від браузера зникне.
+  function migrateLocal(): Msg[] {
+    try {
+      const raw = JSON.parse(read(MSG_KEY) || "[]") as unknown;
+      if (!Array.isArray(raw)) return [];
+      return raw
+        .filter((m): m is Record<string, unknown> => Boolean(m) && typeof m === "object")
+        .map((m) => ({
+          text: String(m.text ?? ""),
+          at: String(m.at ?? ""),
+        }))
+        .filter((m) => m.text.length > 0)
+        .map((m) => ({
+          text: m.text,
+          // Стара форма писала «2026-09-27 23:23», нова — «2026-09-27T23:23:32».
+          at: m.at.includes("T") || m.at.includes(":00") ? m.at : m.at,
+        }));
+    } catch {
+      return [];
+    }
+  }
+
   useEffect(() => {
-    const saved = readCode();
-    const msgs = readLocal();
-    if (saved) {
+    const saved = read(CODE_KEY);
+    const hasOld = migrateLocal();
+    if (saved && /^[a-z0-9]{8}$/.test(saved)) {
       setCode(saved);
       codeRef.current = saved;
       keepAlive();
     }
-    if (msgs.length > 0) {
-      setLocal(msgs);
+    // Тимчасово: показуємо стару локальну історію, поки сервер не відповість.
+    // Щойно прийде відповідь — серверна версія замінить її повністю.
+    if (hasOld.length > 0) {
+      setVisitor(hasOld);
       setState("sent");
     }
     if (read(CLOSED_KEY) === "1") {
       setClosed(true);
       setState("closed");
     }
+    const savedName = read(NAME_KEY);
+    if (savedName) setDraft("");
     setReady(true);
   }, []);
 
@@ -138,9 +126,9 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
     lastAct.current = Date.now();
   }, []);
 
-  /* Опитування відповіді — доки розмова відкрита. Раніше воно зупинялося
-     після ПЕРШОЇ відповіді (`messages.length > 0`), і уточнення власника
-     до відвідувача не доходило. */
+  /* Опитування розмови — джерело правди СЕРВЕР. Раніше репліки відвідувача
+     жили в localStorage й губилися між пристроями. Тепер обидва списки
+     приходять із /api/chat і сортуються у стрічку. */
   const poll = useCallback(async (silent = true) => {
     const id = codeRef.current;
     if (!id) return;
@@ -148,14 +136,20 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
       const res = await fetch(`/api/chat?code=${encodeURIComponent(id)}`, { cache: "no-store" });
       const json = (await res.json()) as {
         ok?: boolean;
-        messages?: Owner[];
+        messages?: Msg[];
+        visitor?: Msg[];
         closed?: boolean;
       };
       if (!json.ok) return;
-      const list = json.messages ?? [];
-      if (list.length > ownerCount.current) {
-        ownerCount.current = list.length;
-        setOwner(list);
+      const srvVisitor = (json.visitor ?? []).filter((m) => (m.text ?? "").trim().length > 0);
+      const srvOwner = (json.messages ?? []).filter((m) => (m.text ?? "").trim().length > 0);
+      const was = owner.length;
+      const now = srvOwner.length;
+      if (srvVisitor.length > 0 || srvOwner.length > 0) {
+        setVisitor(srvVisitor);
+        setOwner(srvOwner);
+      }
+      if (now > was) {
         keepAlive();
         if (document.visibilityState === "visible") {
           lastAct.current = Date.now();
@@ -170,7 +164,7 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
     } catch {
       if (!silent) setError("Немає зв'язку. Спробуйте ще раз.");
     }
-  }, []);
+  }, [owner.length]);
 
   useEffect(() => {
     if (!ready || !code) return;
@@ -230,13 +224,15 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
     if (!open) return;
     const el = scrollRef.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [open, local.length, owner.length]);
+  }, [open, visitor.length, owner.length]);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     const data = new FormData(form);
     const text = String(data.get("message") ?? "").trim();
+    if (text.length < 2) return;
+    setDraft(text);
     setState("sending");
     setError("");
     touch();
@@ -269,16 +265,15 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
       const nm = String(data.get("name") ?? "").trim();
       if (nm) write(NAME_KEY, nm);
 
-      /* Записуємо репліку локально, запам'ятовуючи її місце в розмові. */
-      const next = [
-        ...readLocal(),
-        { text, at: stamp(), after: ownerCount.current },
-      ];
-      write(MSG_KEY, JSON.stringify(next));
-      setLocal(next);
+      // Оптимістично показуємо репліку одразу — сервер її зараз запише,
+      // наступний опис узгодить список (чернетку замінить серверна версія).
+      setVisitor((prev) => [...prev, { text, at: new Date().toISOString().replace("Z", "").slice(0, 19) }]);
       keepAlive();
       form.reset();
+      setDraft("");
       setState("sent");
+      // Негайно підтягуємо серверну стрічку — без очікування інтервалу.
+      void poll(false);
     } catch {
       setError("Немає зв'язку. Перевірте інтернет.");
       setState("error");
@@ -307,16 +302,18 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
 
   function startNew() {
     codeRef.current = "";
-    ownerCount.current = 0;
     activeUntil.current = 0;
     setCode("");
+    setVisitor([]);
     setOwner([]);
-    setLocal([]);
     setClosed(false);
     setState("idle");
     setError("");
+    setDraft("");
     write(CODE_KEY, "");
-    write(MSG_KEY, "");
+    // Не чистимо MSG_KEY тут — у користувачів ще могла лишитися історія
+    // старої версії; вона й так не використовується (буде перезаписана
+    // серверною при наступному відкритті).
     write(CLOSED_KEY, "");
     touch();
   }
@@ -328,9 +325,14 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
      кнопка, яка при натисканні видає помилку. */
   if (!enabled) return null;
 
-  const rows = buildRows(local, owner);
+  // Чернетка — власна репліка, яка ще не підтверджена сервером (поки
+  // /api/chat не повернув її у `visitor`). Показуємо її разом із
+  // серверною стрічкою, щоб після надсилання не було «провалу».
+  const draftRows: import("@/lib/chat-thread").Msg[] =
+    state === "sending" && draft ? [{ text: draft, at: "" }] : [];
+  const rows = buildRows([...visitor, ...draftRows], owner);
   const hasCode = Boolean(code);
-  const waiting = hasCode && !closed && owner.length === 0 && local.length > 0;
+  const waiting = hasCode && !closed && owner.length === 0 && visitor.length > 0;
 
   return (
     <>

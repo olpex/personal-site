@@ -28,16 +28,18 @@ const CACHE_TTL_MS = 8000;
 const WINDOW_MS = 10 * 60 * 1000;
 const MAX_PER_WINDOW = 10;
 
+type ReplyEntry = {
+  name?: string;
+  createdAt?: string;
+  closed?: boolean;
+  messages?: { text: string; at: string; from?: string }[];
+  /** Репліки відвідувача, збережені на сервері: тоді історія не залежить
+   *  від браузера й доступна з будь-якого пристрою. */
+  visitor?: { text: string; at: string }[];
+};
+
 type RepliesFile = {
-  replies?: Record<
-    string,
-    {
-      name?: string;
-      createdAt?: string;
-      closed?: boolean;
-      messages?: { text: string; at: string; from?: string }[];
-    }
-  >;
+  replies?: Record<string, ReplyEntry>;
 };
 
 let cache: { at: number; data: RepliesFile } | null = null;
@@ -79,29 +81,92 @@ function clean(value: unknown, max: number) {
   return value.trim().slice(0, max);
 }
 
-async function readReplies(): Promise<RepliesFile> {
-  if (cache && Date.now() - cache.at < CACHE_TTL_MS) return cache.data;
-
+/**
+ * Читає файл разом із його SHA — SHA потрібен для запису через Contents API
+ * (без нього GitHub відхиляє оновлення як конфлікт).
+ */
+async function readRepliesWithSha(): Promise<{ data: RepliesFile; sha: string }> {
   const headers: Record<string, string> = {
     Accept: "application/vnd.github.raw+json",
     "User-Agent": "oparashchuk-site",
   };
-  // Токен (необовʼязковий) піднімає ліміт з 60 до 5000 запитів на годину —
-  // без нього опитування з боку відвідувачів швидко впирається в стелю.
+  // Токен піднімає ліміт з 60 до 5000 запитів на годину — без нього
+  // опитування з боку відвідувачів швидко впирається в стелю.
   if (process.env.GITHUB_TOKEN) {
     headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
   }
 
-  const res = await fetch(
-    `https://api.github.com/repos/${REPO}/contents/${FILE_PATH}?ref=${BRANCH}&cb=${Date.now()}`,
-    { headers, cache: "no-store" },
-  );
+  const url = `https://api.github.com/repos/${REPO}/contents/${FILE_PATH}?ref=${BRANCH}&cb=${Date.now()}`;
+  const res = await fetch(url, { headers, cache: "no-store" });
   if (!res.ok) throw new Error(`github ${res.status}`);
 
+  // Без Accept: raw заголовок X-GitHub-SHA не потрапляє у відповідь, тому
+  // беремо метадані окремо, а вміст — із того ж запиту.
   const text = await res.text();
   const data = JSON.parse(text) as RepliesFile;
+
+  const metaRes = await fetch(url, { headers: { ...headers, Accept: "application/json" }, cache: "no-store" });
+  let sha = "";
+  if (metaRes.ok) {
+    const meta = (await metaRes.json()) as { sha?: string };
+    sha = meta.sha ?? "";
+  }
+  return { data, sha };
+}
+
+async function readReplies(): Promise<RepliesFile> {
+  if (cache && Date.now() - cache.at < CACHE_TTL_MS) return cache.data;
+  const { data } = await readRepliesWithSha();
   cache = { at: Date.now(), data };
   return data;
+}
+
+/**
+ * Реєструє звернення у файлі — щоб місток знав про нього ДО першої відповіді.
+ *
+ * Навіщо: раніше про нове звернення знав лише Telegram. Місток не бачив його
+ * у файлі, тож коли власник відповідав без кнопки «Відповісти», адресат
+ * «вгадувався» — і текст ішов чужій людині.
+ *
+ * Помилку НЕ піднімаємо: реєстрація допоміжна, і питання вже полетіло
+ * в Telegram. Краще втратити запис, ніж зламати надсилання.
+ */
+async function registerTicket(code: string, name: string, text: string): Promise<void> {
+  if (!process.env.GITHUB_TOKEN) return;
+  try {
+    const { data, sha } = await readRepliesWithSha();
+    const replies = data.replies ?? {};
+    const entry = replies[code] ?? { messages: [] };
+    entry.name = name;
+    entry.createdAt = entry.createdAt ?? new Date().toISOString().replace("Z", "").slice(0, 19);
+    // Репліку відвідувача зберігаємо теж — тоді історія живе на сервері,
+    // а не лише в браузері, і її видно з будь-якого пристрою.
+    entry.visitor = entry.visitor ?? [];
+    entry.visitor.push({ text, at: new Date().toISOString().replace("Z", "").slice(0, 19) });
+    replies[code] = entry;
+    data.replies = replies;
+
+    const body = {
+      message: `chat(site): звернення #${code}`,
+      content: Buffer.from(JSON.stringify(data, null, 2) + "\n", "utf-8").toString("base64"),
+      branch: BRANCH,
+      ...(sha ? { sha } : {}),
+    };
+    await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
+        Accept: "application/vnd.github+json",
+        "Content-Type": "application/json",
+        "User-Agent": "oparashchuk-site",
+      },
+      body: JSON.stringify(body),
+      cache: "no-store",
+    });
+    cache = null; // наступне читання має взяти свіже
+  } catch {
+    /* допоміжний крок: не ламаємо надсилання через нього */
+  }
 }
 
 export async function GET(request: Request) {
@@ -119,9 +184,11 @@ export async function GET(request: Request) {
       return NextResponse.json({ ok: true, messages: [], closed: false, waiting: true });
     }
     const messages = (entry.messages ?? []).filter((m) => (m.text ?? "").trim().length > 0);
+    const visitor = (entry.visitor ?? []).filter((m) => (m.text ?? "").trim().length > 0);
     return NextResponse.json({
       ok: true,
       messages,
+      visitor,
       closed: Boolean(entry.closed),
       waiting: messages.length === 0,
     });
@@ -212,6 +279,11 @@ export async function POST(request: Request) {
     "Щоб відповісти — натисніть «Відповісти» на ЦЬОМУ повідомленні.",
   ].join("\n");
 
+  // Реєструємо звернення у файлі ОДНОЧАСНО з надсиланням у Telegram: місток
+  // має бачити розмову ДО першої відповіді, інакше адресат «вгадується» —
+  // саме так відповідь про сертифікати категорії C пішла іншій людині.
+  const registered = registerTicket(code, name, message);
+
   try {
     const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: "POST",
@@ -230,6 +302,7 @@ export async function POST(request: Request) {
         { status: 502 },
       );
     }
+    await registered.catch(() => {});
     return NextResponse.json({ ok: true, id: code });
   } catch (error) {
     console.error("telegram request error:", error);
