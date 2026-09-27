@@ -133,7 +133,13 @@
       ]
     },
     "53pd5odn": {
-      "messages": [],
+      "messages": [
+        {
+          "text": "привіт",
+          "at": "2026-09-27T18:19:32",
+          "from": "owner"
+        }
+      ],
       "name": "вітя",
       "createdAt": "2026-09-27T18:16:14",
       "visitor": [
