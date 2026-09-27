@@ -97,7 +97,7 @@ function Hero() {
             стоїть ПІСЛЯ портрета, а на десктопі підіймається під кнопки
             й закриває порожнечу в лівій колонці.
             Факт, значення якого починається з числа, дістає велику цифру:
-            «54» очима читається за частку секунди. */}
+            «55» очима читається за частку секунди. */}
         <dl className="reveal order-4 lg:order-none grid grid-cols-2 gap-x-6 gap-y-7 border-t border-line pt-8 sm:grid-cols-4 lg:col-span-7 lg:col-start-1 lg:row-start-2 lg:self-end">
           {site.facts.map((fact) => {
             const parts = fact.v.match(/^(\d+(?:[.,]\d+)?%?)\s*(.*)$/);
@@ -234,15 +234,16 @@ function About() {
 /* ── Відгуки слухачів ─────────────────────────────────────────── */
 
 function Reviews() {
-  /* Двадцять цитат поспіль робили секцію найважчою на сторінці — 41%
-     її висоти, і відгуки заступали те, що людина вміє. Схвальні цитати
-     працюють як доказ, а не як архів, тому на видноті вісім найповніших
-     за змістом, а решта — під розкриттям, доступна тим, хто читає уважно.
-     Нічого не викинуто: до всіх двадцяти можна дійти. */
+  /* Фільтр за напрямом — той самий механізм, що в «Сертифікатах»:
+     людина обирає тему й бачить лише її. Без фільтра секція з 55
+     цитатами читалась як суцільна стіна, де не видно, що саме
+     підтверджують відгуки. Групи дають відповідь «у чому я сильний»,
+     а лічильник — масштаб. */
   const order = [
     "ШІ та штучний інтелект",
     "Кібербезпека й цифрова безпека",
     "Графічний дизайн",
+    "Цифровий світ",
     "Технології комп'ютерної обробки інформації",
   ];
 
@@ -252,17 +253,29 @@ function Reviews() {
     "ШІ та штучний інтелект": "ШІ",
     "Кібербезпека й цифрова безпека": "Кібербезпека",
     "Графічний дизайн": "Графічний дизайн",
+    "Цифровий світ": "Цифровий світ",
     "Технології комп'ютерної обробки інформації": "Обробка інформації",
   };
 
-  const featured = site.reviews.filter((r) => r.featured);
-  const rest = site.reviews.filter((r) => !r.featured);
+  const groups = order
+    .map((name) => ({ name, items: site.reviews.filter((r) => r.group === name) }))
+    .filter((g) => g.items.length > 0);
 
-  const card = (review: (typeof site.reviews)[number], dim = false, i = 0) => (
+  const [reviewFilter, setReviewFilter] = useState<string | null>(null);
+  const reviewGroups = groups.map((g) => ({
+    name: shortGroup[g.name] ?? g.name,
+    slug: slug(g.name),
+    count: g.items.length,
+  }));
+  const visibleGroups = reviewFilter
+    ? groups.filter((g) => slug(g.name) === reviewFilter)
+    : groups;
+
+  const card = (review: (typeof site.reviews)[number], i = 0) => (
     <li
       style={{ "--reveal-delay": `${Math.min(i, 5) * 70}ms` } as React.CSSProperties}
       key={`${review.author}-${review.quote.slice(0, 24)}`}
-      className={`review-card reveal flex flex-col gap-4 ${dim ? "opacity-90" : ""}`}
+      className="review-card reveal flex flex-col gap-4"
     >
       <span aria-hidden className="review-dash" />
       <blockquote className="text-base leading-relaxed text-ink-soft">
@@ -276,6 +289,9 @@ function Reviews() {
       </div>
     </li>
   );
+
+  const plural = (n: number) =>
+    n === 1 ? "відгук" : n < 5 ? "відгуки" : "відгуків";
 
   return (
     <Section
@@ -294,29 +310,43 @@ function Reviews() {
         </dl>
       }
     >
-      <ul className="reveal review-flow">
-        {featured.map((review, i) => card(review, false, i))}
-      </ul>
-
-      {rest.length > 0 ? (
-        <details className="reveal group mt-6 border border-line">
-          <summary className="label flex cursor-pointer list-none items-center justify-between gap-4 p-5 text-ink-soft transition-colors hover:text-accent-ink">
-            <span>
-              Показати решту {rest.length}{" "}
-              {rest.length < 5 ? "відгуки" : "відгуків"}
-            </span>
-            <span
-              aria-hidden
-              className="shrink-0 text-lg leading-none transition-transform duration-300 group-open:rotate-45"
+      <div className="reveal mb-6 flex flex-col gap-3">
+        <FilterChips groups={reviewGroups} onChange={setReviewFilter} />
+        {reviewFilter !== null ? (
+          <p className="text-xs text-muted">
+            Показано {visibleGroups.reduce((n, g) => n + g.items.length, 0)} з{" "}
+            {site.reviews.length} ·{" "}
+            <button
+              type="button"
+              onClick={() => setReviewFilter(null)}
+              className="underline decoration-line underline-offset-4 hover:text-ink"
             >
-              +
-            </span>
-          </summary>
-          <ul className="review-flow">
-            {rest.map((review, i) => card(review, true, i))}
-          </ul>
-        </details>
-      ) : null}
+              скинути фільтр
+            </button>
+          </p>
+        ) : null}
+      </div>
+
+      <p className="reveal mb-12 max-w-xl text-base leading-relaxed text-muted">
+        {site.reviews.length} відгуків слухачів за напрямами, які я викладаю.
+        Цитати наведено дослівно.
+      </p>
+
+      <div className="reveal space-y-12">
+        {visibleGroups.map((group) => (
+          <div key={group.name} id={`review-${slug(group.name)}`} className="scroll-mt-16">
+            <div className="group-rule mb-6 flex items-baseline justify-between gap-4 pb-3">
+              <h3 className="text-base font-bold tracking-[-0.01em]">{group.name}</h3>
+              <span className="label shrink-0">
+                {group.items.length} {plural(group.items.length)}
+              </span>
+            </div>
+            <ul className="review-flow">
+              {group.items.map((review, i) => card(review, i))}
+            </ul>
+          </div>
+        ))}
+      </div>
 
       <p className="reveal mt-8 max-w-2xl text-xs leading-relaxed text-muted">
         Відгуки наведено дослівно, без редакторських правок. Показано схвальні
