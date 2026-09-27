@@ -276,7 +276,8 @@ export default function ContactModal({
               </span>
               <p className="mt-4 text-sm leading-relaxed text-ink-soft">
                 Дякую! Питання вже в мене. Я відповім особисто — зазвичай протягом
-                дня. Не закривайте це вікно, щоб побачити відповідь одразу.
+                дня. Відповідь з&apos;явиться тут: можете закрити вікно й повернутися
+                пізніше — вона вас чекатиме.
               </p>
               {ticket && ticket !== "-" ? (
                 <p className="mt-4 text-xs leading-relaxed text-muted">
