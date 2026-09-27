@@ -274,24 +274,28 @@ function Reviews() {
   );
 
   return (
-    <Section id="reviews" title="Відгуки">
-      <p className="reveal mb-6 max-w-xl text-base leading-relaxed text-muted">
+    <Section
+      id="reviews"
+      title="Відгуки"
+      aside={
+        <dl className="flex flex-col gap-5">
+          {site.reviewStats.map((stat) => (
+            <div key={stat.k}>
+              <dt className="label">{stat.k}</dt>
+              <dd className="mt-1.5 text-sm font-semibold leading-snug text-ink-soft">
+                {stat.v}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      }
+    >
+      <p className="reveal max-w-xl text-base leading-relaxed text-muted">
         Слухачі заповнюють анкету після кожного курсу. Цитати подано
         дослівно — з іменами авторів і датами.
       </p>
 
-      <dl className="reveal mb-8 flex flex-wrap gap-x-14 gap-y-6">
-        {site.reviewStats.map((stat) => (
-          <div key={stat.k}>
-            <dt className="label">{stat.k}</dt>
-            <dd className="mt-1.5 text-sm font-semibold leading-snug text-ink-soft">
-              {stat.v}
-            </dd>
-          </div>
-        ))}
-      </dl>
-
-      <ul className="reveal review-flow">
+      <ul className="reveal review-flow mt-8">
         {featured.map((review, i) => card(review, false, i))}
       </ul>
 
