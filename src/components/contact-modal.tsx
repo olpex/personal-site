@@ -38,6 +38,15 @@ function saveTicket(t: Ticket) {
   }
 }
 
+/** Забуваємо звернення: людина хоче поставити нове питання. */
+function clearTickets() {
+  try {
+    localStorage.removeItem(STORE_KEY);
+  } catch {
+    /* нічого не робимо */
+  }
+}
+
 export default function ContactModal({
   trigger = "button",
 }: {
@@ -58,9 +67,15 @@ export default function ContactModal({
     openedAt.current = Date.now();
     setState("idle");
     setError("");
-    setReply("");
     setNothingYet(false);
+    /* reply НЕ очищаємо: якщо відповідь уже прийшла, людина має побачити
+       її одразу при відкритті. Раніше тут стояло setReply("") — і
+       відповідь зникала саме в момент, коли її відкривали. */
     ref.current?.showModal();
+    /* Одноразова перевірка при відкритті: якщо в людини вже було звернення
+       й відповідь щойно з'явилась — покажемо. Далі стежить інтервал, але
+       лише поки питання справді в очікуванні. */
+    if (ticket && !reply) void pull(ticket, true);
   };
 
   /* Періодична перевірка відповіді. Тягнемо лише коли вікно відкрите
@@ -108,7 +123,7 @@ export default function ContactModal({
     void tick();
     const timer = window.setInterval(() => {
       if (document.visibilityState === "visible") void tick();
-    }, 20000);
+    }, 30000);
     return () => {
       cancelled = true;
       window.clearInterval(timer);
@@ -142,6 +157,7 @@ export default function ContactModal({
       }
       const id = json.id ?? "";
       setTicket(id);
+      setReply(""); // нове питання — стара відповідь не стосується
       if (id && id !== "-") saveTicket({ id, at: Date.now() });
       setState("sent");
       form.reset();
@@ -151,13 +167,20 @@ export default function ContactModal({
     }
   }
 
-  /* «Вгору» з попереднього звернення: людина бачить свою відповідь,
-     навіть якщо просто відкрила вікно наступного разу. */
+  /* Один раз на завантаженні: якщо в людини вже є звернення з відповіддю,
+     показуємо її одразу — без повторного надсилання. Саме один раз, бо
+     інакше після «поставити нове питання» стара відповідь поверталась би
+     знову і знову. */
+  const bootstrapped = useRef(false);
   useEffect(() => {
-    if (state !== "idle") return;
+    if (bootstrapped.current) return;
+    bootstrapped.current = true;
     const last = readTickets()[0];
-    if (last) void pull(last.id, true).then((got) => { if (got) setTicket(last.id); });
-  }, [state, pull]);
+    if (!last) return;
+    void pull(last.id, true).then((got) => {
+      if (got) setTicket(last.id);
+    });
+  }, [pull]);
 
   const field =
     "mt-2 w-full border border-line bg-paper px-3 py-2.5 text-sm text-ink placeholder:text-muted/70 focus:border-accent focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]";
@@ -235,6 +258,7 @@ export default function ContactModal({
                 <button
                   type="button"
                   onClick={() => {
+                    clearTickets();
                     setReply("");
                     setTicket("");
                     setState("idle");
