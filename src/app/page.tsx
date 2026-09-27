@@ -659,13 +659,6 @@ function Contact() {
           мені в Telegram, і відповідь з&apos;явиться там же, у вікні чату.
         </p>
 
-        <a
-          href={`mailto:${site.email}`}
-          className="link-underline flex h-12 w-fit items-center text-base font-semibold tracking-[-0.01em] text-ink-soft md:text-lg"
-        >
-          {site.email}
-        </a>
-
         <ul className="flex flex-wrap gap-x-8 gap-y-1 border-t border-line pt-7">
           {site.socials.map((social) => (
             <li key={social.label}>

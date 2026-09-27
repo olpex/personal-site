@@ -370,7 +370,7 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
   }
 
   const field =
-    "w-full border border-line-strong bg-transparent px-3 py-2 text-sm text-ink outline-none transition-colors placeholder:text-muted focus:border-accent";
+    "chat-field w-full border border-line-strong px-3 py-2.5 text-sm text-ink outline-none placeholder:text-muted";
 
   /* Поки бот не налаштований, віджет не показуємо: краще нічого, ніж
      кнопка, яка при натисканні видає помилку. */
@@ -436,11 +436,11 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
           ref={panelRef}
           role="dialog"
           aria-label="Чат із викладачем"
-          className="chat-panel fixed bottom-24 right-5 z-[60] flex h-[min(70vh,32rem)] w-[min(23rem,calc(100vw-2.5rem))] flex-col border border-line-strong bg-paper shadow-2xl"
+          className="chat-panel fixed bottom-24 right-5 z-[60] flex h-[min(70vh,32rem)] w-[min(23rem,calc(100vw-2.5rem))] flex-col"
         >
-          <div className="flex items-start justify-between gap-3 border-b border-line px-4 py-3">
+          <div className="chat-panel-header flex items-start justify-between gap-3 border-b border-line px-4 py-3">
             <div>
-              <p className="text-sm font-bold tracking-[-0.01em]">Запитати напряму</p>
+              <p className="flex items-center gap-2 text-sm font-bold tracking-[-0.01em]"><span className="flex h-7 w-7 items-center justify-center rounded-full bg-ink text-[10px] font-extrabold text-white">ОП</span>Запитати напряму</p>
               <p className="mt-0.5 text-[11px] leading-relaxed text-muted">
                 {hasCode
                   ? "Пишіть уточнення — відповім у цьому вікні."
@@ -463,9 +463,7 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
           {/* Стрічка розмови */}
           <div ref={scrollRef} className="chat-scroll flex-1 overflow-y-auto px-4 py-4">
             {state === "idle" && rows.length === 0 ? (
-              <p className="text-sm leading-relaxed text-ink-soft">
-                Напишіть питання — я відповім особисто, зазвичай протягом дня.
-              </p>
+              <div className="chat-empty px-4 py-5"><p className="text-sm leading-relaxed text-ink-soft">Напишіть питання — я відповім особисто, зазвичай протягом дня.</p><p className="mt-2 text-xs leading-relaxed text-muted">Можна уточнювати скільки завгодно — вся переписка збережеться тут.</p></div>
             ) : (
               <div className="flex flex-col gap-2.5">
                 {rows.map((row) => (
@@ -485,7 +483,7 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
             )}
           </div>
 
-          <form onSubmit={onSubmit} className="border-t border-line px-4 py-3">
+          <form onSubmit={onSubmit} className="border-t border-line bg-white/80 px-4 py-3 backdrop-blur-sm">
               {!hasCode ? (
                 <label className="block">
                   <span className="label text-[11px]">Ім&apos;я</span>
@@ -531,7 +529,7 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
                 <button
                   type="submit"
                   disabled={state === "sending"}
-                  className="flex h-10 flex-1 items-center justify-center bg-ink px-4 text-sm font-semibold text-paper transition-opacity hover:opacity-90 disabled:opacity-60"
+                  className="flex h-10 flex-1 items-center justify-center rounded-xl bg-ink px-4 text-sm font-semibold text-paper shadow-sm transition-all hover:translate-y-[-1px] hover:shadow-md active:translate-y-0 disabled:opacity-60"
                 >
                   {state === "sending" ? "Надсилаю…" : hasCode ? "Надіслати" : "Відправити"}
                 </button>
@@ -540,7 +538,7 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
                     type="button"
                     onClick={closeTalk}
                     title="Закрити розмову"
-                    className="flex h-10 items-center justify-center border border-line-strong px-3 text-xs font-semibold text-muted transition-colors hover:border-ink hover:text-ink"
+                    className="flex h-10 items-center justify-center rounded-xl border border-line-strong bg-white px-3.5 text-xs font-semibold text-muted transition-colors hover:border-ink hover:text-ink"
                   >
                     Закрити
                   </button>
