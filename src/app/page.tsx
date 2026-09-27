@@ -290,12 +290,7 @@ function Reviews() {
         </dl>
       }
     >
-      <p className="reveal max-w-xl text-base leading-relaxed text-muted">
-        Слухачі заповнюють анкету після кожного курсу. Цитати подано
-        дослівно — з іменами авторів і датами.
-      </p>
-
-      <ul className="reveal review-flow mt-8">
+      <ul className="reveal review-flow">
         {featured.map((review, i) => card(review, false, i))}
       </ul>
 
