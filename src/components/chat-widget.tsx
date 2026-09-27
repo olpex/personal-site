@@ -25,13 +25,18 @@ const NAME_KEY = "oparashchuk:chat-name";
 const CLOSED_KEY = "oparashchuk:chat-closed";
 
 /** Скільки чекати без дій, перш ніж згорнути вікно в кнопку. */
-const IDLE_MS = 8 * 60 * 1000;
+const IDLE_MS = 5 * 60 * 1000;
 
 /** Як часто перепитувати відповідь. */
 const POLL_MS = 7000;
 
 /** Після надсилання чекаємо відповідь не вічно. */
 const WAIT_TIMEOUT_MS = 30 * 60 * 1000;
+
+/** Сесія на цьому браузері живе 5 хв — щоб наступний користувач на тому ж
+ *  пристрої не побачив чужу переписку. Після цього код стирається. */
+const SESSION_TTL_MS = 5 * 60 * 1000;
+const CODE_AT_KEY = "oparashchuk:chat-code-at";
 
 
 export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
@@ -57,6 +62,7 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
 
   const keepAlive = useCallback(() => {
     activeUntil.current = Date.now() + WAIT_TIMEOUT_MS;
+    write(CODE_AT_KEY, String(Date.now()));
   }, []);
 
   function read(key: string): string {
@@ -73,6 +79,19 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
     } catch {
       /* приватний режим — просто не зберігаємо */
     }
+  }
+  function sessionExpired(): boolean {
+    const raw = read(CODE_AT_KEY);
+    if (!raw) return false;
+    const at = Number(raw);
+    if (!Number.isFinite(at)) return false;
+    return Date.now() - at > SESSION_TTL_MS;
+  }
+  function clearSessionStorage() {
+    write(CODE_KEY, "");
+    write(CODE_AT_KEY, "");
+    write(CLOSED_KEY, "");
+    write(MSG_KEY, "");
   }
 
   // Сумісність зі старою версією: історія могла жити в MSG_KEY (localStorage).
@@ -100,22 +119,30 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
   }
 
   useEffect(() => {
+    const legacy = Boolean(read(CODE_KEY) && !read(CODE_AT_KEY));
+    if (legacy || sessionExpired()) {
+      clearSessionStorage();
+    }
     const saved = read(CODE_KEY);
-    const hasOld = migrateLocal();
-    if (saved && /^[a-z0-9]{8}$/.test(saved)) {
+    // hasOld must be read AFTER possible clear — інакше стара історія
+    // з MSG_KEY «просочиться» навіть після expiry/legacy wipe
+    const hasOld = saved ? migrateLocal() : [];
+    if (saved && /^[a-z0-9]{8}$/.test(saved) && !sessionExpired() && !legacy) {
       setCode(saved);
       codeRef.current = saved;
       keepAlive();
+    } else if (saved) {
+      clearSessionStorage();
     }
-    // Тимчасово: показуємо стару локальну історію, поки сервер не відповість.
-    // Щойно прийде відповідь — серверна версія замінить її повністю.
-    if (hasOld.length > 0) {
+    // Показуємо локальну історію лише якщо сесія ще жива
+    if (hasOld.length > 0 && saved && !legacy && !sessionExpired()) {
       setVisitor(hasOld);
       setState("sent");
     }
     if (read(CLOSED_KEY) === "1") {
-      setClosed(true);
-      setState("closed");
+      // Backward compat: старі «закриті» сесії теж чистимо — наступний
+      // користувач на цьому пристрої має бачити пусте вікно
+      clearSessionStorage();
     }
     const savedName = read(NAME_KEY);
     if (savedName) setDraft("");
@@ -157,9 +184,17 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
           setNudge(true);
         }
       }
-      if (json.closed && !read(CLOSED_KEY)) {
-        setClosed(true);
-        setState("closed");
+      if (json.closed) {
+        // Сервер позначив розмову як закриту — чистимо локально, щоб
+        // наступний користувач не побачив чужу переписку
+        codeRef.current = "";
+        activeUntil.current = 0;
+        setCode("");
+        setVisitor([]);
+        setOwner([]);
+        setClosed(false);
+        setState("idle");
+        clearSessionStorage();
       }
     } catch {
       if (!silent) setError("Немає зв'язку. Спробуйте ще раз.");
@@ -171,23 +206,30 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
     void poll();
     const timer = window.setInterval(() => {
       /* Опитуємо, доки розмова активна. Ніяких `messages.length > 0` —
-         саме ця умова й зупиняла опитування після першої відповіді.
-         Після закриття опитуємо рідко: якщо власник усе ж відповів,
-         відвідувач побачить це, коли повернеться. */
+         саме ця умова й зупиняла опитування після першої відповіді. */
       if (document.visibilityState !== "visible") return;
-      if (closed) {
-        void poll();
-        return;
-      }
       if (Date.now() < activeUntil.current) void poll();
     }, POLL_MS);
     return () => window.clearInterval(timer);
-  }, [ready, code, closed, poll]);
+  }, [ready, code, poll]);
 
-  /* Згортання за бездіяльністю: вікно ховається, розмова лишається. */
+  /* Згортання за бездіяльністю: вікно ховається.
+   * + Авто-очищення сесії: через 5 хв після останньої дії код стирається,
+   *   і наступний відвідувач на тому ж пристрої побачить чисте вікно —
+   *   чужу переписку не «підхопить». */
   useEffect(() => {
-    if (!open) return;
     const timer = window.setInterval(() => {
+      if (sessionExpired() && (codeRef.current || read(CODE_KEY))) {
+        codeRef.current = "";
+        activeUntil.current = 0;
+        setCode("");
+        setVisitor([]);
+        setOwner([]);
+        setClosed(false);
+        setState("idle");
+        clearSessionStorage();
+      }
+      if (!open) return;
       if (Date.now() - lastAct.current > IDLE_MS) {
         setOpen(false);
         setNudge(false);
@@ -259,8 +301,10 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
         codeRef.current = id;
         setCode(id);
         write(CODE_KEY, id);
+        write(CODE_AT_KEY, String(Date.now()));
         write(CLOSED_KEY, "");
         setClosed(false);
+        activeUntil.current = Date.now() + WAIT_TIMEOUT_MS;
       }
       const nm = String(data.get("name") ?? "").trim();
       if (nm) write(NAME_KEY, nm);
@@ -282,22 +326,32 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
 
   async function closeTalk() {
     const id = codeRef.current;
-    setClosed(true);
-    setState("closed");
-    setOpen(false);
-    write(CLOSED_KEY, "1");
-    activeUntil.current = 0;
-    touch();
-    if (!id) return;
-    try {
-      await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "close", code: id }),
-      });
-    } catch {
-      /* власник просто не отримає сповіщення — розмова вже закрита */
+    // Notify owner (if possible) before wiping local code
+    if (id) {
+      try {
+        await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "close", code: id }),
+        });
+      } catch {
+        /* owner just won't get the toast — local close still happens */
+      }
     }
+    // Requirement: manual close OR 5-min timeout must wipe the window
+    // so the next person on this device sees an empty form, not чужу переписку
+    codeRef.current = "";
+    activeUntil.current = 0;
+    setCode("");
+    setVisitor([]);
+    setOwner([]);
+    setClosed(false);
+    setState("idle");
+    setError("");
+    setDraft("");
+    clearSessionStorage();
+    setOpen(false);
+    touch();
   }
 
   function startNew() {
@@ -310,11 +364,8 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
     setState("idle");
     setError("");
     setDraft("");
-    write(CODE_KEY, "");
-    // Не чистимо MSG_KEY тут — у користувачів ще могла лишитися історія
-    // старої версії; вона й так не використовується (буде перезаписана
-    // серверною при наступному відкритті).
-    write(CLOSED_KEY, "");
+    clearSessionStorage();
+    // history lives on server; local leftover from old builds is dropped
     touch();
   }
 
@@ -332,7 +383,7 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
     state === "sending" && draft ? [{ text: draft, at: "" }] : [];
   const rows = buildRows([...visitor, ...draftRows], owner);
   const hasCode = Boolean(code);
-  const waiting = hasCode && !closed && owner.length === 0 && visitor.length > 0;
+  const waiting = hasCode && owner.length === 0 && visitor.length > 0;
 
   return (
     <>
@@ -391,11 +442,9 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
             <div>
               <p className="text-sm font-bold tracking-[-0.01em]">Запитати напряму</p>
               <p className="mt-0.5 text-[11px] leading-relaxed text-muted">
-                {closed
-                  ? "Розмову закрито."
-                  : hasCode
-                    ? "Пишіть уточнення — відповім у цьому вікні."
-                    : "Питання прийде мені в Telegram — відповім тут же."}
+                {hasCode
+                  ? "Пишіть уточнення — відповім у цьому вікні."
+                  : "Питання прийде мені в Telegram — відповім тут же."}
               </p>
             </div>
             <button
@@ -432,26 +481,11 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
                 {waiting ? (
                   <p className="chat-hint">Питання надіслано. Відповідь з&apos;явиться тут.</p>
                 ) : null}
-                {closed ? (
-                  <p className="chat-hint">Розмову закрито. Дякую за звернення!</p>
-                ) : null}
               </div>
             )}
           </div>
 
-          {/* Поле вводу або стан «закрито» */}
-          {closed ? (
-            <div className="border-t border-line px-4 py-3">
-              <button
-                type="button"
-                onClick={startNew}
-                className="flex h-10 w-full items-center justify-center border border-line-strong px-4 text-sm font-semibold text-ink transition-colors hover:border-ink"
-              >
-                Почати нову розмову
-              </button>
-            </div>
-          ) : (
-            <form onSubmit={onSubmit} className="border-t border-line px-4 py-3">
+          <form onSubmit={onSubmit} className="border-t border-line px-4 py-3">
               {!hasCode ? (
                 <label className="block">
                   <span className="label text-[11px]">Ім&apos;я</span>
@@ -519,7 +553,6 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
                 </p>
               ) : null}
             </form>
-          )}
         </div>
       ) : null}
     </>
