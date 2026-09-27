@@ -90,7 +90,13 @@
       ]
     },
     "4z2w5wnm": {
-      "messages": [],
+      "messages": [
+        {
+          "text": "так звісно",
+          "at": "2026-09-27T18:13:32",
+          "from": "owner"
+        }
+      ],
       "name": "катерина",
       "createdAt": "2026-09-27T18:12:39",
       "visitor": [
