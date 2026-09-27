@@ -83,7 +83,7 @@ export default function ContactModal({
   }
 
   const field =
-    "mt-2 w-full border border-line bg-paper px-3 py-2.5 text-sm text-ink placeholder:text-muted/70 focus:border-accent focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]";
+    "chat-field mt-2 w-full border border-line-strong px-3 py-2.5 text-sm text-ink outline-none placeholder:text-muted";
 
   return (
     <>
@@ -111,13 +111,13 @@ export default function ContactModal({
       <dialog
         ref={ref}
         aria-labelledby="contact-modal-title"
-        className="contact-dialog m-auto w-[min(92vw,34rem)] border border-line bg-paper p-0 text-ink backdrop:bg-[rgba(15,16,19,0.55)] backdrop:backdrop-blur-[2px]"
+        className="contact-dialog m-auto w-[min(92vw,34rem)] p-0 text-ink backdrop:bg-[rgba(15,16,19,0.48)] backdrop:backdrop-blur-[6px]"
       >
         <form onSubmit={onSubmit} className="flex flex-col">
-          <div className="flex items-start justify-between gap-4 border-b border-line px-6 py-5">
+          <div className="chat-panel-header flex items-start justify-between gap-4 border-b border-line px-6 py-5">
             <div>
-              <h2 id="contact-modal-title" className="text-lg font-bold tracking-[-0.01em]">
-                {state === "sent" ? "Лист надіслано" : "Напишіть мені"}
+              <h2 id="contact-modal-title" className="flex items-center gap-2.5 text-lg font-bold tracking-[-0.01em]"><span aria-hidden className="flex h-7 w-7 items-center justify-center rounded-full bg-ink text-[10px] font-extrabold text-white">ОП</span><span>
+                {state === "sent" ? "Лист надіслано" : "Напишіть мені"}</span>
               </h2>
               <p className="mt-1 text-xs leading-relaxed text-muted">
                 {state === "sent"
@@ -129,15 +129,15 @@ export default function ContactModal({
               type="button"
               onClick={close}
               aria-label="Закрити"
-              className="shrink-0 text-xl leading-none text-muted transition-colors hover:text-ink"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-black/[0.04] text-lg leading-none text-muted transition-colors hover:bg-black/10 hover:text-ink"
             >
               ×
             </button>
           </div>
 
           {state === "sent" ? (
-            <div className="px-6 py-8">
-              <span aria-hidden className="block text-3xl">
+            <div className="bg-[#fcfcfd] px-6 py-8">
+              <span aria-hidden className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-50 text-lg text-emerald-600">
                 ✓
               </span>
               <p className="mt-4 text-sm leading-relaxed text-ink-soft">
@@ -147,20 +147,20 @@ export default function ContactModal({
                 <button
                   type="button"
                   onClick={close}
-                  className="flex h-11 items-center border border-line-strong px-5 text-sm font-semibold transition-colors hover:border-accent hover:text-accent-ink"
+                  className="flex h-11 items-center rounded-xl border border-line-strong bg-white px-5 text-sm font-semibold shadow-sm transition-all hover:border-ink hover:text-ink"
                 >
                   Закрити
                 </button>
                 <a
                   href={`mailto:${site.email}`}
-                  className="text-xs text-muted underline decoration-line underline-offset-4 hover:text-ink"
+                  className="rounded-xl border border-line-strong bg-white px-4 py-2 text-xs font-semibold text-muted shadow-sm transition-colors hover:border-ink hover:text-ink"
                 >
                   написати ще раз із пошти
                 </a>
               </div>
             </div>
           ) : (
-            <div className="flex flex-col gap-5 px-6 py-6">
+            <div className="flex flex-col gap-5 bg-[#fcfcfd] px-6 py-6">
               <label className="block">
                 <span className="label">Ім&apos;я</span>
                 <input
@@ -211,21 +211,21 @@ export default function ContactModal({
               />
 
               {error ? (
-                <p className="border-l-2 border-accent pl-3 text-sm text-ink-soft">{error}</p>
+                <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-ink-soft">{error}</p>
               ) : null}
 
               <div className="flex flex-wrap items-center gap-4">
                 <button
                   type="submit"
                   disabled={state === "sending"}
-                  className="flex h-11 items-center bg-ink px-6 text-sm font-semibold text-paper transition-opacity hover:opacity-90 disabled:opacity-60"
+                  className="flex h-11 items-center rounded-xl bg-ink px-6 text-sm font-semibold text-paper shadow-sm transition-all hover:translate-y-[-1px] hover:shadow-md active:translate-y-0 disabled:opacity-60"
                 >
                   {state === "sending" ? "Надсилаю…" : "Відправити"}
                 </button>
                 <button
                   type="button"
                   onClick={close}
-                  className="text-xs text-muted underline decoration-line underline-offset-4 hover:text-ink"
+                  className="rounded-xl border border-line-strong bg-white px-4 py-2 text-xs font-semibold text-muted shadow-sm transition-colors hover:border-ink hover:text-ink"
                 >
                   Відміна
                 </button>
