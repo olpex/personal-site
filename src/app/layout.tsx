@@ -90,7 +90,7 @@ const personSchema = {
   jobTitle: site.role,
   email: `mailto:${site.email}`,
   url: site.url,
-  image: `${site.url}/portrait.jpg`,
+  image: `${site.url}/portrait.webp`,
   worksFor: { "@type": "Organization", name: site.org, alternateName: site.orgShort },
   address: { "@type": "PostalAddress", addressCountry: "UA", addressLocality: site.location },
   knowsAbout: ["Штучний інтелект", "OSINT", "Цифрова безпека", "Кібербезпека", "WEB-дизайн", "Обробка інформації", "Moodle", "Google Classroom"],

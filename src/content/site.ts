@@ -64,7 +64,7 @@ export const site = {
   seoDescription:
     "Курси ШІ, кібербезпеки/OSINT, вебдизайну та обробки інформації у Львові (ЛЦПТО ДСЗ). Короткі модулі з практикою й проєктом на виході — 55 схвальних відгуків.",
   email: "olppara@gmail.com",
-  portrait: "/portrait.jpg",
+  portrait: "/portrait.webp",
   portraitAlt: "Паращук Олег Леонідович — портрет викладача ЛЦПТО ДСЗ, Львів",
 
   about: [
