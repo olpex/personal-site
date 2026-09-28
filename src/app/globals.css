@@ -18,27 +18,24 @@
    ───────────────────────────────────────────────────────────── */
 
 :root {
-  --paper: #ffffff;
-  --paper-2: #f7f8fa;
-  --ink: #0f1013;
-  --ink-soft: #22242a;
-  --muted: #59606a;
-  --line: rgba(15, 16, 19, 0.12);
-  --line-strong: rgba(15, 16, 19, 0.26);
-  --accent: #ea580c;
-  --accent-ink: #c0390a;
-  /* Окремий відтінок для ЗАЛИВКИ під білим текстом: яскравий #ea580c
-     дає лише 3.56, тобто не проходить AA для дрібного тексту кнопки.
-     #d1440d дає 4.62 — мінімум, який проходить. */
-  --accent-solid: #d1440d;
-  --accent-soft: rgba(234, 88, 12, 0.1);
-  --focus-ring: rgba(234, 88, 12, 0.35);
+  --paper: #fcfcf9;
+  --paper-2: #f2ede6;
+  --ink: #0a0a0b;
+  --ink-soft: #1c1e22;
+  --muted: #6b7280;
+  --line: rgba(10, 10, 11, 0.08);
+  --line-strong: rgba(10, 10, 11, 0.18);
+  --accent: #8c3a18;
+  --accent-ink: #5c2410;
+  --accent-solid: #8c3a18;
+  --accent-soft: rgba(140, 58, 24, 0.08);
+  --focus-ring: rgba(140, 58, 24, 0.22);
+  --gold: #c5a989;
+  --gold-soft: rgba(197, 169, 137, 0.14);
 
-  --reveal-distance: 22px;
+  --reveal-distance: 18px;
   --reveal-delay: 0ms;
-  /* Ледь помітне заокруглення: 5px читається як навмисна деталь,
-     а не як «картки з bootstrap». Більше — і сторінка стає м'якою. */
-  --radius-card: 5px;
+  --radius-card: 12px;
 }
 
 /* Темна тема збережена, але НЕ вмикається автоматично: власник прямо
@@ -105,6 +102,8 @@
     background-color: var(--paper);
     color: var(--ink);
     font-family: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
@@ -125,6 +124,21 @@
   h2,
   h3 {
     text-wrap: balance;
+    letter-spacing: -0.035em;
+  }
+
+  h1 {
+    font-family: var(--font-spectral), Georgia, serif;
+    font-weight: 400;
+    letter-spacing: -0.045em;
+    line-height: 0.92;
+  }
+
+  h2 {
+    font-family: var(--font-spectral), Georgia, serif;
+    font-weight: 400;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
   }
 
   p {
@@ -145,14 +159,15 @@
   .label {
     font-family: var(--font-mono), monospace;
     font-size: 0.6875rem;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.13em;
     text-transform: uppercase;
     color: var(--muted);
   }
 
   .display {
-    font-weight: 800;
-    letter-spacing: -0.035em;
+    font-family: var(--font-spectral), Georgia, serif;
+    font-weight: 400;
+    letter-spacing: -0.045em;
     line-height: 0.92;
   }
 
@@ -167,14 +182,12 @@
     letter-spacing: -0.01em;
   }
 
-  /* Підпис автора відгуку — єдине місце, де рукописний шрифт працює
-     на користь: коротке ім'я читається легко, а відчуття «написано
-     від руки» додає відгуку достовірності. Для самого тексту цитати
-     рукопис не використовуємо — абзац ним читати важко. */
+  /* Підпис автора відгуку — стриманий рукопис, не акцент. */
   .hand {
     font-family: var(--font-hand), cursive;
-    font-weight: 600;
+    font-weight: 500;
     letter-spacing: 0.01em;
+    color: var(--ink-soft);
   }
 
   /* Page gutter — one source of truth for horizontal rhythm */
@@ -190,14 +203,14 @@
 
   @media (min-width: 1280px) {
     .gutter {
-      padding-inline: 3.5rem;
+      padding-inline: 5rem;
     }
   }
 
   .shell {
     margin-inline: auto;
     width: 100%;
-    max-width: 84rem;
+    max-width: 72rem;
   }
 
   /* Header nav — на вузьких екранах трекінг доводиться ущільнювати,
@@ -220,13 +233,13 @@
    таблиці. */
 .card-grid {
   display: grid;
-  gap: 0.75rem;
+  gap: 1.25rem;
 }
 
 .card-grid > li {
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
-  background: var(--paper-2);
+  background: var(--paper);
 }
 
 /* Елемент, що заповнює картку (посилання або обгортка вмісту), мусить
@@ -261,52 +274,29 @@
   break-inside: avoid;
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
-  background: var(--paper-2);
-  padding: 1.5rem;
-  margin-bottom: 1.25rem;
+  background: var(--paper);
+  padding: 1.6rem;
+  margin-bottom: 1.5rem;
 }
 
-/* Цитата відгуку: оптична деталь — велика лапка як водяний знак.
-   Не додає елементів у DOM, лише відчуття «цитати» без лапок у тексті
-   (лапки у формі вже є в даних, дублювати їх візуально не треба). */
 .review-card blockquote {
   position: relative;
 }
 
-.review-card blockquote::before {
-  content: "“";
-  position: absolute;
-  top: -0.18em;
-  left: -0.18em;
-  font-family: var(--font-spectral), Georgia, serif;
-  font-size: 3.25rem;
-  font-weight: 400;
-  line-height: 1;
-  color: var(--accent);
-  opacity: 0.12;
-  pointer-events: none;
-  user-select: none;
-}
-
-/* ── Мікроанімації картки відгуку ────────────────────────────────
-   Три рухи, і жоден не додає нових елементів:
-   1) наявна акцентна смуга ВИДОВЖУЄТЬСЯ при наведенні (була 2.5rem);
-   2) картка підіймається на 3px і дістає м'яку тінь;
-   3) рукописний підпис автора підсвічується акцентом.
-   Перший рух і є та «ледь помітна» деталь, якої не було: смуга
-   реагує на курсор, а не просто стоїть. */
 .review-dash {
   display: block;
-  height: 2px;
-  width: 2.5rem;
+  height: 1px;
+  width: 2rem;
   flex-shrink: 0;
   background: var(--accent);
-  transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  opacity: 0.7;
+  transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
 }
 
 .review-card:hover .review-dash,
 .review-card:focus-within .review-dash {
   width: 100%;
+  opacity: 1;
 }
 
 .review-card .hand {
@@ -314,30 +304,27 @@
 }
 
 .review-card:hover .hand {
-  color: var(--accent-ink);
+  color: var(--accent);
 }
 
-/* Paper grain — keeps large flat areas from looking synthetic.
-   Base 0.05 ледь читається на білому; на hero додаємо ще шар, щоб
-   перший екран не виглядав стерильно, решта лишається спокійнішою. */
+/* Тонке лляне полотно замість шуму 0.05 — ледь читається, але
+     великий папір перестає бути стерильним. */
   .grain::before {
     content: "";
     position: fixed;
     inset: 0;
     z-index: 60;
     pointer-events: none;
-    opacity: 0.05;
+    opacity: 0.015;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
-  /* Додаткове зерно лише на hero — поверх базового дає ~0.08 сумарно,
-     але не зачіпає довгі секції нижче. */
   .grain-hero::after {
     content: "";
     position: absolute;
     inset: 0;
     pointer-events: none;
-    opacity: 0.03;
+    opacity: 0.01;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 }
@@ -352,20 +339,17 @@
 .card-grid > li,
 .review-flow > li {
   transition:
-    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 0.35s ease,
-    box-shadow 0.35s ease;
+    border-color 0.4s ease,
+    box-shadow 0.4s ease;
 }
 .card-grid > li:hover,
 .review-flow > li:hover,
 .review-card:hover {
-  transform: translateY(-2px);
   border-color: var(--line-strong);
-  box-shadow: 0 10px 30px -18px rgba(15, 16, 19, 0.4);
+  box-shadow: 0 12px 36px -20px rgba(10, 10, 11, 0.12);
 }
 .review-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 14px 34px -20px rgba(15, 16, 19, 0.45);
+  box-shadow: 0 16px 40px -22px rgba(10, 10, 11, 0.14);
 }
 .reveal {
   opacity: 0;
@@ -405,16 +389,16 @@
    дає орієнтир, не додаючи нічого зайвого. */
 .group-rule {
   position: relative;
-  border-bottom: 1px solid var(--ink);
+  border-bottom: 1px solid var(--line-strong);
 }
 
 .group-rule::after {
   content: "";
   position: absolute;
   left: 0;
-  bottom: -3px;
-  width: 2.5rem;
-  height: 2px;
+  bottom: -2px;
+  width: 2rem;
+  height: 1px;
   background: var(--accent);
 }
 
@@ -426,24 +410,18 @@
    як службовий текст. Порожня без контенту — тому лише там, де є що
    показати. */
 .stat-figure {
-  font-family: var(--font-sans), sans-serif;
-  font-weight: 800;
+  font-family: var(--font-spectral), Georgia, serif;
+  font-weight: 400;
   letter-spacing: -0.05em;
   line-height: 0.85;
   font-variant-numeric: tabular-nums;
 }
 
-/* Рух під курсором — тільки там, де елемент і так клікабельний.
-   Підняття на 2px читається як відгук, а не як анімація заради анімації. */
+/* Рух — лише зміна рамки, без підняття */
 .lift {
   transition:
-    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-    background-color 0.35s ease,
-    border-color 0.35s ease;
-}
-
-.lift:hover {
-  transform: translateY(-2px);
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
 }
 
 /* Стрілка, що «їде» вбік — для посилань на перевірку та відкриття. */
@@ -460,7 +438,7 @@ a:hover .nudge {
 .marquee-track {
   display: flex;
   width: max-content;
-  animation: marquee 44s linear infinite;
+  animation: marquee 60s linear infinite;
 }
 
 /* Затухання по краях: без нього літери обрізаються посередині й
@@ -519,13 +497,13 @@ a:hover .nudge {
 .contact-dialog {
   border-radius: 20px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(16px) saturate(1.15);
-  -webkit-backdrop-filter: blur(16px) saturate(1.15);
-  border: 1px solid rgba(15, 16, 19, 0.08);
+  background: rgba(252, 252, 249, 0.98);
+  backdrop-filter: blur(16px) saturate(1.08);
+  -webkit-backdrop-filter: blur(16px) saturate(1.08);
+  border: 1px solid rgba(10, 10, 11, 0.06);
   box-shadow:
-    0 24px 64px -20px rgba(15, 16, 19, 0.38),
-    0 10px 28px -14px rgba(15, 16, 19, 0.28),
+    0 24px 64px -20px rgba(10, 10, 11, 0.18),
+    0 10px 28px -14px rgba(10, 10, 11, 0.12),
     0 0 0 1px rgba(255, 255, 255, 0.9) inset;
 }
 
@@ -562,18 +540,16 @@ a:hover .nudge {
    ink/accent, але додаємо відчуття «живого» месенджера. */
 .chat-fab {
   box-shadow:
-    0 8px 32px -8px rgba(15, 16, 19, 0.38),
-    0 4px 12px -4px rgba(15, 16, 19, 0.22);
+    0 8px 32px -8px rgba(10, 10, 11, 0.22),
+    0 4px 12px -4px rgba(10, 10, 11, 0.14);
   transition:
-    transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 0.2s ease;
 }
 
 .chat-fab:hover {
-  transform: translateY(-1px) scale(1.02);
   box-shadow:
-    0 14px 40px -10px rgba(15, 16, 19, 0.45),
-    0 6px 16px -6px rgba(15, 16, 19, 0.28);
+    0 14px 40px -10px rgba(10, 10, 11, 0.28),
+    0 6px 16px -6px rgba(10, 10, 11, 0.18);
 }
 
 .chat-fab:active {
@@ -600,13 +576,13 @@ a:hover .nudge {
   transform-origin: bottom right;
   border-radius: 20px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(16px) saturate(1.15);
-  -webkit-backdrop-filter: blur(16px) saturate(1.15);
-  border: 1px solid rgba(15, 16, 19, 0.08);
+  background: rgba(252, 252, 249, 0.98);
+  backdrop-filter: blur(16px) saturate(1.08);
+  -webkit-backdrop-filter: blur(16px) saturate(1.08);
+  border: 1px solid rgba(10, 10, 11, 0.06);
   box-shadow:
-    0 24px 64px -20px rgba(15, 16, 19, 0.38),
-    0 10px 28px -14px rgba(15, 16, 19, 0.28),
+    0 24px 64px -20px rgba(10, 10, 11, 0.18),
+    0 10px 28px -14px rgba(10, 10, 11, 0.12),
     0 0 0 1px rgba(255, 255, 255, 0.9) inset;
 }
 
@@ -622,14 +598,14 @@ a:hover .nudge {
 }
 
 .chat-panel-header {
-  background: linear-gradient(180deg, #fff 0%, #fcfcfd 100%);
+  background: linear-gradient(180deg, #fcfcf9 0%, #f2ede6 100%);
   backdrop-filter: blur(8px);
 }
 
 .chat-scroll {
   scrollbar-width: thin;
   scrollbar-color: var(--line-strong) transparent;
-  background: #fcfcfd;
+  background: #fcfcf9;
 }
 
 .chat-scroll::-webkit-scrollbar {
@@ -663,20 +639,20 @@ a:hover .nudge {
 }
 
 .chat-bubble-visitor {
-  background: var(--ink, #0f1013);
-  color: var(--paper, #fff);
+  background: var(--ink, #0a0a0b);
+  color: var(--paper, #fcfcf9);
   border-radius: 18px 18px 4px 18px;
 }
 
 .chat-bubble-owner {
   background: #fff;
-  color: var(--ink-soft, #22242a);
+  color: var(--ink-soft, #1c1e22);
   border-radius: 18px 18px 18px 4px;
-  border: 1px solid rgba(15, 16, 19, 0.08);
-  border-left: 3px solid var(--accent, #ea580c);
+  border: 1px solid rgba(10, 10, 11, 0.06);
+  border-left: 3px solid var(--accent, #8c3a18);
   box-shadow:
-    0 1px 3px rgba(15, 16, 19, 0.06),
-    0 4px 12px -6px rgba(15, 16, 19, 0.08);
+    0 1px 3px rgba(10, 10, 11, 0.04),
+    0 4px 12px -6px rgba(10, 10, 11, 0.06);
 }
 
 .chat-hint {
@@ -688,7 +664,7 @@ a:hover .nudge {
 
 .chat-field {
   border-radius: 12px;
-  background: var(--paper-2, #f7f8fa);
+  background: var(--paper-2, #f2ede6);
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease,
