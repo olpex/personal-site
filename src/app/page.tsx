@@ -27,13 +27,13 @@ function Hero() {
         {/* Текстова колонка */}
         <div className="contents lg:block lg:col-span-7 lg:row-start-1">
           <div className="order-1 lg:order-none">
-            <h1 className="reveal display text-[clamp(2.5rem,8.5vw,6rem)]">
+            <h1 className="reveal font-serif text-[clamp(2.6rem,8.5vw,5.75rem)] font-normal leading-[0.9] tracking-[-0.045em] text-ink">
               {site.name}
             </h1>
 
-            <p className="reveal mt-6 max-w-xl text-lg leading-relaxed text-ink-soft md:text-xl">
+            <p className="reveal mt-5 max-w-xl text-lg leading-relaxed text-ink-soft md:text-xl">
               {site.role}
-              <span aria-hidden className="mx-2 text-accent-ink">
+              <span aria-hidden className="mx-2 text-gold">
                 ·
               </span>
               <span className="serif-accent text-ink">{site.orgShort}</span>
@@ -41,14 +41,14 @@ function Hero() {
           </div>
 
           <div className="order-3 lg:order-none">
-            <p className="reveal mt-5 max-w-lg text-base leading-relaxed text-muted">
+            <p className="reveal mt-6 max-w-lg text-[15px] leading-[1.75] text-muted">
               {site.statement}
             </p>
 
             <div className="reveal mt-9 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               <a
                 href="#work"
-                className="lift group inline-flex min-h-12 items-center justify-center gap-3 bg-accent-solid px-6 py-3 text-sm font-semibold text-white hover:bg-ink sm:justify-start"
+                className="inline-flex min-h-12 items-center justify-center gap-3 bg-ink px-7 py-3 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-ink-soft sm:justify-start"
               >
                 Дивитись проєкти
                 <span
@@ -60,7 +60,7 @@ function Hero() {
               </a>
               <a
                 href={`mailto:${site.email}`}
-                className="inline-flex min-h-12 items-center justify-center border border-line-strong px-6 py-3 text-sm font-semibold transition-colors hover:border-accent-ink hover:text-accent-ink sm:justify-start"
+                className="inline-flex min-h-12 items-center justify-center border border-line-strong bg-paper px-7 py-3 text-sm font-semibold tracking-wide transition-colors hover:border-ink hover:text-ink sm:justify-start"
               >
                 Написати листа
               </a>
@@ -78,7 +78,7 @@ function Hero() {
                 на широкому мобільному 4:5 давало 750px — більше за екран.
                 object-top тримає голову в кадрі, обрізаючи піджак.
                 На десктопі обмеження знімається — там портрет високий. */}
-            <div className="relative aspect-[4/5] max-h-[52vh] w-full overflow-hidden bg-paper-2 md:aspect-[3/4] lg:max-h-none">
+            <div className="relative aspect-[4/5] max-h-[52vh] w-full overflow-hidden border border-line bg-paper-2 md:aspect-[3/4] lg:max-h-none lg:aspect-[4/5]">
               <Image
                 src={site.portrait}
                 alt={site.portraitAlt}
@@ -88,9 +88,8 @@ function Hero() {
                 className="object-cover object-[center_6%] lg:object-top"
               />
             </div>
-            {/* Бурштинова смуга на всю ширину — свідома базова лінія,
-                а не обірваний маркер. */}
-            <span aria-hidden className="mt-4 block h-1.5 w-full bg-accent" />
+            {/* Тонка теракотова базова лінія — знак ательє, не декор. */}
+            <span aria-hidden className="mt-3 block h-px w-full bg-accent/70" />
           </figure>
         </div>
 

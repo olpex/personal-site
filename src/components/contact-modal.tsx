@@ -83,7 +83,7 @@ export default function ContactModal({
   }
 
   const field =
-    "chat-field mt-2 w-full border border-line-strong px-3 py-2.5 text-sm text-ink outline-none placeholder:text-muted";
+    "chat-field mt-2 w-full border border-line-strong bg-paper px-3.5 py-2.5 text-sm text-ink outline-none placeholder:text-muted";
 
   return (
     <>
@@ -91,7 +91,7 @@ export default function ContactModal({
         <button
           type="button"
           onClick={open}
-          className="reveal group mt-10 flex h-12 w-fit items-center gap-3 border border-line-strong px-6 text-sm font-semibold tracking-wide text-ink transition-colors hover:border-accent hover:text-accent-ink"
+          className="reveal inline-flex h-12 items-center justify-center gap-3 bg-ink px-7 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-ink-soft"
         >
           Написати мені
           <span aria-hidden className="transition-transform group-hover:translate-x-1">
@@ -102,7 +102,7 @@ export default function ContactModal({
         <button
           type="button"
           onClick={open}
-          className="label whitespace-nowrap border border-line-strong px-3 py-1.5 text-ink transition-colors hover:border-accent hover:text-accent"
+          className="label whitespace-nowrap border border-line bg-paper px-3.5 py-2 text-[11px] tracking-[0.08em] text-muted transition-colors hover:border-ink hover:text-ink"
         >
           Написати
         </button>

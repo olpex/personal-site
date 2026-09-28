@@ -77,8 +77,8 @@ export function Header() {
   }, [active]);
 
   return (
-    <header className="gutter sticky top-0 z-50 border-b border-line bg-paper/85 backdrop-blur-md">
-      <div className="shell flex h-14 items-center justify-between gap-4 md:gap-6">
+    <header className="gutter sticky top-0 z-50 border-b border-line/60 bg-paper/90 backdrop-blur-md">
+      <div className="shell flex h-[52px] items-center justify-between gap-4 md:h-14 md:gap-6">
         <nav
           aria-label="Основна навігація"
           className="nav-tight flex min-w-0 flex-1 items-center gap-3 overflow-x-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] md:gap-7 [&::-webkit-scrollbar]:hidden"
@@ -90,8 +90,8 @@ export function Header() {
                 key={item.id}
                 href={`#${item.id}`}
                 aria-current={isActive ? "page" : undefined}
-                className={`label link-underline flex h-11 shrink-0 items-center whitespace-nowrap transition-colors ${
-                  isActive ? "nav-active text-ink" : "text-ink-soft"
+                className={`label link-underline flex h-11 shrink-0 items-center whitespace-nowrap text-[11px] tracking-[0.08em] transition-colors ${
+                  isActive ? "nav-active text-ink" : "text-muted hover:text-ink-soft"
                 }`}
               >
                 {item.label}
@@ -110,12 +110,12 @@ export function Header() {
 
 export function Footer() {
   return (
-    <footer className="gutter rule border-b-0">
-      <div className="shell flex flex-col gap-4 py-8 md:flex-row md:items-center md:justify-between">
-        <p className="label">
+    <footer className="gutter border-t border-line/70">
+      <div className="shell flex flex-col gap-4 py-10 md:flex-row md:items-center md:justify-between">
+        <p className="text-[11px] tracking-[0.08em] text-muted">
           © {new Date().getFullYear()} {site.name}
         </p>
-        <a href="#top" className="label link-underline flex h-11 w-fit items-center">
+        <a href="#top" className="label link-underline flex h-11 w-fit items-center text-muted hover:text-ink">
           Вгору ↑
         </a>
       </div>
