@@ -182,7 +182,8 @@
     letter-spacing: -0.01em;
   }
 
-  /* Підпис автора відгуку — стриманий рукопис, не акцент. */
+  /* Підпис автора — стриманий рукопис, не акцент. На преміумі
+     рукопис тонший і спокійніший — 500 замість 600, без яскравого hover. */
   .hand {
     font-family: var(--font-hand), cursive;
     font-weight: 500;
@@ -236,6 +237,12 @@
   gap: 1.25rem;
 }
 
+@media (min-width: 1024px) {
+  .card-grid {
+    gap: 1.5rem;
+  }
+}
+
 .card-grid > li {
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
@@ -260,12 +267,19 @@
    висотою — дір немає, а кожна картка дістає власну межу. */
 .review-flow {
   columns: 1;
+  column-gap: 1.5rem;
 }
 
 @media (min-width: 768px) {
   .review-flow {
     columns: 2;
-    column-gap: 1.25rem;
+    column-gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .review-flow {
+    column-gap: 1.75rem;
   }
 }
 
@@ -275,7 +289,7 @@
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
   background: var(--paper);
-  padding: 1.6rem;
+  padding: 1.6rem 1.6rem 1.4rem;
   margin-bottom: 1.5rem;
 }
 
@@ -301,10 +315,11 @@
 
 .review-card .hand {
   transition: color 0.35s ease;
+  font-size: 1.05rem;
 }
 
 .review-card:hover .hand {
-  color: var(--accent);
+  color: var(--ink);
 }
 
 /* Тонке лляне полотно замість шуму 0.05 — ледь читається, але

@@ -28,10 +28,10 @@ export default function FilterChips({
         type="button"
         aria-pressed={active === null}
         onClick={() => handleSelect(null)}
-        className={`rounded-full border px-3 py-1.5 text-xs font-semibold tracking-wide transition-colors ${
+        className={`rounded-full border px-3.5 py-2 text-[11px] font-semibold tracking-[0.08em] transition-colors ${
           active === null
             ? "border-ink bg-ink text-paper"
-            : "border-line bg-paper text-ink-soft hover:border-line-strong hover:text-ink"
+            : "border-line bg-paper text-muted hover:border-line-strong hover:text-ink"
         }`}
       >
         Усі
@@ -42,14 +42,14 @@ export default function FilterChips({
           type="button"
           aria-pressed={active === g.slug}
           onClick={() => handleSelect(g.slug)}
-          className={`rounded-full border px-3 py-1.5 text-xs font-semibold tracking-wide transition-colors ${
+          className={`rounded-full border px-3.5 py-2 text-[11px] font-semibold tracking-[0.08em] transition-colors ${
             active === g.slug
               ? "border-accent bg-accent text-white"
-              : "border-line bg-paper text-ink-soft hover:border-line-strong hover:text-ink"
+              : "border-line bg-paper text-muted hover:border-line-strong hover:text-ink"
           }`}
         >
           {g.name}{" "}
-          <span className="ml-1 opacity-60">({g.count})</span>
+          <span className="ml-1 opacity-50">({g.count})</span>
         </button>
       ))}
     </div>
