@@ -58,12 +58,11 @@ function Hero() {
                   ↓
                 </span>
               </a>
-              <a
-                href={`mailto:${site.email}`}
+              <ContactModal
+                trigger="secondary"
+                label="Написати листа"
                 className="inline-flex min-h-12 items-center justify-center border border-line-strong bg-paper px-7 py-3 text-sm font-semibold tracking-wide transition-colors hover:border-ink hover:text-ink sm:justify-start"
-              >
-                Написати листа
-              </a>
+              />
             </div>
           </div>
         </div>

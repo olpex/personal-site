@@ -22,10 +22,17 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
 
 export default function ContactModal({
   trigger = "button",
+  label,
+  className,
 }: {
   /** "button" — помітна кнопка (секція «Контакти»);
-   *  "link" — компактне посилання у шапці. */
-  trigger?: "button" | "link";
+   *  "link" — компактне посилання у шапці.
+   *  "secondary" — другорядна кнопка (hero секція). */
+  trigger?: "button" | "link" | "secondary";
+  /** Текст кнопки (за замовчуванням залежить від trigger) */
+  label?: string;
+  /** Класи кнопки — перевизначає дефолтні */
+  className?: string;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const openedAt = useRef<number>(0);
@@ -87,7 +94,18 @@ export default function ContactModal({
 
   return (
     <>
-      {trigger === "button" ? (
+      {trigger === "secondary" ? (
+        <button
+          type="button"
+          onClick={open}
+          className={
+            className ??
+            "inline-flex min-h-12 items-center justify-center border border-line-strong bg-paper px-7 py-3 text-sm font-semibold tracking-wide transition-colors hover:border-ink hover:text-ink"
+          }
+        >
+          {label ?? "Написати листа"}
+        </button>
+      ) : trigger === "button" ? (
         <button
           type="button"
           onClick={open}
