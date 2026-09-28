@@ -77,7 +77,7 @@ function Hero() {
                 на широкому мобільному 4:5 давало 750px — більше за екран.
                 object-top тримає голову в кадрі, обрізаючи піджак.
                 На десктопі обмеження знімається — там портрет високий. */}
-            <div className="relative aspect-[4/5] max-h-[52vh] w-full overflow-hidden border border-line bg-paper-2 md:aspect-[3/4] lg:max-h-none lg:aspect-[4/5]">
+            <div className="relative aspect-[4/5] max-h-[52vh] w-full overflow-hidden bg-paper md:aspect-[3/4] lg:max-h-none lg:aspect-[4/5]">
               <Image
                 src={site.portrait}
                 alt={site.portraitAlt}
