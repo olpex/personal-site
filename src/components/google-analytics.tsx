@@ -4,7 +4,7 @@ import Script from "next/script";
 
 // GA4 Measurement ID — береться з Vercel env або fallback
 // Якщо приберете fallback — лишіть тільки process.env.NEXT_PUBLIC_GA_ID
-const GA_ID = process.env.NEXT_PUBLIC_GA_ID || "G-2Y68N64PYR";
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID || "G-NZVXFHRH6D";
 
 export default function GoogleAnalytics() {
   if (!GA_ID) return null;
