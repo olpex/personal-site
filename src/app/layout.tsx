@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Caveat, JetBrains_Mono, Manrope, Montserrat, Spectral } from "next/font/google";
+import { Caveat, Cormorant_Garamond, JetBrains_Mono, Manrope, Spectral } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { site } from "@/content/site";
 import ChatWidget from "@/components/chat-widget";
@@ -20,10 +20,14 @@ const spectral = Spectral({
   display: "swap",
 });
 
-const montserrat = Montserrat({
-  variable: "--font-montserrat",
+/* Пара hero: Cormorant Garamond 600 italic для імені — м'яка, округла
+ * високо-контрастна антиква (кирилиця «у/д/щ» без рублених кутів),
+ * преміальна під золоту риску; 700 надто важкий на 5.75rem, 400 — блідий.
+ * Manrope лишається для ролі/опису — grotesk + serif класика. */
+const cormorant = Cormorant_Garamond({
+  variable: "--font-cormorant",
   subsets: ["latin", "cyrillic"],
-  weight: ["700"],
+  weight: ["600"],
   style: ["italic"],
   display: "swap",
 });
@@ -184,7 +188,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="uk"
-      className={`${manrope.variable} ${spectral.variable} ${montserrat.variable} ${jetbrains.variable} ${caveat.variable} antialiased`}
+      className={`${manrope.variable} ${spectral.variable} ${cormorant.variable} ${jetbrains.variable} ${caveat.variable} antialiased`}
     >
       <body className="grain bg-paper text-ink">
         <a

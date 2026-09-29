@@ -484,14 +484,18 @@
    з-під кромки, і в русі літери різались навпіл; власник прочитав це
    як «шрифт став більш рублений». Маску прибрано: підйом 0.7em + fade,
    літери цілі в кожному кадрі (2026-09-30). */
-/* Шрифт імені: Montserrat, жирний курсив (власник просив 2026-09-30;
-   раніше — Spectral italic 400). Montserrat помітно ширший за Spectral,
-   тож трекінг м'якший, а розмір підбирається під ширину колонки. */
+/* Шрифт імені: Cormorant Garamond 600 italic + Manrope для ролі —
+ * гармонійна пара, підібрана під преміум-палітру (папір + золото).
+ * Cormorant — округла високо-контрастна антиква, «м'яка» кирилиця без
+ * рублених форм (на відміну від Montserrat 700, який власник відхилив),
+ * на 5.75rem не кричить, але тримає вагу. Manrope — спокійний гротеск
+ * для рядка ролі/опису. Трекінг -0.04em: Cormorant вужчий за Montserrat,
+ * але ширший за Spectral — компенсуємо щільністю набору. */
 .hero-name {
-  font-family: var(--font-montserrat), "Montserrat", ui-sans-serif, system-ui, sans-serif;
-  font-weight: 700;
+  font-family: var(--font-cormorant), "Cormorant Garamond", var(--font-spectral), Georgia, serif;
+  font-weight: 600;
   font-style: italic;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.04em;
 }
 
 .hero-word {
