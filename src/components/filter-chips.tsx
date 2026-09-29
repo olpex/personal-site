@@ -31,7 +31,7 @@ export default function FilterChips({
         className={`rounded-full border px-3.5 py-2 text-[11px] font-semibold tracking-[0.08em] transition-colors ${
           active === null
             ? "border-ink bg-ink text-paper"
-            : "border-line bg-paper text-muted hover:border-line-strong hover:text-ink"
+            : "border-line bg-paper text-ink hover:border-line-strong"
         }`}
       >
         Усі
@@ -45,7 +45,7 @@ export default function FilterChips({
           className={`rounded-full border px-3.5 py-2 text-[11px] font-semibold tracking-[0.08em] transition-colors ${
             active === g.slug
               ? "border-accent bg-accent text-white"
-              : "border-line bg-paper text-muted hover:border-line-strong hover:text-ink"
+              : "border-line bg-paper text-ink hover:border-line-strong"
           }`}
         >
           {g.name}{" "}

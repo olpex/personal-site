@@ -619,7 +619,7 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
                     type="button"
                     onClick={closeTalk}
                     title="Закрити розмову"
-                    className="flex h-10 items-center justify-center rounded-xl border border-line-strong bg-white px-3.5 text-xs font-semibold text-muted transition-colors hover:border-ink hover:text-ink"
+                    className="flex h-10 items-center justify-center rounded-xl border border-line-strong bg-white px-3.5 text-xs font-semibold text-ink transition-colors hover:border-ink hover:text-ink"
                   >
                     Закрити
                   </button>

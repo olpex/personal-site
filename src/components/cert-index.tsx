@@ -60,7 +60,7 @@ export default function CertIndex({
             className={`link-wave flex items-baseline justify-between gap-3 border-b pb-2 text-sm transition-colors ${
               isActive
                 ? "border-accent text-ink"
-                : "border-line text-muted hover:border-line-strong hover:text-accent-ink"
+                : "border-line text-ink hover:border-line-strong"
             }`}
           >
             <span className="flex items-baseline gap-2">

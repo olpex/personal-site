@@ -92,7 +92,7 @@ export function Header() {
                 href={`#${item.id}`}
                 aria-current={isActive ? "page" : undefined}
                 className={`label link-underline flex h-11 shrink-0 items-center whitespace-nowrap text-[11px] tracking-[0.08em] transition-colors ${
-                  isActive ? "nav-active text-ink" : "text-muted hover:text-ink-soft"
+                  isActive ? "nav-active text-ink" : "text-ink"
                 }`}
               >
                 {item.label}
@@ -103,7 +103,7 @@ export function Header() {
               останнім і веде на /forum, а не всередину сторінки. */}
           <Link
             href="/forum"
-            className="label link-underline flex h-11 shrink-0 items-center whitespace-nowrap text-[11px] tracking-[0.08em] text-muted transition-colors hover:text-ink"
+            className="label link-underline flex h-11 shrink-0 items-center whitespace-nowrap text-[11px] tracking-[0.08em] text-ink transition-colors hover:text-ink"
           >
             Форум
           </Link>
@@ -127,11 +127,11 @@ export function Footer() {
         <div className="flex items-center gap-6">
           <Link
             href="/forum"
-            className="label link-underline flex h-11 w-fit items-center text-muted hover:text-ink"
+            className="label link-underline flex h-11 w-fit items-center text-ink"
           >
             Форум
           </Link>
-          <a href="#top" className="label link-underline flex h-11 w-fit items-center text-muted hover:text-ink">
+          <a href="#top" className="label link-underline flex h-11 w-fit items-center text-ink">
             Вгору ↑
           </a>
         </div>

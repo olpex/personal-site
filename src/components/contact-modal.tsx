@@ -122,7 +122,7 @@ export default function ContactModal({
         <button
           type="button"
           onClick={open}
-          className="label btn-wave whitespace-nowrap border border-line bg-paper px-3.5 py-2 text-[11px] tracking-[0.08em] text-muted transition-colors hover:border-ink hover:text-ink"
+          className="label btn-wave whitespace-nowrap border border-line bg-paper px-3.5 py-2 text-[11px] tracking-[0.08em] text-ink transition-colors hover:border-ink hover:text-ink"
         >
           <span className="wave-span">Написати</span>
         </button>
@@ -173,7 +173,7 @@ export default function ContactModal({
                 </button>
                 <a
                   href={`mailto:${site.email}`}
-                  className="rounded-xl border border-line-strong bg-white px-4 py-2 text-xs font-semibold text-muted shadow-sm transition-colors hover:border-ink hover:text-ink"
+                  className="rounded-xl border border-line-strong bg-white px-4 py-2 text-xs font-semibold text-ink shadow-sm transition-colors hover:border-ink hover:text-ink"
                 >
                   написати ще раз із пошти
                 </a>
@@ -247,7 +247,7 @@ export default function ContactModal({
                 <button
                   type="button"
                   onClick={close}
-                  className="rounded-xl border border-line-strong bg-white px-4 py-2 text-xs font-semibold text-muted shadow-sm transition-colors hover:border-ink hover:text-ink"
+                  className="rounded-xl border border-line-strong bg-white px-4 py-2 text-xs font-semibold text-ink shadow-sm transition-colors hover:border-ink hover:text-ink"
                 >
                   Відміна
                 </button>

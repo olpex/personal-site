@@ -239,14 +239,14 @@ export default function ForumClient() {
         <div className="shell flex h-[52px] items-center justify-between gap-4 md:h-14">
           <Link
             href="/"
-            className="label link-underline flex h-11 items-center text-ink-soft hover:text-ink"
+            className="label link-underline flex h-11 items-center text-ink hover:text-ink"
           >
             ← На головну
           </Link>
           <div className="flex items-center gap-3">
             <a
               href="#ask"
-              className="label link-underline hidden h-11 items-center text-muted hover:text-ink sm:flex"
+              className="label link-underline hidden h-11 items-center text-ink sm:flex"
             >
               Задати питання
             </a>
@@ -317,7 +317,7 @@ export default function ForumClient() {
                           className={`rounded-full border px-3.5 py-2 text-[11px] font-semibold tracking-[0.08em] transition-colors ${
                             topic === t
                               ? "border-accent bg-accent text-white"
-                              : "border-line bg-paper text-muted hover:border-line-strong hover:text-ink"
+                              : "border-line bg-paper text-ink hover:border-line-strong"
                           }`}
                         >
                           {t}
@@ -395,7 +395,7 @@ export default function ForumClient() {
             <button
               type="button"
               onClick={() => void load()}
-              className="label link-underline h-11 text-muted hover:text-ink"
+              className="label link-underline h-11 text-ink"
             >
               Оновити
             </button>
@@ -410,7 +410,7 @@ export default function ForumClient() {
                 className={`rounded-full border px-3.5 py-2 text-[11px] font-semibold tracking-[0.08em] transition-colors ${
                   topicFilter === null
                     ? "border-ink bg-ink text-paper"
-                    : "border-line bg-paper text-muted hover:border-line-strong hover:text-ink"
+                    : "border-line bg-paper text-ink hover:border-line-strong"
                 }`}
               >
                 Усі
@@ -424,7 +424,7 @@ export default function ForumClient() {
                   className={`rounded-full border px-3.5 py-2 text-[11px] font-semibold tracking-[0.08em] transition-colors ${
                     topicFilter === slugify(t)
                       ? "border-accent bg-accent text-white"
-                      : "border-line bg-paper text-muted hover:border-line-strong hover:text-ink"
+                      : "border-line bg-paper text-ink hover:border-line-strong"
                   }`}
                 >
                   {t} <span className="ml-1 opacity-50">({topicCounts.get(t) ?? 0})</span>

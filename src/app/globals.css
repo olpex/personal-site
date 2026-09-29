@@ -201,6 +201,15 @@
     color: var(--muted);
   }
 
+  /* ПАСТКА: .label оголошує --muted у тому самому cascade layer, що й
+     утиліти Tailwind (і стоїть пізніше в файлі), тож утиліта text-ink
+     на елементі його НЕ перебиває — перевірено в браузері: пункт меню
+     лишався сірим. Для пунктів меню та світлих кнопок потрібен дійсний
+     чорний — перекриваємо вищою специфічністю. */
+  .label.text-ink {
+    color: var(--ink);
+  }
+
   .display {
     font-family: var(--font-spectral), Georgia, serif;
     font-weight: 400;

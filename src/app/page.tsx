@@ -379,7 +379,7 @@ function Reviews() {
             <button
               type="button"
               onClick={() => setReviewFilter(null)}
-              className="link-wave underline decoration-line underline-offset-4 hover:text-ink"
+              className="link-wave text-ink underline decoration-line underline-offset-4 hover:text-ink"
             >
               скинути фільтр
             </button>
@@ -653,7 +653,7 @@ function Certificates() {
             <button
               type="button"
               onClick={() => setCertFilter(null)}
-              className="link-wave underline decoration-line underline-offset-4 hover:text-ink"
+              className="link-wave text-ink underline decoration-line underline-offset-4 hover:text-ink"
             >
               скинути фільтр
             </button>
