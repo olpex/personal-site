@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Caveat, JetBrains_Mono, Manrope, Spectral } from "next/font/google";
+import { Caveat, JetBrains_Mono, Manrope, Montserrat, Spectral } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { site } from "@/content/site";
 import ChatWidget from "@/components/chat-widget";
@@ -16,6 +16,14 @@ const spectral = Spectral({
   variable: "--font-spectral",
   subsets: ["latin", "cyrillic"],
   weight: ["400"],
+  style: ["italic"],
+  display: "swap",
+});
+
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
+  subsets: ["latin", "cyrillic"],
+  weight: ["700"],
   style: ["italic"],
   display: "swap",
 });
@@ -176,7 +184,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="uk"
-      className={`${manrope.variable} ${spectral.variable} ${jetbrains.variable} ${caveat.variable} antialiased`}
+      className={`${manrope.variable} ${spectral.variable} ${montserrat.variable} ${jetbrains.variable} ${caveat.variable} antialiased`}
     >
       <body className="grain bg-paper text-ink">
         <a

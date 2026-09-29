@@ -484,6 +484,16 @@
    з-під кромки, і в русі літери різались навпіл; власник прочитав це
    як «шрифт став більш рублений». Маску прибрано: підйом 0.7em + fade,
    літери цілі в кожному кадрі (2026-09-30). */
+/* Шрифт імені: Montserrat, жирний курсив (власник просив 2026-09-30;
+   раніше — Spectral italic 400). Montserrat помітно ширший за Spectral,
+   тож трекінг м'якший, а розмір підбирається під ширину колонки. */
+.hero-name {
+  font-family: var(--font-montserrat), "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: -0.03em;
+}
+
 .hero-word {
   display: inline-block;
 }

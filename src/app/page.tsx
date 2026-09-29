@@ -83,7 +83,7 @@ function Hero() {
                 Під ім'ям прочерчується золота риска, а по рядку ролі
                 пробігає золота хвиля. Хореографія — hero-блок
                 у globals.css. */}
-            <h1 className="reveal relative font-serif text-[clamp(2.6rem,8.5vw,5.75rem)] font-normal leading-[0.9] tracking-[-0.045em] text-ink [--reveal-distance:0px]">
+            <h1 className="hero-name reveal relative text-[clamp(2.6rem,8.5vw,5.75rem)] leading-[0.9] text-ink [--reveal-distance:0px]">
               {site.name.split(" ").map((word, i) => (
                 <Fragment key={word + i}>
                   {i > 0 ? " " : null}
