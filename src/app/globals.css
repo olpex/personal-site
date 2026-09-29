@@ -32,6 +32,9 @@
   --focus-ring: rgba(140, 58, 24, 0.22);
   --gold: #c5a989;
   --gold-soft: rgba(197, 169, 137, 0.14);
+  /* Яскраве золото хвилі — окремо від декоративного --gold: власник
+     просив зробити саму хвилю яскравішою (#c5a989 → #d4af37, 2026-09-29). */
+  --gold-wave: #d4af37;
 
   /* Хвиля на тексті: по краях — currentColor (тож у стані спокою текст
      виглядає точно як раніше), у смузі — чорнило й золото. Один токен
@@ -44,8 +47,21 @@
     currentColor 0%,
     currentColor 40%,
     var(--ink) 46%,
-    var(--gold) 52%,
+    var(--gold-wave) 52%,
     var(--ink) 58%,
+    currentColor 64%,
+    currentColor 100%
+  );
+
+  /* Інверсна хвиля — для темних поверхонь (чорні кнопки з білим текстом):
+     краї — currentColor (білий), смуга — золото з білою облямівкою. */
+  --wave-invert: linear-gradient(
+    135deg,
+    currentColor 0%,
+    currentColor 40%,
+    #ffffff 46%,
+    var(--gold-wave) 52%,
+    #ffffff 58%,
     currentColor 64%,
     currentColor 100%
   );
@@ -626,6 +642,46 @@ a:hover .nudge {
   }
 }
 
+/* ── Хвиля по тексту кнопок ──────────────────────────────────────
+   Текст кнопки лежить у .wave-span: саме на ньому фон кліпається по
+   глифах і рухається позиція, а кнопка лише задає варіант хвилі й
+   запускає рух на :hover/:focus-visible. Два варіанти:
+   .btn-wave — світла кнопка (чорно-золота хвиля);
+   .btn-wave-invert — чорна кнопка (біло-золота хвиля). */
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  .btn-wave .wave-span,
+  .btn-wave-invert .wave-span {
+    background-repeat: no-repeat;
+    background-position: 100% 100%;
+    background-size: 300% 300%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: background-position 0.7s linear;
+  }
+
+  .btn-wave .wave-span {
+    background-image: var(--wave);
+  }
+
+  .btn-wave-invert .wave-span {
+    background-image: var(--wave-invert);
+  }
+
+  .btn-wave:hover .wave-span,
+  .btn-wave:focus-visible .wave-span,
+  .btn-wave-invert:hover .wave-span,
+  .btn-wave-invert:focus-visible .wave-span {
+    background-position: 0% 0%;
+  }
+
+  /* Стрілки (↓, →) не мають власного фону — без цього вони успадкували б
+     прозорий fill і зникали б під час хвилі. */
+  .wave-span > * {
+    -webkit-text-fill-color: currentColor;
+  }
+}
+
 /* Scroll-spy: активний пункт навігації тримає підкреслення */
 .nav-active {
   background-size: 100% 1px, 300% 300%;
@@ -694,6 +750,37 @@ a:hover .nudge {
 
 .chat-fab:active {
   transform: scale(0.98);
+}
+
+/* Біло-золота хвиля по ІКОНЦІ чату (не по тлу кнопки): окремий шар,
+   обрізаний маскою самої іконки — смугу видно лише на штрихах.
+   Краї смуги = currentColor (як і іконка), тож у стані спокою шару
+   не видно; на наведенні золото пробігає по діагоналі. Малюємо лише
+   коли всередині SVG (:has(svg)) — у відкритому стані там «×». */
+.chat-fab:has(svg)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: var(--wave-invert);
+  background-repeat: no-repeat;
+  background-position: 100% 100%;
+  background-size: 300% 300%;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%23fff'%20stroke-width='1.8'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M21%2012a8%208%200%200%201-8%208H7l-4%203v-4.5A8%208%200%200%201%203%2012a8%208%200%200%201%208-8h2a8%208%200%200%201%208%208Z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%23fff'%20stroke-width='1.8'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M21%2012a8%208%200%200%201-8%208H7l-4%203v-4.5A8%208%200%200%201%203%2012a8%208%200%200%201%208-8h2a8%208%200%200%201%208%208Z'/%3E%3C/svg%3E");
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: 24px 24px;
+  mask-size: 24px 24px;
+  transition: background-position 0.7s linear;
+  pointer-events: none;
+}
+
+.chat-fab:has(svg):hover::before,
+.chat-fab:has(svg):focus-visible::before {
+  background-position: 0% 0%;
 }
 
 /* Легкий «дихаючий» рух — привертає увагу, коли надійшла відповідь. */
@@ -849,6 +936,9 @@ a:hover .nudge {
 
   .link-underline,
   .link-wave,
+  .btn-wave .wave-span,
+  .btn-wave-invert .wave-span,
+  .chat-fab:has(svg)::before,
   .portrait-reveal,
   .lift,
   .nudge,
@@ -884,8 +974,14 @@ a:hover .nudge {
    невидимим. Повертаємо системний колір тексту. */
 @media (forced-colors: active) {
   .link-underline,
-  .link-wave {
+  .link-wave,
+  .btn-wave .wave-span,
+  .btn-wave-invert .wave-span {
     background-image: none;
     -webkit-text-fill-color: currentColor;
+  }
+
+  .chat-fab:has(svg)::before {
+    display: none;
   }
 }

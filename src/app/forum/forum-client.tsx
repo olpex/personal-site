@@ -347,9 +347,11 @@ export default function ForumClient() {
                   <button
                     type="submit"
                     disabled={formState === "sending"}
-                    className="inline-flex h-12 items-center justify-center gap-3 bg-ink px-7 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-ink-soft disabled:opacity-60"
+                    className="btn-wave-invert inline-flex h-12 items-center justify-center gap-3 bg-ink px-7 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-ink-soft disabled:opacity-60"
                   >
-                    {formState === "sending" ? "Надсилаю…" : "Надіслати питання"}
+                    <span className="wave-span">
+                      {formState === "sending" ? "Надсилаю…" : "Надіслати питання"}
+                    </span>
                   </button>
                   {formState === "sent" ? (
                     <p className="text-sm text-accent-ink" role="status">

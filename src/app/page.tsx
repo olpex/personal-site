@@ -98,20 +98,22 @@ function Hero() {
             <div className="reveal mt-9 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               <a
                 href="#work"
-                className="inline-flex min-h-12 items-center justify-center gap-3 bg-ink px-7 py-3 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-ink-soft sm:justify-start"
+                className="group btn-wave-invert inline-flex min-h-12 items-center justify-center gap-3 bg-ink px-7 py-3 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-ink-soft sm:justify-start"
               >
-                Дивитись проєкти
-                <span
-                  aria-hidden
-                  className="transition-transform duration-300 group-hover:translate-y-0.5"
-                >
-                  ↓
+                <span className="wave-span inline-flex items-center gap-3">
+                  Дивитись проєкти
+                  <span
+                    aria-hidden
+                    className="transition-transform duration-300 group-hover:translate-y-0.5"
+                  >
+                    ↓
+                  </span>
                 </span>
               </a>
               <ContactModal
                 trigger="secondary"
                 label="Написати листа"
-                className="inline-flex min-h-12 items-center justify-center border border-line-strong bg-paper px-7 py-3 text-sm font-semibold tracking-wide transition-colors hover:border-ink hover:text-ink sm:justify-start"
+                className="btn-wave inline-flex min-h-12 items-center justify-center border border-line-strong bg-paper px-7 py-3 text-sm font-semibold tracking-wide transition-colors hover:border-ink hover:text-ink sm:justify-start"
               />
             </div>
           </div>

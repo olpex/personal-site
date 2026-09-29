@@ -100,29 +100,31 @@ export default function ContactModal({
           onClick={open}
           className={
             className ??
-            "inline-flex min-h-12 items-center justify-center border border-line-strong bg-paper px-7 py-3 text-sm font-semibold tracking-wide transition-colors hover:border-ink hover:text-ink"
+            "btn-wave inline-flex min-h-12 items-center justify-center border border-line-strong bg-paper px-7 py-3 text-sm font-semibold tracking-wide transition-colors hover:border-ink hover:text-ink"
           }
         >
-          {label ?? "Написати листа"}
+          <span className="wave-span">{label ?? "Написати листа"}</span>
         </button>
       ) : trigger === "button" ? (
         <button
           type="button"
           onClick={open}
-          className="reveal inline-flex h-12 items-center justify-center gap-3 bg-ink px-7 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-ink-soft"
+          className="reveal btn-wave-invert group inline-flex h-12 items-center justify-center gap-3 bg-ink px-7 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-ink-soft"
         >
-          Написати мені
-          <span aria-hidden className="transition-transform group-hover:translate-x-1">
-            →
+          <span className="wave-span inline-flex items-center gap-3">
+            Написати мені
+            <span aria-hidden className="transition-transform group-hover:translate-x-1">
+              →
+            </span>
           </span>
         </button>
       ) : (
         <button
           type="button"
           onClick={open}
-          className="label whitespace-nowrap border border-line bg-paper px-3.5 py-2 text-[11px] tracking-[0.08em] text-muted transition-colors hover:border-ink hover:text-ink"
+          className="label btn-wave whitespace-nowrap border border-line bg-paper px-3.5 py-2 text-[11px] tracking-[0.08em] text-muted transition-colors hover:border-ink hover:text-ink"
         >
-          Написати
+          <span className="wave-span">Написати</span>
         </button>
       )}
 
@@ -236,9 +238,11 @@ export default function ContactModal({
                 <button
                   type="submit"
                   disabled={state === "sending"}
-                  className="flex h-11 items-center rounded-xl bg-ink px-6 text-sm font-semibold text-paper shadow-sm transition-all hover:translate-y-[-1px] hover:shadow-md active:translate-y-0 disabled:opacity-60"
+                  className="btn-wave-invert flex h-11 items-center rounded-xl bg-ink px-6 text-sm font-semibold text-paper shadow-sm transition-all hover:translate-y-[-1px] hover:shadow-md active:translate-y-0 disabled:opacity-60"
                 >
-                  {state === "sending" ? "Надсилаю…" : "Відправити"}
+                  <span className="wave-span">
+                    {state === "sending" ? "Надсилаю…" : "Відправити"}
+                  </span>
                 </button>
                 <button
                   type="button"

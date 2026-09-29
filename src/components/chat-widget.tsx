@@ -608,9 +608,11 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
                 <button
                   type="submit"
                   disabled={state === "sending"}
-                  className="flex h-10 flex-1 items-center justify-center rounded-xl bg-ink px-4 text-sm font-semibold text-paper shadow-sm transition-all hover:translate-y-[-1px] hover:shadow-md active:translate-y-0 disabled:opacity-60"
+                  className="btn-wave-invert flex h-10 flex-1 items-center justify-center rounded-xl bg-ink px-4 text-sm font-semibold text-paper shadow-sm transition-all hover:translate-y-[-1px] hover:shadow-md active:translate-y-0 disabled:opacity-60"
                 >
-                  {state === "sending" ? "Надсилаю…" : hasCode ? "Надіслати" : "Відправити"}
+                  <span className="wave-span">
+                    {state === "sending" ? "Надсилаю…" : hasCode ? "Надіслати" : "Відправити"}
+                  </span>
                 </button>
                 {hasCode ? (
                   <button
