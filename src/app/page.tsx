@@ -14,10 +14,14 @@ function CountUp({
   target,
   duration = 1400,
   delay = 0,
+  suffix = "",
 }: {
   target: number;
   duration?: number;
   delay?: number;
+  /** Суфікс показуємо лише біля фінального числа — «+» у «50+»;
+      під час рахунку він блимав би поруч із проміжними значеннями. */
+  suffix?: string;
 }) {
   const [value, setValue] = useState(1);
   const rafRef = useRef<number | null>(null);
@@ -46,7 +50,12 @@ function CountUp({
     };
   }, [target, duration, delay]);
 
-  return <>{value}</>;
+  return (
+    <>
+      {value}
+      {value === target ? suffix : ""}
+    </>
+  );
 }
 
 /* ── Hero ─────────────────────────────────────────────────────── */
@@ -139,9 +148,13 @@ function Hero() {
             (від 1, як просили) — легка затримка для кожного наступного. */}
         <dl className="reveal order-4 lg:order-none grid grid-cols-2 gap-x-6 gap-y-7 border-t border-line pt-8 sm:grid-cols-4 lg:col-span-7 lg:col-start-1 lg:row-start-2 lg:self-end">
           {site.facts.map((fact, idx) => {
-            const parts = fact.v.match(/^(\d+(?:[.,]\d+)?%?)\s*(.*)$/);
+            /* «50+» — число і знак окремо: «+» показуємо лише коли
+               лічильник дійшов до кінця, інакше він блимав би біля
+               проміжних значень (3+, 17+ …). */
+            const parts = fact.v.match(/^(\d+(?:[.,]\d+)?)(\+|%)?\s*(.*)$/);
             const figureStr = parts?.[1];
-            const rest = parts?.[2] ?? "";
+            const suffix = parts?.[2] ?? "";
+            const rest = parts?.[3] ?? "";
             const numeric = figureStr ? parseInt(figureStr, 10) : null;
 
             return (
@@ -150,7 +163,7 @@ function Hero() {
                 {numeric !== null ? (
                   <dd className="mt-2.5">
                     <span className="stat-figure block text-4xl tabular-nums text-ink md:text-5xl">
-                      <CountUp target={numeric} delay={idx * 140} />
+                      <CountUp target={numeric} delay={idx * 140} suffix={suffix} />
                     </span>
                     <span className="mt-1.5 block text-sm font-medium leading-snug text-ink-soft">
                       {rest}
