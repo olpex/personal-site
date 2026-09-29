@@ -460,7 +460,103 @@
 .portrait-reveal {
   transition:
     opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transform 1.5s cubic-bezier(0.4, 0, 0.2, 1),
+    filter 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Вхід у кадр (2026-09-30): ледь помітний підйом і масштаб — як портрет
+     ставлять на мольберт. Плюс «фотолабораторне» проявлення: перші пів
+     секунди тон м'якший, далі набирає повний. Кінець — transform: none
+     від .reveal[data-visible="true"]; фільтр знімаємо нижче. */
+  transform: translateY(26px) scale(1.032);
+  transform-origin: 50% 42%;
+  filter: saturate(0.62) brightness(1.035);
+}
+
+.reveal[data-visible="true"].portrait-reveal {
+  filter: none;
+}
+
+/* ── Хореографія Hero: «друкарський» + проявлення ─────────────────
+   Один раз при завантаженні: слова імені виїжджають знизу (кожне у
+   своїй масці), під ім'ям прочерчується золота лінія, по рядку ролі
+   пробігає золота хвиля, портрет входить у кадр. Далі — усе статичне.
+
+   ЧОМУ clip-path, а не overflow: hidden — inline-block з overflow
+   має baseline = нижній край, тож слова з'їхали б відносно рядка
+   (або вимагали б угадування метрик шрифту). clip-path не змінює
+   baseline — маска нічого не зсуває, лише обрізає малювання. */
+.hero-word {
+  display: inline-block;
+  /* Толеранс: ±0.42em зверху/знизу і ±0.12em з боків — щоб у стані
+     спокою не зрізало ні виносних елементів, ні діакритики, ні
+     виступів заокруглень; обрізає лише під час руху слова. */
+  clip-path: inset(-0.42em -0.12em -0.42em -0.12em);
+}
+
+.hero-word-inner {
+  display: inline-block;
+  /* Старт — глибоко під маскою (запас, щоб жоден гліф не «визирав»
+     до початку руху, навіть якщо метрики шрифту трохи інші). */
+  transform: translateY(calc(100% + 0.75em));
+  transition: transform 1.05s cubic-bezier(0.22, 1, 0.36, 1) calc(140ms + var(--word-delay, 0ms));
+}
+
+.reveal[data-visible="true"] .hero-word-inner {
+  transform: none;
+}
+
+/* Золота лінія під іменем: прочерчується зліва направо, коли останнє
+   слово стало. Згасає до правого краю — лінія «від руки», не рамка. */
+.hero-name-rule {
+  /* АБСОЛЮТНА: лінія не додає h1 висоти — композиція hero не зсувається
+     ні на піксель (перевірка: geometry до/після має збігатися —
+     h1 h=166, role y=323). */
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 0.10em);
+  height: 1px;
+  background: linear-gradient(90deg, var(--gold-wave) 0%, var(--gold-wave) 62%, transparent 100%);
+  opacity: 0.8;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1) 1400ms;
+}
+
+.reveal[data-visible="true"] .hero-name-rule {
+  transform: scaleX(1);
+}
+
+/* Базова лінія під портретом: прочерчується слідом за портретом. */
+.hero-baseline {
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1) 1450ms;
+}
+
+.reveal[data-visible="true"] .hero-baseline {
+  transform: scaleX(1);
+}
+
+/* Один прохід золотої хвилі по рядку ролі — та сама мова, що на hover:
+   фон обрізається по тексту, краї = currentColor (у спокої текст як
+   звичайний). Запускається, коли ім'я стало. */
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  .hero-role {
+    background-image: var(--wave);
+    background-repeat: no-repeat;
+    background-position: 100% 100%;
+    background-size: 300% 300%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    /* Останній такт хореографії: хвиля стартує, коли золота лінія під
+       іменем уже прочерчена (лінія: 1400→2150мс). */
+    transition: background-position 1s linear 2150ms;
+  }
+
+  .reveal[data-visible="true"] .hero-role {
+    background-position: 0% 0%;
+  }
 }
 
 /* ── Смуга під заголовком ─────────────────────────────────────────
@@ -949,6 +1045,10 @@ a:hover .nudge {
   .btn-wave-invert .wave-span,
   .chat-fab:has(svg)::before,
   .portrait-reveal,
+  .hero-word-inner,
+  .hero-name-rule,
+  .hero-baseline,
+  .hero-role,
   .lift,
   .nudge,
   .accent-rule,
@@ -976,6 +1076,25 @@ a:hover .nudge {
   .accent-rule {
     transform: scaleX(1);
   }
+
+  /* Hero-хореографія у reduced-motion: усе одразу у фінальному стані. */
+  .hero-word-inner {
+    transform: none;
+  }
+
+  .hero-name-rule,
+  .hero-baseline {
+    transform: scaleX(1);
+  }
+
+  .hero-role {
+    background-image: none;
+    -webkit-text-fill-color: currentColor;
+  }
+
+  .portrait-reveal {
+    filter: none;
+  }
 }
 
 /* Windows High Contrast / forced-colors: фонові градієнти тут вимикає
@@ -985,7 +1104,8 @@ a:hover .nudge {
   .link-underline,
   .link-wave,
   .btn-wave .wave-span,
-  .btn-wave-invert .wave-span {
+  .btn-wave-invert .wave-span,
+  .hero-role {
     background-image: none;
     -webkit-text-fill-color: currentColor;
   }

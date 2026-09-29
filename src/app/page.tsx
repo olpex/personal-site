@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState, type CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { site } from "@/content/site";
@@ -77,13 +77,31 @@ function Hero() {
         {/* Текстова колонка */}
         <div className="contents lg:block lg:col-span-7 lg:row-start-1">
           <div className="order-1 lg:order-none">
-            <h1 className="reveal font-serif text-[clamp(2.6rem,8.5vw,5.75rem)] font-normal leading-[0.9] tracking-[-0.045em] text-ink">
-              {site.name}
+            {/* «Друкарський» вихід імені: кожне слово — окрема маска
+                (clip-path), слова виїжджають знизу з кроком 90 мс.
+                Під ім'ям прочерчується золота риска, а по рядку ролі
+                один раз пробігає золота хвиля (та сама мова, що на hover).
+                Хореографія — hero-блок у globals.css. */}
+            <h1 className="reveal relative font-serif text-[clamp(2.6rem,8.5vw,5.75rem)] font-normal leading-[0.9] tracking-[-0.045em] text-ink [--reveal-distance:0px]">
+              {site.name.split(" ").map((word, i) => (
+                <Fragment key={word + i}>
+                  {i > 0 ? " " : null}
+                  <span className="hero-word">
+                    <span
+                      className="hero-word-inner"
+                      style={{ "--word-delay": `${i * 90}ms` } as CSSProperties}
+                    >
+                      {word}
+                    </span>
+                  </span>
+                </Fragment>
+              ))}
+              <span aria-hidden className="hero-name-rule" />
             </h1>
 
-            <p className="reveal mt-5 max-w-xl text-lg leading-relaxed text-ink-soft md:text-xl">
-              {site.role}
-              <span aria-hidden className="mx-2 text-gold">
+            <p className="reveal mt-5 max-w-xl text-lg leading-relaxed text-ink-soft md:text-xl [--reveal-delay:200ms]">
+              <span className="hero-role">{site.role}</span>
+              <span aria-hidden className="mx-2 text-[var(--gold)]">
                 ·
               </span>
               <span className="serif-accent text-ink">{site.orgShort}</span>
@@ -91,11 +109,11 @@ function Hero() {
           </div>
 
           <div className="order-3 lg:order-none">
-            <p className="reveal mt-6 max-w-lg text-[15px] leading-[1.75] text-muted">
+            <p className="reveal mt-6 max-w-lg text-[15px] leading-[1.75] text-muted [--reveal-delay:550ms]">
               {site.statement}
             </p>
 
-            <div className="reveal mt-9 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            <div className="reveal mt-9 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center [--reveal-delay:700ms]">
               <a
                 href="#work"
                 className="group btn-wave-invert inline-flex min-h-12 items-center justify-center gap-3 bg-ink px-7 py-3 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-ink-soft sm:justify-start"
@@ -151,7 +169,7 @@ function Hero() {
               />
             </div>
             {/* Тонка теракотова базова лінія — знак ательє, не декор. */}
-            <span aria-hidden className="mt-3 block h-px w-full bg-accent/70" />
+            <span aria-hidden className="hero-baseline mt-3 block h-px w-full bg-accent/70" />
           </figure>
         </div>
 
