@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { site } from "@/content/site";
 import { Footer, Header } from "@/components/chrome";
@@ -8,6 +8,46 @@ import Reveal from "@/components/reveal";
 import CertIndex from "@/components/cert-index";
 import FilterChips from "@/components/filter-chips";
 import ContactModal from "@/components/contact-modal";
+
+/* ── CountUp: лічильник як на годиннику ──────────────────────────── */
+function CountUp({
+  target,
+  duration = 1400,
+  delay = 0,
+}: {
+  target: number;
+  duration?: number;
+  delay?: number;
+}) {
+  const [value, setValue] = useState(0);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setValue(target);
+      return;
+    }
+    let start: number | null = null;
+    const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+    const tick = (now: number) => {
+      if (start === null) start = now;
+      const elapsed = now - start;
+      if (elapsed < delay) {
+        rafRef.current = requestAnimationFrame(tick);
+        return;
+      }
+      const p = Math.min((elapsed - delay) / duration, 1);
+      setValue(Math.round(easeOutCubic(p) * target));
+      if (p < 1) rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    };
+  }, [target, duration, delay]);
+
+  return <>{value}</>;
+}
 
 /* ── Hero ─────────────────────────────────────────────────────── */
 
@@ -95,21 +135,22 @@ function Hero() {
         {/* Смуга фактів — окремий рядок сітки, тому на мобільному вона
             стоїть ПІСЛЯ портрета, а на десктопі підіймається під кнопки
             й закриває порожнечу в лівій колонці.
-            Факт, значення якого починається з числа, дістає велику цифру:
-            «55» очима читається за частку секунди. */}
+            Числові факти анімуються лічильником від 0 до значення
+            (від 1, як просили) — легка затримка для кожного наступного. */}
         <dl className="reveal order-4 lg:order-none grid grid-cols-2 gap-x-6 gap-y-7 border-t border-line pt-8 sm:grid-cols-4 lg:col-span-7 lg:col-start-1 lg:row-start-2 lg:self-end">
-          {site.facts.map((fact) => {
+          {site.facts.map((fact, idx) => {
             const parts = fact.v.match(/^(\d+(?:[.,]\d+)?%?)\s*(.*)$/);
-            const figure = parts?.[1];
-            const rest = parts?.[2];
+            const figureStr = parts?.[1];
+            const rest = parts?.[2] ?? "";
+            const numeric = figureStr ? parseInt(figureStr, 10) : null;
 
             return (
               <div key={fact.k}>
                 <dt className="label">{fact.k}</dt>
-                {figure ? (
+                {numeric !== null ? (
                   <dd className="mt-2.5">
-                    <span className="stat-figure block text-4xl text-ink md:text-5xl">
-                      {figure}
+                    <span className="stat-figure block text-4xl tabular-nums text-ink md:text-5xl">
+                      <CountUp target={numeric} delay={idx * 140} />
                     </span>
                     <span className="mt-1.5 block text-sm font-medium leading-snug text-ink-soft">
                       {rest}
