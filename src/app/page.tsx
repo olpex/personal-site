@@ -77,11 +77,12 @@ function Hero() {
         {/* Текстова колонка */}
         <div className="contents lg:block lg:col-span-7 lg:row-start-1">
           <div className="order-1 lg:order-none">
-            {/* «Друкарський» вихід імені: кожне слово — окрема маска
-                (clip-path), слова виїжджають знизу з кроком 90 мс.
+            {/* Вихід імені: кожне слово піднімається й проявляється
+                м'яко (крок 90 мс; маску прибрано — її кромка різала
+                літери в русі, і це виглядало як грубіший шрифт).
                 Під ім'ям прочерчується золота риска, а по рядку ролі
-                один раз пробігає золота хвиля (та сама мова, що на hover).
-                Хореографія — hero-блок у globals.css. */}
+                пробігає золота хвиля. Хореографія — hero-блок
+                у globals.css. */}
             <h1 className="reveal relative font-serif text-[clamp(2.6rem,8.5vw,5.75rem)] font-normal leading-[0.9] tracking-[-0.045em] text-ink [--reveal-distance:0px]">
               {site.name.split(" ").map((word, i) => (
                 <Fragment key={word + i}>
