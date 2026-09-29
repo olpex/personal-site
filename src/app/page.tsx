@@ -119,8 +119,12 @@ function Hero() {
 
         {/* Портрет. На десктопі займає обидва рядки сітки — так смуга
             фактів лягає під кнопки, закриваючи порожнечу ліворуч, а
-            портрет лишається високим. */}
-        <div className="reveal order-2 lg:order-none lg:col-span-5 lg:col-start-8 lg:row-span-2 lg:row-start-1">
+            портрет лишається високим.
+
+            Клас portrait-reveal — окремий, повільніший ритм появи:
+            власник просив, щоб фото проявлялося плавно за ~1.5с, а не
+            різко разом із текстом (текст лишається на 0.7s). */}
+        <div className="reveal portrait-reveal order-2 lg:order-none lg:col-span-5 lg:col-start-8 lg:row-span-2 lg:row-start-1">
           <figure className="mx-auto w-full max-w-[440px] lg:mx-0 lg:max-w-none lg:sticky lg:top-20">
             {/* Кадр має вміститися в перший екран, тому його висота
                 обмежена часткою вікна (max-h), а не лише пропорцією:
