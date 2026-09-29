@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { site } from "@/content/site";
 import { Footer, Header } from "@/components/chrome";
 import Reveal from "@/components/reveal";
@@ -707,7 +708,15 @@ function Contact() {
         <ContactModal trigger="button" />
 
         <p className="max-w-lg text-sm leading-relaxed text-ink-soft">
-          Або запитайте в чаті — кнопка в правому нижньому куті.
+          Або запитайте в чаті — кнопка в правому нижньому куті. Публічні
+          питання й відповіді збираються{" "}
+          <Link
+            href="/forum"
+            className="font-medium text-accent-ink underline decoration-accent/30 underline-offset-4 transition-colors hover:text-ink hover:decoration-ink/30"
+          >
+            на форумі
+          </Link>
+          .
         </p>
 
         <ul className="flex flex-wrap gap-x-8 gap-y-1 border-t border-line pt-7">

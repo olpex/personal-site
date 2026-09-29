@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { site } from "@/content/site";
 import ContactModal from "@/components/contact-modal";
 
@@ -98,6 +99,14 @@ export function Header() {
               </a>
             );
           })}
+          {/* Форум — окрема сторінка, не анкор секції: пункт стоїть
+              останнім і веде на /forum, а не всередину сторінки. */}
+          <Link
+            href="/forum"
+            className="label link-underline flex h-11 shrink-0 items-center whitespace-nowrap text-[11px] tracking-[0.08em] text-muted transition-colors hover:text-ink"
+          >
+            Форум
+          </Link>
         </nav>
 
         <div className="hidden shrink-0 sm:block">
@@ -115,9 +124,17 @@ export function Footer() {
         <p className="text-[11px] tracking-[0.08em] text-muted">
           © {new Date().getFullYear()} {site.name}
         </p>
-        <a href="#top" className="label link-underline flex h-11 w-fit items-center text-muted hover:text-ink">
-          Вгору ↑
-        </a>
+        <div className="flex items-center gap-6">
+          <Link
+            href="/forum"
+            className="label link-underline flex h-11 w-fit items-center text-muted hover:text-ink"
+          >
+            Форум
+          </Link>
+          <a href="#top" className="label link-underline flex h-11 w-fit items-center text-muted hover:text-ink">
+            Вгору ↑
+          </a>
+        </div>
       </div>
     </footer>
   );

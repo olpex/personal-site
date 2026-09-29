@@ -14,5 +14,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 1,
     },
+    {
+      url: `${site.url}/forum`,
+      lastModified: LAST_CONTENT_UPDATE,
+      changeFrequency: "daily",
+      priority: 0.8,
+    },
   ];
 }
