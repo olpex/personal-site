@@ -280,8 +280,8 @@ export default function ForumClient() {
                 <span className="accent-rule" />
               </span>
               <p className="mt-6 hidden text-sm leading-relaxed text-muted lg:block">
-                Питання надходить мені у Telegram. Відповідь публікується на цій
-                сторінці — її побачать усі, кому цікава та сама тема.
+                Відповідь публікується на цій сторінці — її побачать усі, кому
+                цікава та сама тема.
               </p>
             </div>
 
