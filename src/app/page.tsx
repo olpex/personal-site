@@ -19,7 +19,7 @@ function CountUp({
   duration?: number;
   delay?: number;
 }) {
-  const [value, setValue] = useState(0);
+  const [value, setValue] = useState(1);
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -37,7 +37,7 @@ function CountUp({
         return;
       }
       const p = Math.min((elapsed - delay) / duration, 1);
-      setValue(Math.round(easeOutCubic(p) * target));
+      setValue(Math.max(1, Math.round(easeOutCubic(p) * target)));
       if (p < 1) rafRef.current = requestAnimationFrame(tick);
     };
     rafRef.current = requestAnimationFrame(tick);
