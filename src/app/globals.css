@@ -33,6 +33,27 @@
   --gold: #c5a989;
   --gold-soft: rgba(197, 169, 137, 0.14);
 
+  /* Хвиля на тексті: по краях — currentColor (тож у стані спокою текст
+     виглядає точно як раніше), у смузі — чорнило й золото. Один токен
+     на всі «тексти, що змінюють колір»: .link-underline і .link-wave.
+     Кут 135° дає смугу орієнтації «/» (від лівого нижнього кута до
+     правого верхнього); рух фону (100% 100% → 0% 0%) заміряно піксельно:
+     смуга їде зліва направо крізь елемент. */
+  --wave: linear-gradient(
+    135deg,
+    currentColor 0%,
+    currentColor 40%,
+    var(--ink) 46%,
+    var(--gold) 52%,
+    var(--ink) 58%,
+    currentColor 64%,
+    currentColor 100%
+  );
+
+  /* Тінь картки при наведенні: холодно-сіра опора + тепле золото. */
+  --shadow-card: 0 18px 40px -24px rgba(56, 52, 47, 0.32);
+  --shadow-gold: 0 14px 32px -16px rgba(197, 169, 137, 0.55);
+
   --reveal-distance: 18px;
   --reveal-delay: 0ms;
   --radius-card: 12px;
@@ -351,20 +372,42 @@
 /* ── ПОЗА шаром: ці правила мусять перекривати .reveal (що також
    поза шаром). @layer utilities має найнижчу специфічність, тому
    hover-/transition-правила, що взаємодіють із .reveal, ТІЛЬКИ тут. */
+/* ПАСТКА: цей список ПОВНІСТЮ замінює transition появи у .reveal
+   (специфічність .card-grid > li вища) — тож opacity і transform
+   мусять бути в списку, інакше картки з'являлися б без fade. */
 .card-grid > li,
-.review-flow > li {
+.review-flow > li,
+.card-lift {
   transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay),
     border-color 0.4s ease,
-    box-shadow 0.4s ease;
+    box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    translate 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
+
+/* Hover карток: підйом + сіро-золотиста тінь.
+   Підйом — через `translate` (окрема властивість), а не `transform`:
+   на цих самих елементах сидить .reveal, який анімує transform, і
+   окрема властивість не конфліктує з появою при прокрутці.
+   Тінь двошарова: сіра опора під карткою + тепле золото знизу —
+   картка відривається від паперу, не втрачаючи білого тла. */
 .card-grid > li:hover,
 .review-flow > li:hover,
+.card-lift:hover,
 .review-card:hover {
   border-color: var(--line-strong);
-  box-shadow: 0 12px 36px -20px rgba(10, 10, 11, 0.12);
+  translate: 0 -3px;
+  box-shadow: var(--shadow-card), var(--shadow-gold);
 }
-.review-card:hover {
-  box-shadow: 0 16px 40px -22px rgba(10, 10, 11, 0.14);
+
+/* Відгуки — картки вищі за інші, тому трохи дужчий підйом і глибша
+   тінь; два класи в селекторі, щоб перекрити групове правило. */
+.review-flow > li.review-card:hover {
+  translate: 0 -4px;
+  box-shadow:
+    0 22px 48px -26px rgba(56, 52, 47, 0.34),
+    0 16px 36px -18px rgba(197, 169, 137, 0.6);
 }
 .reveal {
   opacity: 0;
@@ -488,12 +531,20 @@ a:hover .nudge {
   }
 }
 
+/* Підкреслення + чорно-золота хвиля по тексту.
+   Хвиля — другий тло-шар (обріз по тексту), підкреслення — перший (по
+   межі елемента). Краї хвилі дорівнюють currentColor, тож у стані спокою
+   текст виглядає точно як звичайний; на наведенні смуга чорнила й золота
+   пробігає по діагоналі — від лівого нижнього кута до правого верхнього.
+   Сам шар хвилі живе під @supports (див. нижче). */
 .link-underline {
   background-image: linear-gradient(var(--accent), var(--accent));
   background-repeat: no-repeat;
   background-position: 0 100%;
   background-size: 0% 1px;
-  transition: background-size 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  transition:
+    background-size 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.35s ease;
 }
 
 .link-underline:hover,
@@ -501,9 +552,68 @@ a:hover .nudge {
   background-size: 100% 1px;
 }
 
+/* Той самий рух для інлайн-посилань і «скинути фільтр» — там, де текст
+   змінює колір, але підкреслення немає. */
+.link-wave {
+  transition:
+    background-position 0.7s linear,
+    color 0.35s ease;
+}
+
+/* Кліп тла по тексту вмикаємо лише там, де браузер уміє його поєднати
+   зі звичайним шаром. Інакше -webkit-text-fill-color: transparent
+   зробив би текст невидимим — а краще підкреслення без хвилі, ніж
+   порожнє місце. */
+@supports (background-clip: text, border-box) or (-webkit-background-clip: text, border-box) {
+  .link-underline {
+    background-image: linear-gradient(var(--accent), var(--accent)), var(--wave);
+    background-repeat: no-repeat, no-repeat;
+    background-position: 0 100%, 100% 100%;
+    background-size: 0% 1px, 300% 300%;
+    background-clip: border-box, text;
+    -webkit-background-clip: border-box, text;
+    -webkit-text-fill-color: transparent;
+    transition:
+      background-size 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+      background-position 0.7s linear,
+      color 0.35s ease;
+  }
+
+  .link-underline:hover,
+  .link-underline:focus-visible {
+    background-size: 100% 1px, 300% 300%;
+    background-position: 0 100%, 0% 0%;
+  }
+}
+
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  .link-wave {
+    background-image: var(--wave);
+    background-repeat: no-repeat;
+    background-position: 100% 100%;
+    background-size: 300% 300%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .link-wave:hover,
+  .link-wave:focus-visible {
+    background-position: 0% 0%;
+  }
+
+  /* Дочірні дрібні підписи (напр., лічильник у рейлі тем) мусять лишати
+     власний колір: -webkit-text-fill-color успадковується, і без цього
+     цифри теж стали б «вирізаними» з батьківського градієнта. */
+  .link-wave .label,
+  .link-underline .label {
+    -webkit-text-fill-color: currentColor;
+  }
+}
+
 /* Scroll-spy: активний пункт навігації тримає підкреслення */
 .nav-active {
-  background-size: 100% 1px;
+  background-size: 100% 1px, 300% 300%;
 }
 
 /* ── Модальне вікно зворотного зв'язку ────────────────────────────
@@ -723,19 +833,24 @@ a:hover .nudge {
   }
 
   .link-underline,
+  .link-wave,
   .lift,
   .nudge,
   .accent-rule,
   .card-grid > li,
   .review-flow > li,
+  .card-lift,
   .review-dash,
   .review-card .hand {
     transition: none;
   }
 
   .card-grid > li:hover,
-  .review-card:hover {
-    transform: none;
+  .review-flow > li:hover,
+  .card-lift:hover,
+  .review-card:hover,
+  .review-flow > li.review-card:hover {
+    translate: none;
     box-shadow: none;
   }
 
@@ -745,5 +860,16 @@ a:hover .nudge {
 
   .accent-rule {
     transform: scaleX(1);
+  }
+}
+
+/* Windows High Contrast / forced-colors: фонові градієнти тут вимикає
+   браузер, і текст із -webkit-text-fill-color: transparent лишився б
+   невидимим. Повертаємо системний колір тексту. */
+@media (forced-colors: active) {
+  .link-underline,
+  .link-wave {
+    background-image: none;
+    -webkit-text-fill-color: currentColor;
   }
 }

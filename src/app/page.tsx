@@ -373,7 +373,7 @@ function Reviews() {
             <button
               type="button"
               onClick={() => setReviewFilter(null)}
-              className="underline decoration-line underline-offset-4 hover:text-ink"
+              className="link-wave underline decoration-line underline-offset-4 hover:text-ink"
             >
               скинути фільтр
             </button>
@@ -472,7 +472,7 @@ function Work() {
                 href="https://cources.lovable.app/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-medium text-accent-ink underline decoration-accent/30 underline-offset-4 transition-colors hover:text-ink hover:decoration-ink/30"
+                className="link-wave font-medium text-accent-ink underline decoration-accent/30 underline-offset-4 hover:text-ink hover:decoration-ink/30"
               >
                 у відкритому доступі ↗
               </a>
@@ -647,7 +647,7 @@ function Certificates() {
             <button
               type="button"
               onClick={() => setCertFilter(null)}
-              className="underline decoration-line underline-offset-4 hover:text-ink"
+              className="link-wave underline decoration-line underline-offset-4 hover:text-ink"
             >
               скинути фільтр
             </button>
@@ -712,7 +712,7 @@ function Contact() {
           питання й відповіді збираються{" "}
           <Link
             href="/forum"
-            className="font-medium text-accent-ink underline decoration-accent/30 underline-offset-4 transition-colors hover:text-ink hover:decoration-ink/30"
+            className="link-wave font-medium text-accent-ink underline decoration-accent/30 underline-offset-4 hover:text-ink hover:decoration-ink/30"
           >
             на форумі
           </Link>

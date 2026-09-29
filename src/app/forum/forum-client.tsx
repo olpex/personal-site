@@ -447,7 +447,7 @@ export default function ForumClient() {
               {visible.map((entry) => (
                 <li
                   key={entry.id}
-                  className="card-inner border border-line bg-paper p-6 md:p-8"
+                  className="card-inner card-lift border border-line bg-paper p-6 md:p-8"
                 >
                   <article>
                     <header className="flex flex-wrap items-center gap-x-4 gap-y-2">

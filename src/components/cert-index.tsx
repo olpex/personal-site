@@ -57,7 +57,7 @@ export default function CertIndex({
             key={g.slug}
             href={`#cert-${g.slug}`}
             aria-current={isActive ? "true" : undefined}
-            className={`flex items-baseline justify-between gap-3 border-b pb-2 text-sm transition-colors ${
+            className={`link-wave flex items-baseline justify-between gap-3 border-b pb-2 text-sm transition-colors ${
               isActive
                 ? "border-accent text-ink"
                 : "border-line text-muted hover:border-line-strong hover:text-accent-ink"
