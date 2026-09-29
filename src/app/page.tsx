@@ -707,8 +707,7 @@ function Contact() {
         <ContactModal trigger="button" />
 
         <p className="max-w-lg text-sm leading-relaxed text-ink-soft">
-          Або запитайте в чаті — кнопка в правому нижньому куті. Питання прийде
-          мені в Telegram, і відповідь з&apos;явиться там же, у вікні чату.
+          Або запитайте в чаті — кнопка в правому нижньому куті.
         </p>
 
         <ul className="flex flex-wrap gap-x-8 gap-y-1 border-t border-line pt-7">
