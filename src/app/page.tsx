@@ -100,7 +100,7 @@ function Hero() {
               <span aria-hidden className="hero-name-rule" />
             </h1>
 
-            <p className="reveal mt-5 max-w-xl text-lg leading-relaxed text-ink-soft md:text-xl [--reveal-delay:200ms]">
+            <p className="reveal mt-5 max-w-xl text-xl leading-relaxed text-ink-soft md:text-2xl [--reveal-delay:200ms]">
               <span className="hero-role">{site.role}</span>
               <span aria-hidden className="mx-2 text-[var(--gold)]">
                 ·

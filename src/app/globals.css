@@ -502,6 +502,17 @@
   display: inline-block;
 }
 
+/* Рядок ролі — тим самим курсивом-антиквою, що й ім'я (власник просив
+   «зроби цей напис так само курсивом»). Cormorant на 20px дрібніший за
+   себе ж на 92px, тому кегль піднято на щабель (див. page.tsx) і трекінг
+   лишено нейтральним — у курсиві нахил уже дає ритм. */
+.hero-role {
+  font-family: var(--font-cormorant), "Cormorant Garamond", var(--font-spectral), Georgia, serif;
+  font-weight: 600;
+  font-style: italic;
+  letter-spacing: 0;
+}
+
 .hero-word-inner {
   display: inline-block;
   /* М'який вихід: слово піднімається на 0.7em і одночасно проявляється.
