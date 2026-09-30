@@ -659,7 +659,7 @@ export const site = {
     "Освіта: Даугавпілський університет (Латвійська Республіка) — магістр інформатики та математики, фізико-математичний факультет (1989–1994); магістр економіки, економічний факультет (1995–2000)",
 
   socials: [
-    { label: "Презентації курсів — Цифровий світ і ШІ", href: "https://cources.lovable.app/" },
+    { label: "Навчальна платформа викладача", href: "https://cources.lovable.app/" },
     { label: "LinkedIn", href: "https://linkedin.com/in/oleg-p-42225a111/" },
     { label: "YouTube — @youritperson", href: "https://youtube.com/@youritperson" },
     { label: "Telegram — @User132309", href: "https://t.me/User132309" },
