@@ -498,8 +498,85 @@
   letter-spacing: -0.04em;
 }
 
-.hero-word {
-  display: inline-block;
+/* ── Хмара-трафарет для імені ────────────────────────────────────
+   Власник: при заході на сторінку по сектору імені проходить «чорна
+   хмаринка», ніби зафарбовуючи трафарет (прізвище, ім'я, по батькові)
+   по діагоналі з лівого нижнього кута в правий верхній — окремими
+   маленькими хмаринками, які разом зафарбовують усе. 1,5 с. Далі, як
+   і раніше: золота риска, потім золота хвиля по рядку ролі.
+
+   Механіка: ім'я (h1) МАСКУЄТЬСЯ растром `cloud-mask.png` і маска їде.
+   Трафарет = літери, хмара = маска. Растр — це сам фронт: унизу-зліва
+   він суцільний, угору-вправо рідшає до повної прозорості, між ними
+   смуга окремих хмаринок (у координатах u = x - y, тобто діагональ
+   «/»). Розміри задані в em, тож геометрія та сама на будь-якому
+   розмірі шрифту (перевірено 320–1920 px).
+
+   ПАСТКА: маска стоїть у `@supports` і ЛИШЕ під [data-visible]. Якщо
+   браузер не вміє mask-image або JS не спрацює — ім'я просто видно, як
+   звичайно (жодного «зниклого» тексту). */
+.hero-name-stage {
+  /* Появу цього блоку віддано хмарі: жодного fade із .reveal, інакше
+     щойно зафарбовані літери ще й тьмяніли б. */
+  transition: none;
+}
+
+@supports (mask-image: url("")) or (-webkit-mask-image: url("")) {
+  .reveal[data-visible="true"] .hero-name {
+    -webkit-mask-image: url("/cloud-mask.png");
+    mask-image: url("/cloud-mask.png");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: 46em 30em;
+    mask-size: 46em 30em;
+    -webkit-mask-position: -14em -9em;
+    mask-position: -14em -9em;
+    animation: hero-cloud-sweep 1.5s linear both;
+  }
+}
+
+/* Старт: уся хмара лівіше-нижче імені (жодна літера ще не зафарбована).
+   Фініш: суцільна частина хмари накрила ім'я цілком, а смуга хмаринок
+   пішла за правий верхній кут. Обидві точки й сам хід перевірені за
+   заміряними межами глифів (u = x − y ∈ [−1.95, +9.29]em) для ширин
+   320–1920 px: перша літера зафарбовується на ~0,14 с, остання на
+   ~1,44 с — хмара рухається всі 1,5 с без «паузи» в кінці.
+
+   Два набори точок, бо ім'я на різних ширинах рветься на 1 або 2 рядки:
+   у два рядки (телефон і десктоп) діагональ перетинає вужчу пляму
+   (u_max ≈ 5,2em), в один рядок (~424–1023px) — ширшу (u_max ≈ 9,3em).
+   Один спільний шлях дав би на десктопі «паузу» ~0,4 с після
+   зафарбовування, тому для однорядкових ширин окремий прохід. */
+@keyframes hero-cloud-sweep {
+  from {
+    -webkit-mask-position: -14em -9em;
+    mask-position: -14em -9em;
+  }
+  to {
+    -webkit-mask-position: -8.45em -14.55em;
+    mask-position: -8.45em -14.55em;
+  }
+}
+
+@keyframes hero-cloud-sweep-wide {
+  from {
+    -webkit-mask-position: -14em -9em;
+    mask-position: -14em -9em;
+  }
+  to {
+    -webkit-mask-position: -6.12em -16.88em;
+    mask-position: -6.12em -16.88em;
+  }
+}
+
+/* Порядок важливий: цей блок стоїть ПІСЛЯ @supports і має ту саму
+   специфічність, тож перекриває animation-name (і початкову позицію). */
+@media (min-width: 424px) and (max-width: 1023px) {
+  .reveal[data-visible="true"] .hero-name {
+    -webkit-mask-position: -14em -9em;
+    mask-position: -14em -9em;
+    animation-name: hero-cloud-sweep-wide;
+  }
 }
 
 /* Рядок ролі — тим самим курсивом-антиквою, що й ім'я (власник просив
@@ -513,28 +590,12 @@
   letter-spacing: 0;
 }
 
-.hero-word-inner {
-  display: inline-block;
-  /* М'який вихід: слово піднімається на 0.7em і одночасно проявляється.
-     БЕЗ маски: раніше слова виїжджали з-під жорсткої кромки clip-path,
-     і в русі літери різались навпіл — читалось як «рублений» шрифт. */
-  transform: translateY(0.7em);
-  opacity: 0;
-  transition:
-    transform 1.05s cubic-bezier(0.22, 1, 0.36, 1) calc(140ms + var(--word-delay, 0ms)),
-    opacity 0.7s ease calc(220ms + var(--word-delay, 0ms));
-}
-
-.reveal[data-visible="true"] .hero-word-inner {
-  transform: none;
-  opacity: 1;
-}
-
-/* Золота лінія під іменем: прочерчується зліва направо, коли ім'я
-   стало, і згасає до правого краю — лінія «від руки», не рамка.
-   Ритм 0.75с → 1.6с (2026-09-30): власник просив повільніше, щоб рух
-   було видно; крива ease-in-out — рівний видимий прочерк від початку
-   до кінця, а не зблиск. */
+/* Золота лінія під іменем: прочерчується зліва направо, коли хмара
+   зафарбувала ім'я, і згасає до правого краю — лінія «від руки», не
+   рамка. Ритм 0.75с → 1.6с (2026-09-30): власник просив повільніше,
+   щоб рух було видно; крива ease-in-out — рівний видимий прочерк від
+   початку до кінця, а не зблиск. Затримку зсунуто 1400 → 1500мс:
+   рівно після хмари (1,5 с), щоб такти йшли строго один за одним. */
 .hero-name-rule {
   /* АБСОЛЮТНА: лінія не додає h1 висоти — композиція hero не зсувається
      ні на піксель (перевірка: geometry до/після має збігатися —
@@ -548,7 +609,7 @@
   opacity: 0.8;
   transform: scaleX(0);
   transform-origin: left center;
-  transition: transform 1.6s ease-in-out 1400ms;
+  transition: transform 1.6s ease-in-out 1500ms;
 }
 
 .reveal[data-visible="true"] .hero-name-rule {
@@ -579,8 +640,10 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     /* Останній такт: хвиля стартує, коли повільна лінія під іменем
-       дійшла до краю (лінія тепер 1400→3000мс) — строга черговість. */
-    transition: background-position 1s linear 3050ms;
+       дійшла до краю. Лінія тепер 1500→3100мс (посунута на +100мс
+       разом із хмарою), тож і хвиля зсунута 3050 → 3150мс — проміжок
+       50мс між тактами збережено. */
+    transition: background-position 1s linear 3150ms;
   }
 
   .reveal[data-visible="true"] .hero-role {
@@ -1074,7 +1137,7 @@ a:hover .nudge {
   .btn-wave-invert .wave-span,
   .chat-fab:has(svg)::before,
   .portrait-reveal,
-  .hero-word-inner,
+  .hero-name-stage,
   .hero-name-rule,
   .hero-baseline,
   .hero-role,
@@ -1107,9 +1170,18 @@ a:hover .nudge {
   }
 
   /* Hero-хореографія у reduced-motion: усе одразу у фінальному стані. */
-  .hero-word-inner {
-    transform: none;
-    opacity: 1;
+  .hero-name-stage {
+    transition: none;
+  }
+
+  /* Хмара-трафарет не біжить: ім'я одразу повністю видиме.
+     ПАСТКА: селектор мусить мати ТУ САМУ специфічність, що й правило
+     з маскою (.reveal[data-visible] .hero-name), інакше маска лишиться
+     чинною навіть тут — перевірено. */
+  .reveal[data-visible="true"] .hero-name {
+    animation: none;
+    -webkit-mask-image: none;
+    mask-image: none;
   }
 
   .hero-name-rule,

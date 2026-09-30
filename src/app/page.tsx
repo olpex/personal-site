@@ -77,28 +77,18 @@ function Hero() {
         {/* Текстова колонка */}
         <div className="contents lg:block lg:col-span-7 lg:row-start-1">
           <div className="order-1 lg:order-none">
-            {/* Вихід імені: кожне слово піднімається й проявляється
-                м'яко (крок 90 мс; маску прибрано — її кромка різала
-                літери в русі, і це виглядало як грубіший шрифт).
-                Під ім'ям прочерчується золота риска, а по рядку ролі
-                пробігає золота хвиля. Хореографія — hero-блок
-                у globals.css. */}
-            <h1 className="hero-name reveal relative text-[clamp(2.6rem,8.5vw,5.75rem)] leading-[0.9] text-ink [--reveal-distance:0px]">
-              {site.name.split(" ").map((word, i) => (
-                <Fragment key={word + i}>
-                  {i > 0 ? " " : null}
-                  <span className="hero-word">
-                    <span
-                      className="hero-word-inner"
-                      style={{ "--word-delay": `${i * 90}ms` } as CSSProperties}
-                    >
-                      {word}
-                    </span>
-                  </span>
-                </Fragment>
-              ))}
+            {/* Ім'я проявляється крізь хмару-трафарет: чорна хмара (растр
+                cloud-mask.png) проходить по сектору імені по діагоналі з
+                лівого нижнього кута в правий верхній за 1,5 с, ніби
+                зафарбовуючи трафарет — літери прізвища, імені, по
+                батькові. Далі, як і раніше: золота риска, потім золота
+                хвиля по рядку ролі. Хореографія — globals.css. */}
+            <div className="hero-name-stage reveal relative text-[clamp(2.6rem,8.5vw,5.75rem)] [--reveal-distance:0px]">
+              <h1 className="hero-name relative leading-[0.9] text-ink">{site.name}</h1>
+              {/* Риска — ПОЗА h1: маска хмари стоїть на h1, і дитина
+                  всередині теж обрізалася б хмарою. */}
               <span aria-hidden className="hero-name-rule" />
-            </h1>
+            </div>
 
             <p className="reveal mt-5 max-w-xl text-xl leading-relaxed text-ink-soft md:text-2xl [--reveal-delay:200ms]">
               <span className="hero-role">{site.role}</span>
