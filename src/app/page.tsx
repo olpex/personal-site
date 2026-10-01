@@ -136,20 +136,31 @@ function Hero() {
             власник просив, щоб фото проявлялося плавно за ~1.5с, а не
             різко разом із текстом (текст лишається на 0.7s).
 
+            Ефект «розквітання» (варіант 6 з прев'ю, 2026-10-01): кадр
+            входить із розмиття 13px, масштабу 0.76 і прозорості 0.35 —
+            фігура проявляється, розкривається й набирає різкість.
+            Затримка 300ms: портрет рушає, коли ім'я вже майже
+            зафарбоване хмарою.
+
+            У прев'ю цей варіант мав ще й маску силуету, але заміряно,
+            що її внесок — 0.63 рівня з 255 (око не бачить): тло фото
+            заматоване точно в колір паперу, тож силуету немає з чим
+            контрастувати. Маску прибрано — деталі в globals.css.
+
             БЕЗ sticky: раніше тут було lg:sticky lg:top-20, і при
             прокрутці фото «відклеювалось» від документа — сповзало
             вниз на ~126px, наздоганяючи сторінку ривком. Власник
             попросив, щоб фото було нерухоме й лишалось у тому
             положенні, у якому сторінка завантажилась (перевірено
             заміром: раніше docTop 137px→263px, тепер стабільний). */}
-        <div className="reveal portrait-reveal order-2 lg:order-none lg:col-span-5 lg:col-start-8 lg:row-span-2 lg:row-start-1">
+        <div className="reveal portrait-reveal [--reveal-delay:300ms] order-2 lg:order-none lg:col-span-5 lg:col-start-8 lg:row-span-2 lg:row-start-1">
           <figure className="mx-auto w-full max-w-[440px] lg:mx-0 lg:max-w-none">
             {/* Кадр має вміститися в перший екран, тому його висота
                 обмежена часткою вікна (max-h), а не лише пропорцією:
                 на широкому мобільному 4:5 давало 750px — більше за екран.
                 object-top тримає голову в кадрі, обрізаючи піджак.
                 На десктопі обмеження знімається — там портрет високий. */}
-            <div className="relative aspect-[4/5] max-h-[52vh] w-full overflow-hidden bg-paper md:aspect-[3/4] lg:max-h-none lg:aspect-[4/5]">
+            <div className="portrait-frame relative aspect-[4/5] max-h-[52vh] w-full overflow-hidden bg-paper md:aspect-[3/4] lg:max-h-none lg:aspect-[4/5]">
               <Image
                 src={site.portrait}
                 alt={site.portraitAlt}

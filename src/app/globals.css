@@ -458,20 +458,43 @@
    — виграє нижче в файлі) і ДО блоку prefers-reduced-motion, де
    .reveal отримує transition: none. */
 .portrait-reveal {
-  transition:
-    opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 1.5s cubic-bezier(0.4, 0, 0.2, 1),
-    filter 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-  /* Вхід у кадр (2026-09-30): ледь помітний підйом і масштаб — як портрет
-     ставлять на мольберт. Плюс «фотолабораторне» проявлення: перші пів
-     секунди тон м'якший, далі набирає повний. Кінець — transform: none
-     від .reveal[data-visible="true"]; фільтр знімаємо нижче. */
-  transform: translateY(26px) scale(1.032);
-  transform-origin: 50% 42%;
-  filter: saturate(0.62) brightness(1.035);
+  transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1) var(--reveal-delay);
+  /* Початкова прозорість — не нуль, а 0.35: власник обирав варіант 6 на
+     прев'ю, де кадр стартував саме з 0.35. Фігура вже присутня ледь
+     видимою плямою й «наводиться на різкість», а не виникає з нічого. */
+  opacity: 0.35;
 }
 
-.reveal[data-visible="true"].portrait-reveal {
+/* ── Розквітання портрета (варіант 6 з прев'ю, 2026-10-01) ─────────
+   Фото входить із розмиття 13px, масштабу 0.76 і прозорості 0.35:
+   фігура проявляється, розкривається й набирає різкість. Затримка
+   300ms — портрет рушає, коли ім'я вже майже зафарбоване хмарою.
+
+   ЧОМУ ТУТ НЕМАЄ МАСКИ СИЛУЕТУ, хоча варіант 6 у прев'ю був «силует,
+   що розквітає». Заміряно: маска силуету працює (1.65% пікселів кадру
+   відрізняються від версії без маски), але її внесок — у СЕРЕДНЬОМУ
+   0.63 рівня з 255, тобто око його не бачить. Причина фізична: тло
+   фотографії заматоване точно в колір паперу сторінки, тож «розкриттю
+   силуету» немає з чим контрастувати — папір на папері не видно.
+   Маска додавала 53 КБ і точку відмови (mask-position мусить збігатися
+   з object-position фото на кожному брейкпоінті), не даючи видимого
+   результату. Якщо колись знадобиться справжнє прочитання силуету,
+   потрібне видиме тло за фігурою — це вже зміна дизайну, не анімація.
+
+   ПАСТКА: brightness на цілому кадрі заборонений (тло фото = колір
+   паперу, будь-яке освітлення видає прямокутник). Тут лишились blur і
+   saturate, які на однорідному тлі нічого не показують. */
+.portrait-frame {
+  transform-origin: 50% 42%;
+  transform: scale(0.76);
+  filter: blur(13px) saturate(0.62);
+  transition:
+    filter 1.5s cubic-bezier(0.4, 0, 0.2, 1) var(--reveal-delay),
+    transform 1.5s cubic-bezier(0.4, 0, 0.2, 1) var(--reveal-delay);
+}
+
+.reveal[data-visible="true"] .portrait-frame {
+  transform: none;
   filter: none;
 }
 
@@ -1137,6 +1160,7 @@ a:hover .nudge {
   .btn-wave-invert .wave-span,
   .chat-fab:has(svg)::before,
   .portrait-reveal,
+  .portrait-frame,
   .hero-name-stage,
   .hero-name-rule,
   .hero-baseline,
@@ -1194,8 +1218,15 @@ a:hover .nudge {
     -webkit-text-fill-color: currentColor;
   }
 
-  .portrait-reveal {
+  /* Reduced-motion: без розмиття й масштабу. Маску лишаємо — вона
+     вирівняна по фігурі, тож показує те саме, що й фото без неї. */
+  .portrait-frame {
+    transform: none;
     filter: none;
+  }
+
+  .portrait-reveal {
+    opacity: 1;
   }
 }
 
