@@ -160,6 +160,10 @@ function Hero() {
                 на широкому мобільному 4:5 давало 750px — більше за екран.
                 object-top тримає голову в кадрі, обрізаючи піджак.
                 На десктопі обмеження знімається — там портрет високий. */}
+            {/* Плівка (варіант 9, 2026-10-01): спалах кольору паперу плюс
+                зерно, що «кипить» і осідає. Два шари лежать ПОВЕРХ фото
+                всередині кадру (overflow-hidden обрізає їх по рамці).
+                Механіку, заміри й пастки див. у globals.css. */}
             <div className="portrait-frame relative aspect-[4/5] max-h-[52vh] w-full overflow-hidden bg-paper md:aspect-[3/4] lg:max-h-none lg:aspect-[4/5]">
               <Image
                 src={site.portrait}
@@ -169,6 +173,8 @@ function Hero() {
                 sizes="(max-width: 1024px) 100vw, 40vw"
                 className="object-cover object-[center_6%] lg:object-top"
               />
+              <span aria-hidden className="portrait-flash" />
+              <span aria-hidden className="portrait-grain" />
             </div>
             {/* Тонка теракотова базова лінія — знак ательє, не декор. */}
             <span aria-hidden className="hero-baseline mt-3 block h-px w-full bg-accent/70" />
