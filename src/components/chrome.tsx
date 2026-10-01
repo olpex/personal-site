@@ -131,7 +131,17 @@ export function Footer() {
           >
             Форум
           </Link>
-          <a href="#top" className="label link-underline flex h-11 w-fit items-center text-ink">
+          <a
+            href="#top"
+            onClick={(e) => {
+              // id="top" має sticky-хедер, який завжди у в'юпорті, тому якір
+              // не прокручує нічо → скролимо нагору завжди через JS.
+              e.preventDefault();
+              const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+              window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+            }}
+            className="label link-underline flex h-11 w-fit items-center text-ink"
+          >
             Вгору ↑
           </a>
         </div>
