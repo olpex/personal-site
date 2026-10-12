@@ -506,7 +506,7 @@ function Work() {
           <div>
             <dt className="label">Матеріали</dt>
             <dd className="mt-1.5 text-sm leading-relaxed text-muted">
-              Авторська навчальна платформа викладача — презентації та нотатки
+              Авторська навчальна платформа викладача — презентації та конспекти
               до кожного слайда,{" "}
               <a
                 href="https://cources.lovable.app/"
