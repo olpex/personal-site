@@ -111,7 +111,7 @@ const personSchema = {
   knowsLanguage: ["uk", "en"],
   alumniOf: { "@type": "CollegeOrUniversity", name: "Даугавпілський університет", location: "Латвія" },
   sameAs: site.socials.filter((s) => /^https:\/\//.test(s.href)).map((s) => s.href),
-  aggregateRating: { "@type": "AggregateRating", ratingValue: "5", reviewCount: "56", bestRating: "5", worstRating: "1" },
+  aggregateRating: { "@type": "AggregateRating", ratingValue: "5", reviewCount: "55", bestRating: "5", worstRating: "1" },
 } as const;
 
 const orgSchema = {
