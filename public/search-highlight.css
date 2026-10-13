@@ -1,0 +1,33 @@
+/* Підсвічування знайденого в пошуку по сторінці (SiteSearch).
+   ─────────────────────────────────────────────────────────────
+   ЧОМУ ОКРЕМИМ ФАЙЛОМ, А НЕ В globals.css:
+   Tailwind v4 проганяє globals.css через Lightning CSS, який не знає
+   псевдоелемента ::highlight() (CSS Custom Highlight API) і на кожній
+   збірці пише «'highlight' is not recognized as a valid pseudo-element»
+   — шум у логах і ризик, що жорсткіша версія парсера просто викине
+   правило. Статичний файл із /public проходить повз конвеєр незмінним.
+
+   ЧОМУ ВЗАГАЛІ ::highlight, А НЕ <mark>:
+   щоб підсвітити знайдене через <mark>, довелося б переписувати текстові
+   вузли в розмітці React, і кожен наступний рендер повертав би все назад.
+   Highlight малюється Range-ами ПОВЕРХ наявного DOM, нічого не змінюючи.
+
+   Колір — той самий золотий токен, що й у хвилі під текстом: знайдене
+   читається як «золоте», а не як чужий жовтий маркер. */
+::highlight(site-search) {
+  color: var(--accent-ink);
+  background-color: var(--gold-soft);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-wave);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+/* У висококонтрастному режимі підсвічування малює система. */
+@media (forced-colors: active) {
+  ::highlight(site-search) {
+    color: LinkText;
+    background-color: transparent;
+    text-decoration: none;
+  }
+}

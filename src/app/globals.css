@@ -1284,7 +1284,8 @@ a:hover .nudge {
   .review-flow > li,
   .card-lift,
   .review-dash,
-  .review-card .hand {
+  .review-card .hand,
+  .site-search-clear {
     transition: none;
   }
 
@@ -1364,3 +1365,94 @@ a:hover .nudge {
     display: none;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Миттєвий пошук по сторінці (SiteSearch) — 2026-10-14
+
+   Смуга ЛИПКА під шапкою: сторінка довга (відгуки, сертифікати), і поле,
+   яке зникає при прокрутці, змушувало б щоразу вертатися нагору.
+   ───────────────────────────────────────────────────────────── */
+
+/* Висоти обох липких смуг — в ОДНОМУ місці. Від них залежить і те, де
+   стоїть смуга пошуку, і те, куди зупиняється якір. Раніше кожна секція
+   мала власний scroll-mt-14/16; додавання смуги зсунуло б усі якорі на її
+   висоту, тож тепер якорі рахуються від цих змінних. */
+:root {
+  --header-h: 52px;
+  /* Висота реальна, не «на око»: 34px поле + 20px відступ смуги + 1px лінія.
+     Від неї рахується і позиція смуги, і куди спиняється якір. */
+  --site-search-h: 55px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --header-h: 56px;
+    --site-search-h: 56px;
+  }
+}
+
+/* Якір зупиняється під ОБОМА липкими смугами (шапка + пошук). */
+html {
+  scroll-padding-top: calc(var(--header-h) + var(--site-search-h) + 2px);
+}
+
+.site-search-bar {
+  position: sticky;
+  top: var(--header-h);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  min-height: var(--site-search-h);
+}
+
+/* Поле без рамки: у смузі вже є лінія знизу, друга рамка робила б
+   «форму» посеред редакційної сторінки. */
+.site-search-input {
+  width: 100%;
+  min-width: 0;
+  padding: 6px 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.45;
+  outline: none;
+}
+
+.site-search-input::placeholder {
+  color: var(--muted);
+}
+
+/* Хрестик, який Chrome малює у type=search, прибираємо: у нас свій. */
+.site-search-input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Стан фокуса показуємо на всій смузі — у поля без рамки іншого видимого
+   стану немає. */
+.site-search-bar:focus-within {
+  border-bottom-color: var(--line-strong);
+}
+
+.site-search-clear {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1;
+}
+
+.site-search-clear:hover {
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+
+/* Підсвічування знайденого — у статичному файлі, повз конвеєр Tailwind:
+   Lightning CSS не знає ::highlight() і сипле попередженнями на кожній
+   збірці. React 19 піднімає цей <link> у <head> сам. */
+

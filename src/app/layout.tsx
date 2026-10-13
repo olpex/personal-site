@@ -191,6 +191,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${manrope.variable} ${spectral.variable} ${cormorant.variable} ${jetbrains.variable} ${caveat.variable} antialiased`}
     >
       <body className="grain bg-paper text-ink">
+        {/* Підсвічування знайденого в пошуку: лежить поза globals.css, бо
+            Lightning CSS (конвеєр Tailwind) не знає псевдоелемента
+            ::highlight() і сипле попередженнями на кожній збірці. */}
+        <link rel="stylesheet" href="/search-highlight.css" />
         <a
           href="#main"
           className="label sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[70] focus:bg-ink focus:px-4 focus:py-2 focus:text-paper"

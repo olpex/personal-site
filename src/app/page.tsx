@@ -1,14 +1,46 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { site } from "@/content/site";
+import { filterBy, haystack, matches, tokenize } from "@/lib/search";
 import { Footer, Header } from "@/components/chrome";
 import Reveal from "@/components/reveal";
 import CertIndex from "@/components/cert-index";
 import FilterChips from "@/components/filter-chips";
 import ContactModal from "@/components/contact-modal";
+import SiteSearch from "@/components/site-search";
+
+/* ── Миттєвий пошук: що саме вважається текстом картки ────────────────
+   Типи елементів беремо з самих даних (`typeof site.x[number]`), бо контент
+   оголошено `as const` — власні копії типів розійшлися б із джерелом.
+   Функції стоять на рівні модуля (а не всередині компонентів), бо ними
+   користуються ДВІ речі: фільтрація списків і лічильник «знайдено N з M».
+   Один опис полів — цифра не може розійтися з тим, що на екрані. */
+type MethodItem = (typeof site.method)[number];
+type ProjectItem = (typeof site.projects)[number];
+type ReviewItem = (typeof site.reviews)[number];
+type CertItem = (typeof site.certificates)[number];
+
+const methodText = (item: MethodItem) => haystack(item.title, item.body);
+const projectText = (item: ProjectItem) =>
+  haystack(item.title, item.kind, item.year, item.outcome, item.stack);
+const reviewText = (item: ReviewItem) =>
+  haystack(item.quote, item.author, item.date, item.group, item.course);
+const certText = (item: CertItem) =>
+  haystack(item.title, item.issuer, item.year, item.note, item.credentialId, item.group);
+
+/** Замітка для секції, де за запитом нічого не знайшлося: без неї порожня
+    секція читається як зламана, а не як результат фільтрації. */
+function NoHits({ what }: { what: string }) {
+  return (
+    <p className="text-sm leading-relaxed text-muted">
+      За поточним запитом {what} не знайдено — змініть слово або скиньте пошук у
+      полі вгорі.
+    </p>
+  );
+}
 
 /* ── CountUp: лічильник як на годиннику ──────────────────────────── */
 function CountUp({
@@ -279,7 +311,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section id={id} className="gutter scroll-mt-14">
+    <section id={id} className="gutter">
       <div className="shell border-t border-line py-16 md:py-24">
         <div className="grid grid-cols-1 gap-y-10 lg:grid-cols-12 lg:gap-x-12">
           <div className="lg:col-span-3">
@@ -290,7 +322,7 @@ function Section({
               <span className="accent-rule" />
             </span>
             {aside ? (
-              <div className="mt-8 hidden lg:sticky lg:top-20 lg:block">{aside}</div>
+              <div className="mt-8 hidden lg:sticky lg:top-[calc(var(--header-h)+var(--site-search-h)+16px)] lg:block">{aside}</div>
             ) : null}
           </div>
           <div className="lg:col-span-9">{children}</div>
@@ -302,31 +334,57 @@ function Section({
 
 /* ── Про мене ─────────────────────────────────────────────────── */
 
-function About() {
+function About({
+  paragraphs,
+  educationMatches,
+  searching,
+}: {
+  paragraphs: string[];
+  educationMatches: boolean;
+  searching: boolean;
+}) {
   return (
     <Section id="about" title="Про мене">
       <div className="max-w-2xl space-y-5">
-        {site.about.map((paragraph, i) => (
+        {paragraphs.map((paragraph) => (
           <p
-            key={i}
+            key={paragraph.slice(0, 32)}
             className={`reveal leading-relaxed ${
-              i === 0 ? "text-lg text-ink-soft md:text-xl" : "text-base text-muted"
+              /* Провідний абзац лишається провідним і після фільтрації:
+                 стиль прив'язаний до СПРАВЖНЬОГО першого абзацу, а не до
+                 першого у відфільтрованому списку. */
+              paragraph === site.about[0]
+                ? "text-lg text-ink-soft md:text-xl"
+                : "text-base text-muted"
             }`}
           >
             {paragraph}
           </p>
         ))}
       </div>
-      <p className="reveal mt-8 max-w-2xl border-l-2 border-accent pl-6 text-sm leading-relaxed text-muted">
-        {site.educationLabel}
-      </p>
+      {!searching || educationMatches ? (
+        <p className="reveal mt-8 max-w-2xl border-l-2 border-accent pl-6 text-sm leading-relaxed text-muted">
+          {site.educationLabel}
+        </p>
+      ) : null}
+      {searching && paragraphs.length === 0 && !educationMatches ? (
+        <NoHits what="у розділі «Про мене» нічого" />
+      ) : null}
     </Section>
   );
 }
 
 /* ── Відгуки слухачів ─────────────────────────────────────────── */
 
-function Reviews() {
+function Reviews({
+  items,
+  total,
+  searching,
+}: {
+  items: ReviewItem[];
+  total: number;
+  searching: boolean;
+}) {
   /* Фільтр за напрямом — той самий механізм, що в «Сертифікатах»:
      людина обирає тему й бачить лише її. Без фільтра секція з 55
      цитатами читалась як суцільна стіна, де не видно, що саме
@@ -351,10 +409,17 @@ function Reviews() {
   };
 
   const groups = order
-    .map((name) => ({ name, items: site.reviews.filter((r) => r.group === name) }))
+    .map((name) => ({ name, items: items.filter((r) => r.group === name) }))
     .filter((g) => g.items.length > 0);
 
   const [reviewFilter, setReviewFilter] = useState<string | null>(null);
+
+  /* Пошук і чип теми — два різні механізми над одним списком. Коли людина
+     починає шукати, знімаємо чип: інакше він «тримав» би порожню групу, і
+     секція виглядала б зламаною. */
+  useEffect(() => {
+    if (searching) setReviewFilter(null);
+  }, [searching]);
   const reviewGroups = groups.map((g) => ({
     name: shortGroup[g.name] ?? g.name,
     slug: slug(g.name),
@@ -408,7 +473,7 @@ function Reviews() {
         {reviewFilter !== null ? (
           <p className="text-xs text-muted">
             Показано {visibleGroups.reduce((n, g) => n + g.items.length, 0)} з{" "}
-            {site.reviews.length} ·{" "}
+            {total} ·{" "}
             <button
               type="button"
               onClick={() => setReviewFilter(null)}
@@ -421,13 +486,15 @@ function Reviews() {
       </div>
 
       <p className="reveal mb-12 max-w-xl text-base leading-relaxed text-muted">
-        {site.reviews.length} відгуків слухачів за напрямами, які я викладаю.
-        Цитати наведено дослівно.
+        {searching
+          ? `Показано ${items.length} з ${total} відгуків за запитом.`
+          : `${total} відгуків слухачів за напрямами, які я викладаю. Цитати наведено дослівно.`}
       </p>
+      {searching && items.length === 0 ? <NoHits what="у відгуках нічого" /> : null}
 
       <div className="reveal space-y-12">
         {visibleGroups.map((group) => (
-          <div key={group.name} id={`review-${slug(group.name)}`} className="scroll-mt-16">
+          <div key={group.name} id={`review-${slug(group.name)}`}>
             <div className="group-rule mb-6 flex items-baseline justify-between gap-4 pb-3">
               <h3 className="text-base font-bold tracking-[-0.01em]">{group.name}</h3>
               <span className="label shrink-0">
@@ -451,31 +518,39 @@ function Reviews() {
 
 /* ── Як я навчаю ───────────────────────────────────────────────── */
 
-function Method() {
+function Method({ items }: { items: MethodItem[]; searching: boolean }) {
   /* Ставимо одразу після «Про мене»: спершу хто я, потім як веду
      заняття — і лише тоді відгуки, які це підтверджують. */
   return (
     <Section id="method" title="Як я навчаю">
-      <ol className="reveal card-grid grid-cols-1 sm:grid-cols-2">
-        {site.method.map((item, i) => (
-          <li
-            key={item.title}
-            style={{ "--reveal-delay": `${i * 90}ms` } as React.CSSProperties}
-            className="reveal flex flex-col gap-3 bg-paper-2 p-6 md:p-8"
-          >
-            <span className="label text-accent-ink">{String(i + 1).padStart(2, "0")}</span>
-            <span className="text-lg font-bold leading-snug tracking-[-0.01em]">
-              {item.title}
-            </span>
-            <span className="text-sm leading-relaxed text-muted">{item.body}</span>
-          </li>
-        ))}
-      </ol>
+      {items.length === 0 ? (
+        <NoHits what="у розділі «Як я навчаю» нічого" />
+      ) : (
+        <ol className="reveal card-grid grid-cols-1 sm:grid-cols-2">
+          {items.map((item, i) => (
+            <li
+              key={item.title}
+              style={{ "--reveal-delay": `${i * 90}ms` } as CSSProperties}
+              className="reveal flex flex-col gap-3 bg-paper-2 p-6 md:p-8"
+            >
+              {/* Номер — за місцем у ПОВНОМУ переліку: після фільтрації
+                  «01, 03» читається як «третій принцип», а не як збій. */}
+              <span className="label text-accent-ink">
+                {String(site.method.indexOf(item) + 1).padStart(2, "0")}
+              </span>
+              <span className="text-lg font-bold leading-snug tracking-[-0.01em]">
+                {item.title}
+              </span>
+              <span className="text-sm leading-relaxed text-muted">{item.body}</span>
+            </li>
+          ))}
+        </ol>
+      )}
     </Section>
   );
 }
 
-function Work() {
+function Work({ items }: { items: ProjectItem[]; searching: boolean }) {
   /* Проєкти як картки, а не 12-колонкова таблиця: назви курсів різної
      довжини й у таблиці ламались на два рядки, а стек дрібними чипами
      праворуч читався як службова колонка. Картка дає назві дихати. */
@@ -522,8 +597,9 @@ function Work() {
         </dl>
       }
     >
+      {items.length === 0 ? <NoHits what="у розділі «Проєкти» нічого" /> : null}
       <ul className="reveal card-grid grid-cols-1 md:grid-cols-2">
-        {site.projects.map((project) => {
+        {items.map((project) => {
           const inner = (
             <>
               <span className="label flex items-center justify-between gap-3">
@@ -638,17 +714,31 @@ function CertCard({ cert }: { cert: (typeof site.certificates)[number] }) {
   );
 }
 
-function Certificates() {
+function Certificates({
+  items,
+  total,
+  searching,
+}: {
+  items: CertItem[];
+  total: number;
+  searching: boolean;
+}) {
   /* Сертифікати згруповано за темою: двадцять карток одним списком
      читались як рівна стіна, у якій не видно, що людина вміє. Групи
      дають відповідь на питання «в чому я сильний», а лічильник —
      масштаб. Порядок груп збігається з переліком напрямів на сайті. */
   const order = ["Штучний інтелект", "Кібербезпека й OSINT", "Хмарні платформи й контент"];
   const groups = order
-    .map((name) => ({ name, items: site.certificates.filter((c) => c.group === name) }))
+    .map((name) => ({ name, items: items.filter((c) => c.group === name) }))
     .filter((g) => g.items.length > 0);
 
   const [certFilter, setCertFilter] = useState<string | null>(null);
+
+  /* Так само, як у відгуках: пошук знімає чип теми, щоб чип не «тримав»
+     порожню групу. */
+  useEffect(() => {
+    if (searching) setCertFilter(null);
+  }, [searching]);
   const certGroups = groups.map((g) => ({
     name: g.name,
     slug: slug(g.name),
@@ -683,7 +773,7 @@ function Certificates() {
         <FilterChips groups={certGroups} onChange={setCertFilter} />
         {certFilter !== null ? (
           <p className="text-xs text-muted">
-            Показано {visibleGroups.reduce((n, g) => n + g.items.length, 0)} з {site.certificates.length} ·{" "}
+            Показано {visibleGroups.reduce((n, g) => n + g.items.length, 0)} з {total} ·{" "}
             <button
               type="button"
               onClick={() => setCertFilter(null)}
@@ -695,13 +785,15 @@ function Certificates() {
         ) : null}
       </div>
       <p className="reveal mb-12 max-w-xl text-base leading-relaxed text-muted">
-        {site.certificates.length} програм підвищення кваліфікації за трьома
-        темами. Кожна картка веде на сторінку перевірки або курсу.
+        {searching
+          ? `Показано ${items.length} з ${total} програм за запитом.`
+          : `${total} програм підвищення кваліфікації за трьома темами. Кожна картка веде на сторінку перевірки або курсу.`}
       </p>
+      {searching && items.length === 0 ? <NoHits what="у сертифікатах нічого" /> : null}
 
       <div className="reveal space-y-12">
         {visibleGroups.map((group) => (
-          <div key={group.name} id={`cert-${slug(group.name)}`} className="scroll-mt-16">
+          <div key={group.name} id={`cert-${slug(group.name)}`}>
             <div className="group-rule mb-6 flex items-baseline justify-between gap-4 pb-3">
               <h3 className="text-base font-bold tracking-[-0.01em]">{group.name}</h3>
               <span className="label shrink-0">
@@ -781,17 +873,76 @@ function Contact() {
 /* ── Сторінка ─────────────────────────────────────────────────── */
 
 export default function Home() {
+  /* ── Миттєвий пошук по сторінці ──────────────────────────────────────
+     Стан живе тут, у спільному предку секцій: фільтруються «Про мене»,
+     «Як я навчаю», «Проєкти», «Відгуки» й «Сертифікати» одночасно.
+     Списки фільтруються ОДИН раз — і з них же рахується «знайдено N з M»,
+     тож цифра в полі не може розійтися з тим, що на екрані.
+     Фільтруємо на клієнті (а не на сервері) навмисно: контент і так уже
+     в сторінці, тож результат видно на кожну літеру, без мережі. */
+  const [query, setQuery] = useState("");
+  const tokens = useMemo(() => tokenize(query), [query]);
+  const searching = tokens.length > 0;
+
+  const aboutItems = useMemo(() => filterBy(site.about, tokens, (p) => p), [tokens]);
+  const educationMatches = useMemo(
+    () => matches(haystack(site.educationLabel), tokens),
+    [tokens],
+  );
+  const methodItems = useMemo(() => filterBy(site.method, tokens, methodText), [tokens]);
+  const projectItems = useMemo(() => filterBy(site.projects, tokens, projectText), [tokens]);
+  const reviewItems = useMemo(() => filterBy(site.reviews, tokens, reviewText), [tokens]);
+  const certItems = useMemo(() => filterBy(site.certificates, tokens, certText), [tokens]);
+
+  /* «Знайдено N з M»: M — кількість одиниць контенту, які взагалі шукаються
+     (абзаци + принципи + проєкти + відгуки + сертифікати). */
+  const total =
+    site.about.length +
+    1 +
+    site.method.length +
+    site.projects.length +
+    site.reviews.length +
+    site.certificates.length;
+  const found =
+    aboutItems.length +
+    (educationMatches ? 1 : 0) +
+    methodItems.length +
+    projectItems.length +
+    reviewItems.length +
+    certItems.length;
+
   return (
     <>
       <Header />
       <main id="main">
         <Hero />
         <Keywords />
-        <About />
-        <Method />
-        <Work />
-        <Reviews />
-        <Certificates />
+        <SiteSearch
+          query={query}
+          onChange={setQuery}
+          total={total}
+          found={found}
+          sections={[
+            {
+              id: "about",
+              label: "Про мене",
+              count: aboutItems.length + (educationMatches ? 1 : 0),
+            },
+            { id: "method", label: "Як навчаю", count: methodItems.length },
+            { id: "work", label: "Проєкти", count: projectItems.length },
+            { id: "reviews", label: "Відгуки", count: reviewItems.length },
+            { id: "certs", label: "Сертифікати", count: certItems.length },
+          ]}
+        />
+        <About
+          paragraphs={aboutItems}
+          educationMatches={educationMatches}
+          searching={searching}
+        />
+        <Method items={methodItems} searching={searching} />
+        <Work items={projectItems} searching={searching} />
+        <Reviews items={reviewItems} total={site.reviews.length} searching={searching} />
+        <Certificates items={certItems} total={site.certificates.length} searching={searching} />
         <Contact />
       </main>
       <Footer />

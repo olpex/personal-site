@@ -42,7 +42,7 @@ export function Header() {
       },
       {
         // 56px шапка + невеликий запас; нижній край — за серединою екрану
-        rootMargin: "-56px 0px -55% 0px",
+        rootMargin: "-112px 0px -55% 0px",
         threshold: 0,
       },
     );
@@ -69,11 +69,19 @@ export function Header() {
     const nav = el.closest("nav");
     if (!nav) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    // scrollIntoView на горизонтальній осі
-    el.scrollIntoView({
+    /* Прокручуємо ЛИШЕ смугу навігації, і лише по горизонталі.
+       Було `el.scrollIntoView({block:"nearest"})` — і поки пункт лишався
+       невидимим у вузькій смузі, браузер заодно смикав і СТОРІНКУ: лінк
+       усередині sticky-шапки тягне вікно на ~108px. Через це кожен якір
+       (навігація, індекс, перехід від пошуку) спинявся на 108px нижче
+       потрібного. Тепер вертикаль вікна недоторкана за побудовою. */
+    const shift =
+      nav.scrollLeft +
+      (el.getBoundingClientRect().left - nav.getBoundingClientRect().left) -
+      (nav.clientWidth - el.offsetWidth) / 2;
+    nav.scrollTo({
+      left: Math.max(0, shift),
       behavior: reduce ? "auto" : "smooth",
-      block: "nearest",
-      inline: "nearest",
     });
   }, [active]);
 
