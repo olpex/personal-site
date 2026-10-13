@@ -189,7 +189,13 @@
       ]
     },
     "ld5uh3b7": {
-      "messages": [],
+      "messages": [
+        {
+          "text": "Дякую",
+          "at": "2026-10-12T18:36:40",
+          "from": "owner"
+        }
+      ],
       "name": "Микола",
       "createdAt": "2026-10-12T18:34:39",
       "visitor": [
@@ -200,7 +206,13 @@
       ]
     },
     "lh6ya4fv": {
-      "messages": [],
+      "messages": [
+        {
+          "text": "Ясно",
+          "at": "2026-10-12T18:38:40",
+          "from": "owner"
+        }
+      ],
       "name": "Олег",
       "createdAt": "2026-10-12T18:37:47",
       "visitor": [
