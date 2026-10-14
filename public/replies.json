@@ -245,6 +245,11 @@
           "text": "I'm fine",
           "at": "2026-10-14T05:26:40",
           "from": "owner"
+        },
+        {
+          "text": "in the Lviv",
+          "at": "2026-10-14T05:28:40",
+          "from": "owner"
         }
       ],
       "name": "Nick",
