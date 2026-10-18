@@ -32,3 +32,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 .firecrawl/
+
+# локальні логи авто-перекладу
+scripts/i18n-watch.log

@@ -13,7 +13,7 @@ import {
   formatReviewDate,
   reviewGroupLong,
   reviewGroupShort,
-} from "@/content/site-en";
+} from "@/content/i18n-labels";
 import { useLang } from "@/components/lang-context";
 import { t } from "@/lib/ui-strings";
 import { expandTokenGroups, matchesGroups } from "@/lib/search-expand";

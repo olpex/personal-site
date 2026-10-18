@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "i18n-sync": "tsx scripts/i18n-sync.ts",
+    "i18n-watch": "bash scripts/i18n-watch.sh"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",

@@ -8,7 +8,7 @@ import LanguageToggle from "@/components/language-toggle";
 import Reveal from "@/components/reveal";
 import { useLang } from "@/components/lang-context";
 import { t } from "@/lib/ui-strings";
-import { forumTopicLabel } from "@/content/site-en";
+import { forumTopicLabel } from "@/content/i18n-labels";
 import {
   FORUM_TOPICS,
   formatForumDate,

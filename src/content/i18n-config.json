@@ -1,0 +1,27 @@
+{
+  "_comment": "Налаштування автоматичного перекладу uk→en (DeepL). Редагується вручну; самі тексти — у site.ts, кеш перекладів — у i18n-memory.json.",
+  "fixed": {
+    "name": "Oleh Parashchuk",
+    "shortName": "O. Parashchuk",
+    "org": "Lviv Center for Vocational and Technical Education of the State Employment Service of Ukraine",
+    "orgShort": "LCPTO SES",
+    "location": "Lviv"
+  },
+  "terms": [
+    [
+      "Львівський центр професійно-технічної освіти Державної служби зайнятості України",
+      "Lviv Center for Vocational and Technical Education of the State Employment Service of Ukraine"
+    ],
+    ["ЛЦПТО ДСЗ", "LCPTO SES"],
+    ["Паращук Олег Леонідович", "Oleh Parashchuk"],
+    ["Олег Леонідович", "Oleh"],
+    ["Олег Паращук", "Oleh Parashchuk"]
+  ],
+  "reviewGroupShort": {
+    "ШІ та штучний інтелект": "AI",
+    "Кібербезпека й цифрова безпека": "Cybersecurity",
+    "Графічний дизайн": "Graphic design",
+    "Цифровий світ": "Digital world",
+    "Технології комп'ютерної обробки інформації": "Information processing"
+  }
+}
