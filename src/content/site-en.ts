@@ -21,7 +21,7 @@ export const siteEn = {
   name: "Oleh Parashchuk",
   shortName: "O. Parashchuk",
   role: "Information Technology Teacher",
-  org: "Lviv Centre of Professional and Technical Education of the State Employment Service",
+  org: "Lviv Center for Vocational and Technical Education of the State Employment Service of Ukraine",
   orgShort: "LCPTO SES",
   location: "Lviv",
   statement:
@@ -29,7 +29,7 @@ export const siteEn = {
   portraitAlt: "Oleh Parashchuk — portrait of a teacher, Lviv",
 
   about: [
-    "Information technology teacher — highest-category specialist with a master's degree. I teach 7 profile courses and 8 subjects within profession 4113 “Information and Software Processing Operator”. Over 30 years of teaching, the last 7 continuously at LCPTO SES.",
+    "Information technology teacher — highest-category specialist with a master's degree. I teach 7 profile courses and 8 subjects within profession 4113 “Information and Software Processing Operator”. Over 30 years of teaching, the last 7 continuously at the Lviv Center for Vocational and Technical Education of the State Employment Service of Ukraine.",
     "My focus is what matters right now: cybersecurity and OSINT, applying AI at work and in education, web design. I build courses as short modules with practice on real cases from my learners and daily feedback, explaining complex things in plain language — no fluff, no jargon. I keep learning myself: Google Cybersecurity, Cisco, Palo Alto Cybersecurity Foundation, Prometheus OSINT, EPAM AI Tools for Education, Google AI Academy, Moodle 4.0 — administration and features.",
   ],
 

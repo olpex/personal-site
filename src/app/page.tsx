@@ -143,7 +143,10 @@ function Hero() {
               <span aria-hidden className="mx-2 text-[var(--gold)]">
                 ·
               </span>
-              <span className="serif-accent text-ink">{s.orgShort}</span>
+              {/* Повна назва закладу (а не скорочення): власник попросив
+                «Львівський центр професійно-технічної освіти Державної
+                служби зайнятості України» — і відповідний переклад в EN. */}
+              <span className="serif-accent text-ink">{s.org}</span>
             </p>
           </div>
 
