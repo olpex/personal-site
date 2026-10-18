@@ -3,19 +3,24 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { site } from "@/content/site";
+import { useSite } from "@/lib/use-site";
 import ContactModal from "@/components/contact-modal";
+import LanguageToggle from "@/components/language-toggle";
+import { useLang } from "@/components/lang-context";
+import { t } from "@/lib/ui-strings";
 
 const NAV = [
-  { id: "about", label: "Про мене" },
-  { id: "method", label: "Як навчаю" },
-  { id: "work", label: "Проєкти" },
-  { id: "reviews", label: "Відгуки" },
-  { id: "certs", label: "Сертифікати" },
-  { id: "contact", label: "Контакти" },
+  { id: "about", label: { uk: "Про мене", en: "About me" } },
+  { id: "method", label: { uk: "Як навчаю", en: "How I teach" } },
+  { id: "work", label: { uk: "Проєкти", en: "Projects" } },
+  { id: "reviews", label: { uk: "Відгуки", en: "Reviews" } },
+  { id: "certs", label: { uk: "Сертифікати", en: "Certificates" } },
+  { id: "contact", label: { uk: "Контакти", en: "Contact" } },
 ] as const;
 
 export function Header() {
   const [active, setActive] = useState<string | null>(null);
+  const { lang } = useLang();
 
   useEffect(() => {
     const ids = NAV.map((n) => n.id);
@@ -89,7 +94,7 @@ export function Header() {
     <header className="gutter sticky top-0 z-50 border-b border-line/60 bg-paper/90 backdrop-blur-md">
       <div className="shell flex h-[52px] items-center justify-between gap-4 md:h-14 md:gap-6">
         <nav
-          aria-label="Основна навігація"
+          aria-label={t("nav", lang)}
           className="nav-tight flex min-w-0 flex-1 items-center gap-3 overflow-x-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] md:gap-7 [&::-webkit-scrollbar]:hidden"
         >
           {NAV.map((item) => {
@@ -103,7 +108,7 @@ export function Header() {
                   isActive ? "nav-active text-ink" : "text-ink"
                 }`}
               >
-                {item.label}
+                {item.label[lang]}
               </a>
             );
           })}
@@ -113,12 +118,15 @@ export function Header() {
             href="/forum"
             className="label link-underline flex h-11 shrink-0 items-center whitespace-nowrap text-[11px] tracking-[0.08em] text-ink transition-colors hover:text-ink"
           >
-            Форум
+            {t("navForum", lang)}
           </Link>
         </nav>
 
-        <div className="hidden shrink-0 sm:block">
-          <ContactModal trigger="link" />
+        <div className="flex shrink-0 items-center">
+          <LanguageToggle compact />
+          <div className="hidden shrink-0 sm:block">
+            <ContactModal trigger="link" />
+          </div>
         </div>
       </div>
     </header>
@@ -126,6 +134,7 @@ export function Header() {
 }
 
 export function Footer() {
+  const { lang } = useLang();
   return (
     <footer className="gutter border-t border-line/70">
       <div className="shell flex flex-col gap-4 py-10 md:flex-row md:items-center md:justify-between">
@@ -137,7 +146,7 @@ export function Footer() {
             href="/forum"
             className="label link-underline flex h-11 w-fit items-center text-ink"
           >
-            Форум
+            {t("navForum", lang)}
           </Link>
           <a
             href="#top"
@@ -150,7 +159,7 @@ export function Footer() {
             }}
             className="label link-underline flex h-11 w-fit items-center text-ink"
           >
-            Вгору ↑
+            {lang === "uk" ? "Вгору ↑" : "Top ↑"}
           </a>
         </div>
       </div>

@@ -4,7 +4,19 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
 import Image from "next/image";
 import Link from "next/link";
 import { site } from "@/content/site";
-import { filterBy, haystack, matches, tokenize } from "@/lib/search";
+import { useSite } from "@/lib/use-site";
+import { haystack, tokenize } from "@/lib/search";
+import {
+  certGroupLabel,
+  certHrefLabel,
+  certNoteLabel,
+  formatReviewDate,
+  reviewGroupLong,
+  reviewGroupShort,
+} from "@/content/site-en";
+import { useLang } from "@/components/lang-context";
+import { t } from "@/lib/ui-strings";
+import { expandTokenGroups, matchesGroups } from "@/lib/search-expand";
 import { Footer, Header } from "@/components/chrome";
 import Reveal from "@/components/reveal";
 import CertIndex from "@/components/cert-index";
@@ -33,11 +45,13 @@ const certText = (item: CertItem) =>
 
 /** Замітка для секції, де за запитом нічого не знайшлося: без неї порожня
     секція читається як зламана, а не як результат фільтрації. */
-function NoHits({ what }: { what: string }) {
+function NoHits({ what }: { what: { uk: string; en: string } }) {
+  const { lang } = useLang();
   return (
     <p className="text-sm leading-relaxed text-muted">
-      За поточним запитом {what} не знайдено — змініть слово або скиньте пошук у
-      полі вгорі.
+      {lang === "uk"
+        ? `За поточним запитом ${what.uk} — змініть слово або скиньте пошук у полі вгорі.`
+        : `${t("noHitsPrefix", lang)} ${what.en} ${t("noHitsSuffix", lang)}`}
     </p>
   );
 }
@@ -94,6 +108,8 @@ function CountUp({
 /* ── Hero ─────────────────────────────────────────────────────── */
 
 function Hero() {
+  const s = useSite();
+  const { lang } = useLang();
   return (
     <section id="top" className="gutter grain-hero relative">
       {/* На мобільному порядок інший, ніж на десктопі: ім'я -> роль ->
@@ -116,24 +132,24 @@ function Hero() {
                 батькові. Далі, як і раніше: золота риска, потім золота
                 хвиля по рядку ролі. Хореографія — globals.css. */}
             <div className="hero-name-stage reveal relative text-[clamp(2.6rem,8.5vw,5.75rem)] [--reveal-distance:0px]">
-              <h1 className="hero-name relative leading-[0.9] text-ink">{site.name}</h1>
+              <h1 className="hero-name relative leading-[0.9] text-ink">{s.name}</h1>
               {/* Риска — ПОЗА h1: маска хмари стоїть на h1, і дитина
                   всередині теж обрізалася б хмарою. */}
               <span aria-hidden className="hero-name-rule" />
             </div>
 
             <p className="reveal mt-5 max-w-xl text-xl leading-relaxed text-ink-soft md:text-2xl [--reveal-delay:200ms]">
-              <span className="hero-role">{site.role}</span>
+              <span className="hero-role">{s.role}</span>
               <span aria-hidden className="mx-2 text-[var(--gold)]">
                 ·
               </span>
-              <span className="serif-accent text-ink">{site.orgShort}</span>
+              <span className="serif-accent text-ink">{s.orgShort}</span>
             </p>
           </div>
 
           <div className="order-3 lg:order-none">
             <p className="reveal mt-6 max-w-lg text-[15px] leading-[1.75] text-muted [--reveal-delay:550ms]">
-              {site.statement}
+              {s.statement}
             </p>
 
             <div className="reveal mt-9 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center [--reveal-delay:700ms]">
@@ -142,7 +158,7 @@ function Hero() {
                 className="group btn-wave-invert inline-flex min-h-12 items-center justify-center gap-3 bg-ink px-7 py-3 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-ink-soft sm:justify-start"
               >
                 <span className="wave-span inline-flex items-center gap-3">
-                  Дивитись проєкти
+                  {t("heroCtaProjects", lang)}
                   <span
                     aria-hidden
                     className="transition-transform duration-300 group-hover:translate-y-0.5"
@@ -153,7 +169,6 @@ function Hero() {
               </a>
               <ContactModal
                 trigger="secondary"
-                label="Написати листа"
                 className="btn-wave inline-flex min-h-12 items-center justify-center border border-line-strong bg-paper px-7 py-3 text-sm font-semibold tracking-wide transition-colors hover:border-ink hover:text-ink sm:justify-start"
               />
             </div>
@@ -198,8 +213,8 @@ function Hero() {
                 Механіку, заміри й пастки див. у globals.css. */}
             <div className="portrait-frame relative aspect-[4/5] max-h-[52vh] w-full overflow-hidden bg-paper md:aspect-[3/4] lg:max-h-none lg:aspect-[4/5]">
               <Image
-                src={site.portrait}
-                alt={site.portraitAlt}
+                src={s.portrait}
+                alt={s.portraitAlt}
                 fill
                 priority
                 sizes="(max-width: 1024px) 100vw, 40vw"
@@ -219,7 +234,7 @@ function Hero() {
             Числові факти анімуються лічильником від 0 до значення
             (від 1, як просили) — легка затримка для кожного наступного. */}
         <dl className="reveal order-4 lg:order-none grid grid-cols-2 gap-x-6 gap-y-7 border-t border-line pt-8 sm:grid-cols-4 lg:col-span-7 lg:col-start-1 lg:row-start-2 lg:self-end">
-          {site.facts.map((fact, idx) => {
+          {s.facts.map((fact, idx) => {
             /* «50+» — число і знак окремо: «+» показуємо лише коли
                лічильник дійшов до кінця, інакше він блимав би біля
                проміжних значень (3+, 17+ …). */
@@ -256,26 +271,11 @@ function Hero() {
   );
 }
 
-/* Анкори для індексу тем: кирилиця в id валідна, але транслітерація
-   дає коротші й читабельніші посилання. */
-function slug(text: string) {
-  const map: Record<string, string> = {
-    а: "a", б: "b", в: "v", г: "h", ґ: "g", д: "d", е: "e", є: "ie", ж: "zh",
-    з: "z", и: "y", і: "i", ї: "i", й: "i", к: "k", л: "l", м: "m", н: "n",
-    о: "o", п: "p", р: "r", с: "s", т: "t", у: "u", ф: "f", х: "kh", ц: "ts",
-    ч: "ch", ш: "sh", щ: "shch", ь: "", ю: "iu", я: "ia", "'": "", " ": "-",
-  };
-  return text
-    .toLowerCase()
-    .split("")
-    .map((c) => map[c] ?? c)
-    .join("");
-}
-
 /* ── Маркі-стрічка ────────────────────────────────────────────── */
 
 function Keywords() {
-  const items = [...site.keywords, ...site.keywords];
+  const s = useSite();
+  const items = [...s.keywords, ...s.keywords];
   return (
     <div className="marquee mt-16 overflow-hidden border-y border-line py-4 md:mt-20">
       <div className="marquee-track" aria-hidden>
@@ -289,7 +289,7 @@ function Keywords() {
           </span>
         ))}
       </div>
-      <span className="sr-only">{site.keywords.join(", ")}</span>
+      <span className="sr-only">{s.keywords.join(", ")}</span>
     </div>
   );
 }
@@ -343,8 +343,10 @@ function About({
   educationMatches: boolean;
   searching: boolean;
 }) {
+  const s = useSite();
+  const { lang } = useLang();
   return (
-    <Section id="about" title="Про мене">
+    <Section id="about" title={t("sectionAbout", lang)}>
       <div className="max-w-2xl space-y-5">
         {paragraphs.map((paragraph) => (
           <p
@@ -353,7 +355,7 @@ function About({
               /* Провідний абзац лишається провідним і після фільтрації:
                  стиль прив'язаний до СПРАВЖНЬОГО першого абзацу, а не до
                  першого у відфільтрованому списку. */
-              paragraph === site.about[0]
+              paragraph === s.about[0]
                 ? "text-lg text-ink-soft md:text-xl"
                 : "text-base text-muted"
             }`}
@@ -364,11 +366,11 @@ function About({
       </div>
       {!searching || educationMatches ? (
         <p className="reveal mt-8 max-w-2xl border-l-2 border-accent pl-6 text-sm leading-relaxed text-muted">
-          {site.educationLabel}
+          {s.educationLabel}
         </p>
       ) : null}
       {searching && paragraphs.length === 0 && !educationMatches ? (
-        <NoHits what="у розділі «Про мене» нічого" />
+        <NoHits what={{ uk: "у розділі «Про мене» нічого", en: "the About section" }} />
       ) : null}
     </Section>
   );
@@ -385,11 +387,13 @@ function Reviews({
   total: number;
   searching: boolean;
 }) {
+  const { lang } = useLang();
   /* Фільтр за напрямом — той самий механізм, що в «Сертифікатах»:
      людина обирає тему й бачить лише її. Без фільтра секція з 56
      цитатами читалась як суцільна стіна, де не видно, що саме
      підтверджують відгуки. Групи дають відповідь «у чому я сильний»,
-     а лічильник — масштаб. */
+     а лічильник — масштаб. Порядок груп фіксований за uk-назвами:
+     значення `group` у даних завжди uk (en — лише підписи). */
   const order = [
     "ШІ та штучний інтелект",
     "Кібербезпека й цифрова безпека",
@@ -399,15 +403,7 @@ function Reviews({
   ];
 
   /* Довга назва напряму в кожній картці повторювалась і перетворювалась
-     на шум — підписуємо коротко, але незмінно. */
-  const shortGroup: Record<string, string> = {
-    "ШІ та штучний інтелект": "ШІ",
-    "Кібербезпека й цифрова безпека": "Кібербезпека",
-    "Графічний дизайн": "Графічний дизайн",
-    "Цифровий світ": "Цифровий світ",
-    "Технології комп'ютерної обробки інформації": "Обробка інформації",
-  };
-
+     на шум — підписуємо коротко, але незмінно (en — з мапи підписів). */
   const groups = order
     .map((name) => ({ name, items: items.filter((r) => r.group === name) }))
     .filter((g) => g.items.length > 0);
@@ -421,7 +417,7 @@ function Reviews({
     if (searching) setReviewFilter(null);
   }, [searching]);
   const reviewGroups = groups.map((g) => ({
-    name: shortGroup[g.name] ?? g.name,
+    name: reviewGroupShort(g.name, lang),
     slug: slug(g.name),
     count: g.items.length,
   }));
@@ -429,7 +425,7 @@ function Reviews({
     ? groups.filter((g) => slug(g.name) === reviewFilter)
     : groups;
 
-  const card = (review: (typeof site.reviews)[number], i = 0) => (
+  const card = (review: ReviewItem, i = 0) => (
     <li
       style={{ "--reveal-delay": `${Math.min(i, 5) * 70}ms` } as React.CSSProperties}
       key={`${review.author}-${review.quote.slice(0, 24)}`}
@@ -442,22 +438,24 @@ function Reviews({
       <div className="pt-1">
         <p className="hand text-lg leading-tight text-ink">{review.author}</p>
         <p className="label mt-2">
-          {shortGroup[review.group] ?? review.group} · {review.date}
+          {reviewGroupShort(review.group, lang)} · {formatReviewDate(review.date, lang)}
         </p>
       </div>
     </li>
   );
 
-  const plural = (n: number) =>
-    n === 1 ? "відгук" : n < 5 ? "відгуки" : "відгуків";
+  const plural = (n: number) => {
+    if (lang === "en") return n === 1 ? "review" : "reviews";
+    return n === 1 ? "відгук" : n < 5 ? "відгуки" : "відгуків";
+  };
 
   return (
     <Section
       id="reviews"
-      title="Відгуки"
+      title={t("sectionReviews", lang)}
       aside={
         <dl className="flex flex-col gap-5">
-          {site.reviewStats.map((stat) => (
+          {useSite().reviewStats.map((stat) => (
             <div key={stat.k}>
               <dt className="label">{stat.k}</dt>
               <dd className="mt-1.5 text-sm font-semibold leading-snug text-ink-soft">
@@ -469,17 +467,17 @@ function Reviews({
       }
     >
       <div className="reveal mb-6 flex flex-col gap-3">
-        <FilterChips groups={reviewGroups} onChange={setReviewFilter} />
+        <FilterChips groups={reviewGroups} onChange={setReviewFilter} allLabel={t("filterAll", lang)} />
         {reviewFilter !== null ? (
           <p className="text-xs text-muted">
-            Показано {visibleGroups.reduce((n, g) => n + g.items.length, 0)} з{" "}
-            {total} ·{" "}
+            {t("filterShown", lang)} {visibleGroups.reduce((n, g) => n + g.items.length, 0)}{" "}
+            {lang === "uk" ? "з" : "of"} {total} ·{" "}
             <button
               type="button"
               onClick={() => setReviewFilter(null)}
               className="link-wave text-ink underline decoration-line underline-offset-4 hover:text-ink"
             >
-              скинути фільтр
+              {t("filterReset", lang)}
             </button>
           </p>
         ) : null}
@@ -487,16 +485,16 @@ function Reviews({
 
       <p className="reveal mb-12 max-w-xl text-base leading-relaxed text-muted">
         {searching
-          ? `Показано ${items.length} з ${total} відгуків за запитом.`
-          : `${total} відгуків слухачів за напрямами, які я викладаю. Цитати наведено дослівно.`}
+          ? `${t("filterShown", lang)} ${items.length} ${lang === "uk" ? "з" : "of"} ${total} ${t("reviewsSearching", lang)}`
+          : `${total} ${t("reviewsIntro", lang)}`}
       </p>
-      {searching && items.length === 0 ? <NoHits what="у відгуках нічого" /> : null}
+      {searching && items.length === 0 ? <NoHits what={{ uk: "у відгуках нічого", en: "the reviews" }} /> : null}
 
       <div className="reveal space-y-12">
         {visibleGroups.map((group) => (
           <div key={group.name} id={`review-${slug(group.name)}`}>
             <div className="group-rule mb-6 flex items-baseline justify-between gap-4 pb-3">
-              <h3 className="text-base font-bold tracking-[-0.01em]">{group.name}</h3>
+              <h3 className="text-base font-bold tracking-[-0.01em]">{reviewGroupLong(group.name, lang)}</h3>
               <span className="label shrink-0">
                 {group.items.length} {plural(group.items.length)}
               </span>
@@ -509,8 +507,7 @@ function Reviews({
       </div>
 
       <p className="reveal mt-8 max-w-2xl text-xs leading-relaxed text-muted">
-        Відгуки наведено дослівно, без редакторських правок. Показано схвальні
-        відгуки за напрямами, які я викладаю.
+        {t("reviewsNote", lang)}
       </p>
     </Section>
   );
@@ -519,12 +516,13 @@ function Reviews({
 /* ── Як я навчаю ───────────────────────────────────────────────── */
 
 function Method({ items }: { items: MethodItem[]; searching: boolean }) {
+  const { lang } = useLang();
   /* Ставимо одразу після «Про мене»: спершу хто я, потім як веду
      заняття — і лише тоді відгуки, які це підтверджують. */
   return (
-    <Section id="method" title="Як я навчаю">
+    <Section id="method" title={t("sectionMethod", lang)}>
       {items.length === 0 ? (
-        <NoHits what="у розділі «Як я навчаю» нічого" />
+        <NoHits what={{ uk: "у розділі «Як я навчаю» нічого", en: "the How I teach section" }} />
       ) : (
         <ol className="reveal card-grid grid-cols-1 sm:grid-cols-2">
           {items.map((item, i) => (
@@ -536,7 +534,7 @@ function Method({ items }: { items: MethodItem[]; searching: boolean }) {
               {/* Номер — за місцем у ПОВНОМУ переліку: після фільтрації
                   «01, 03» читається як «третій принцип», а не як збій. */}
               <span className="label text-accent-ink">
-                {String(site.method.indexOf(item) + 1).padStart(2, "0")}
+                {String(items.indexOf(item) + 1).padStart(2, "0")}
               </span>
               <span className="text-lg font-bold leading-snug tracking-[-0.01em]">
                 {item.title}
@@ -551,45 +549,44 @@ function Method({ items }: { items: MethodItem[]; searching: boolean }) {
 }
 
 function Work({ items }: { items: ProjectItem[]; searching: boolean }) {
+  const s = useSite();
+  const { lang } = useLang();
   /* Проєкти як картки, а не 12-колонкова таблиця: назви курсів різної
      довжини й у таблиці ламались на два рядки, а стек дрібними чипами
      праворуч читався як службова колонка. Картка дає назві дихати. */
   return (
     <Section
       id="work"
-      title="Проєкти"
+      title={t("sectionWork", lang)}
       aside={
         /* Ліва колонка на всю висоту секції лишалась білою. Коротка
            довідка дає їй призначення і відповідає на питання, яке
-           виникає при погляді на шість курсів: за якими критеріями
+           виникає при погляді на сім курсів: за якими критеріями
            вони складені. */
         <dl className="space-y-5">
           <div>
-            <dt className="label">Обсяг</dt>
+            <dt className="label">{t("workAsideVolume", lang)}</dt>
             <dd className="mt-1.5 text-sm leading-relaxed text-muted">
-              Затверджені програми — 72 і 144 години; формат — короткі
-              модулі з практикою.
+              {t("workAsideVolumeText", lang)}
             </dd>
           </div>
           <div>
-            <dt className="label">Підсумок</dt>
+            <dt className="label">{t("workAsideResult", lang)}</dt>
             <dd className="mt-1.5 text-sm leading-relaxed text-muted">
-              Де є підсумковий проєкт, слухачі захищають власну роботу —
-              проєкт на своїх даних або власний сайт.
+              {t("workAsideResultText", lang)}
             </dd>
           </div>
           <div>
-            <dt className="label">Матеріали</dt>
+            <dt className="label">{t("workAsideMaterials", lang)}</dt>
             <dd className="mt-1.5 text-sm leading-relaxed text-muted">
-              Авторська навчальна платформа викладача — презентації та конспекти
-              до кожного слайда,{" "}
+              {t("workAsideMaterialsText", lang)}{" "}
               <a
                 href="https://cources.lovable.app/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="link-wave font-medium text-accent-ink underline decoration-accent/30 underline-offset-4 hover:text-ink hover:decoration-ink/30"
               >
-                у відкритому доступі ↗
+                {t("workAsideMaterialsLink", lang)}
               </a>
               .
             </dd>
@@ -597,7 +594,7 @@ function Work({ items }: { items: ProjectItem[]; searching: boolean }) {
         </dl>
       }
     >
-      {items.length === 0 ? <NoHits what="у розділі «Проєкти» нічого" /> : null}
+      {items.length === 0 ? <NoHits what={{ uk: "у розділі «Проєкти» нічого", en: "the Projects section" }} /> : null}
       <ul className="reveal card-grid grid-cols-1 md:grid-cols-2">
         {items.map((project) => {
           const inner = (
@@ -625,7 +622,7 @@ function Work({ items }: { items: ProjectItem[]; searching: boolean }) {
                 ))}
                 {project.href ? (
                   <span className="label text-accent-ink transition-colors group-hover:text-ink">
-                    Відкрити{" "}
+                    {t("openCard", lang)}{" "}
                     <span aria-hidden className="nudge">↗</span>
                   </span>
                 ) : null}
@@ -658,7 +655,9 @@ function Work({ items }: { items: ProjectItem[]; searching: boolean }) {
 
 /* ── Сертифікати ──────────────────────────────────────────────── */
 
-function CertCard({ cert }: { cert: (typeof site.certificates)[number] }) {
+function CertCard({ cert }: { cert: CertItem }) {
+  const { lang } = useLang();
+  const hrefLabel = certHrefLabel(cert.hrefLabel, lang);
   const inner = (
     <>
       <span className="label flex items-center justify-between gap-2">
@@ -677,7 +676,7 @@ function CertCard({ cert }: { cert: (typeof site.certificates)[number] }) {
       </span>
       <span className="mt-auto pt-1 text-sm leading-snug text-muted">
         <span>{cert.issuer}</span>
-        {cert.note ? <span> · {cert.note}</span> : null}
+        {cert.note ? <span> · {certNoteLabel(cert.note, lang)}</span> : null}
         {cert.credentialId ? (
           <span className="block pt-1.5 font-mono text-xs tracking-wide text-muted">
             ID {cert.credentialId}
@@ -685,7 +684,7 @@ function CertCard({ cert }: { cert: (typeof site.certificates)[number] }) {
         ) : null}
         {cert.href ? (
           <span className="mt-2 block text-xs font-semibold tracking-wide text-accent-ink">
-            {cert.hrefLabel ?? "Перевірити"}{" "}
+            {hrefLabel ?? t("verifyDefault", lang)}{" "}
             <span aria-hidden className="nudge">→</span>
           </span>
         ) : null}
@@ -702,7 +701,7 @@ function CertCard({ cert }: { cert: (typeof site.certificates)[number] }) {
           href={cert.href}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label={`${cert.title} — ${cert.hrefLabel ?? "відкрити перевірку"}`}
+          aria-label={`${cert.title} — ${hrefLabel ?? t("verifyAria", lang)}`}
           className={cls}
         >
           {inner}
@@ -723,10 +722,13 @@ function Certificates({
   total: number;
   searching: boolean;
 }) {
+  const s = useSite();
+  const { lang } = useLang();
   /* Сертифікати згруповано за темою: двадцять карток одним списком
      читались як рівна стіна, у якій не видно, що людина вміє. Групи
      дають відповідь на питання «в чому я сильний», а лічильник —
-     масштаб. Порядок груп збігається з переліком напрямів на сайті. */
+     масштаб. Порядок груп збігається з переліком напрямів на сайті;
+     значення `group` завжди uk, en — лише підписи (certGroupLabel). */
   const order = ["Штучний інтелект", "Кібербезпека й OSINT", "Хмарні платформи й контент"];
   const groups = order
     .map((name) => ({ name, items: items.filter((c) => c.group === name) }))
@@ -740,7 +742,7 @@ function Certificates({
     if (searching) setCertFilter(null);
   }, [searching]);
   const certGroups = groups.map((g) => ({
-    name: g.name,
+    name: certGroupLabel(g.name, lang),
     slug: slug(g.name),
     count: g.items.length,
   }));
@@ -748,61 +750,64 @@ function Certificates({
     ? groups.filter((g) => slug(g.name) === certFilter)
     : groups;
 
+  const certNoun = (n: number) => {
+    if (lang === "en") return n === 1 ? "certificate" : "certificates";
+    return n === 1 ? "сертифікат" : n < 5 ? "сертифікати" : "сертифікатів";
+  };
+
   return (
     <Section
       id="certs"
-      title="Сертифікати"
+      title={t("sectionCerts", lang)}
       aside={
         /* Індекс тем замість порожньої колонки. Підсвічує поточну тему
            при прокрутці — інакше читався б як статична довідка. */
         <div>
           <CertIndex
             groups={groups.map((g) => ({
-              name: g.name,
+              name: certGroupLabel(g.name, lang),
               slug: slug(g.name),
               count: g.items.length,
             }))}
           />
           <p className="pt-3 text-xs leading-relaxed text-muted">
-            {site.certificates.length} програм · {groups.length} теми
+            {s.certificates.length} {t("certsAsidePrograms", lang)} · {groups.length}{" "}
+            {groups.length === 1 ? t("certsAsideTopicsOne", lang) : t("certsAsideTopicsFew", lang)}
           </p>
         </div>
       }
     >
       <div className="reveal mb-6 flex flex-col gap-3">
-        <FilterChips groups={certGroups} onChange={setCertFilter} />
+        <FilterChips groups={certGroups} onChange={setCertFilter} allLabel={t("filterAll", lang)} />
         {certFilter !== null ? (
           <p className="text-xs text-muted">
-            Показано {visibleGroups.reduce((n, g) => n + g.items.length, 0)} з {total} ·{" "}
+            {t("filterShown", lang)} {visibleGroups.reduce((n, g) => n + g.items.length, 0)}{" "}
+            {lang === "uk" ? "з" : "of"} {total} ·{" "}
             <button
               type="button"
               onClick={() => setCertFilter(null)}
               className="link-wave text-ink underline decoration-line underline-offset-4 hover:text-ink"
             >
-              скинути фільтр
+              {t("filterReset", lang)}
             </button>
           </p>
         ) : null}
       </div>
       <p className="reveal mb-12 max-w-xl text-base leading-relaxed text-muted">
         {searching
-          ? `Показано ${items.length} з ${total} програм за запитом.`
-          : `${total} програм підвищення кваліфікації за трьома темами. Кожна картка веде на сторінку перевірки або курсу.`}
+          ? `${t("filterShown", lang)} ${items.length} ${lang === "uk" ? "з" : "of"} ${total} ${t("certsSearching", lang)}`
+          : `${total} ${t("certsIntro", lang)}`}
       </p>
-      {searching && items.length === 0 ? <NoHits what="у сертифікатах нічого" /> : null}
+      {searching && items.length === 0 ? <NoHits what={{ uk: "у сертифікатах нічого", en: "the certificates" }} /> : null}
 
       <div className="reveal space-y-12">
         {visibleGroups.map((group) => (
           <div key={group.name} id={`cert-${slug(group.name)}`}>
             <div className="group-rule mb-6 flex items-baseline justify-between gap-4 pb-3">
-              <h3 className="text-base font-bold tracking-[-0.01em]">{group.name}</h3>
+              <h3 className="text-base font-bold tracking-[-0.01em]">{certGroupLabel(group.name, lang)}</h3>
               <span className="label shrink-0">
                 {group.items.length}{" "}
-                {group.items.length === 1
-                  ? "сертифікат"
-                  : group.items.length < 5
-                    ? "сертифікати"
-                    : "сертифікатів"}
+                {certNoun(group.items.length)}
               </span>
             </div>
             <ul className="card-grid auto-rows-fr grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
@@ -815,9 +820,7 @@ function Certificates({
       </div>
 
       <p className="reveal mt-8 max-w-2xl text-xs leading-relaxed text-muted">
-        Сертифікати Coursera / Credly верифікуються за ID на ім&apos;я Oleg
-        Parashchuk; для інших програм — офіційна сторінка курсу, де видають
-        сертифікат після завершення.
+        {t("certsNote", lang)}
       </p>
     </Section>
   );
@@ -826,10 +829,11 @@ function Certificates({
 /* ── Контакт ──────────────────────────────────────────────────── */
 
 function Contact() {
+  const { lang } = useLang();
   return (
-    <Section id="contact" title="Контакти">
+    <Section id="contact" title={t("sectionContact", lang)}>
       <p className="reveal max-w-2xl text-2xl font-bold leading-snug tracking-[-0.02em] md:text-4xl">
-        Відкритий до викладання, консультацій і спільних курсів.
+        {t("contactLead", lang)}
       </p>
 
       <div className="reveal mt-10 flex flex-col gap-8">
@@ -840,19 +844,18 @@ function Contact() {
         <ContactModal trigger="button" />
 
         <p className="max-w-lg text-sm leading-relaxed text-ink-soft">
-          Або запитайте в чаті — кнопка в правому нижньому куті. Публічні
-          питання й відповіді збираються{" "}
+          {t("contactOrChat", lang)}{" "}
           <Link
             href="/forum"
             className="link-wave font-medium text-accent-ink underline decoration-accent/30 underline-offset-4 hover:text-ink hover:decoration-ink/30"
           >
-            на форумі
+            {t("contactOrChatLink", lang)}
           </Link>
           .
         </p>
 
         <ul className="flex flex-wrap gap-x-8 gap-y-1 border-t border-line pt-7">
-          {site.socials.map((social) => (
+          {useSite().socials.map((social) => (
             <li key={social.label}>
               <a
                 href={social.href}
@@ -870,6 +873,23 @@ function Contact() {
   );
 }
 
+/* Анкори для індексу тем: кирилиця в id валідна, але транслітерація
+   дає коротші й читабельніші посилання. Групи завжди фільтруються за
+   uk-значенням `group`, тож анкори однакові в обох мов. */
+function slug(text: string) {
+  const map: Record<string, string> = {
+    а: "a", б: "b", в: "v", г: "h", ґ: "g", д: "d", е: "e", є: "ie", ж: "zh",
+    з: "z", и: "y", і: "i", ї: "i", й: "i", к: "k", л: "l", м: "m", н: "n",
+    о: "o", п: "p", р: "r", с: "s", т: "t", у: "u", ф: "f", х: "kh", ц: "ts",
+    ч: "ch", ш: "sh", щ: "shch", ь: "", ю: "iu", я: "ia", "'": "", " ": "-",
+  };
+  return text
+    .toLowerCase()
+    .split("")
+    .map((c) => map[c] ?? c)
+    .join("");
+}
+
 /* ── Сторінка ─────────────────────────────────────────────────── */
 
 export default function Home() {
@@ -880,29 +900,50 @@ export default function Home() {
      тож цифра в полі не може розійтися з тим, що на екрані.
      Фільтруємо на клієнті (а не на сервері) навмисно: контент і так уже
      в сторінці, тож результат видно на кожну літеру, без мережі. */
+  const s = useSite();
+  const { lang } = useLang();
   const [query, setQuery] = useState("");
-  const tokens = useMemo(() => tokenize(query), [query]);
-  const searching = tokens.length > 0;
+  const rawTokens = useMemo(() => tokenize(query), [query]);
+  /* Групи синонімів: en-запит має знаходити й укр. контент («teacher» →
+     «викладач»). AND за групами, АБО всередині групи — інакше жоден
+     en-синонім не дав би збігу з укр. текстом. */
+  const tokenGroups = useMemo(() => expandTokenGroups(rawTokens), [rawTokens]);
+  const searching = rawTokens.length > 0;
 
-  const aboutItems = useMemo(() => filterBy(site.about, tokens, (p) => p), [tokens]);
-  const educationMatches = useMemo(
-    () => matches(haystack(site.educationLabel), tokens),
-    [tokens],
+  const aboutItems = useMemo(
+    () => (tokenGroups.length === 0 ? [...s.about] : s.about.filter((p) => matchesGroups(haystack(p), tokenGroups))),
+    [s.about, tokenGroups],
   );
-  const methodItems = useMemo(() => filterBy(site.method, tokens, methodText), [tokens]);
-  const projectItems = useMemo(() => filterBy(site.projects, tokens, projectText), [tokens]);
-  const reviewItems = useMemo(() => filterBy(site.reviews, tokens, reviewText), [tokens]);
-  const certItems = useMemo(() => filterBy(site.certificates, tokens, certText), [tokens]);
+  const educationMatches = useMemo(
+    () => matchesGroups(haystack(s.educationLabel), tokenGroups),
+    [s.educationLabel, tokenGroups],
+  );
+  const methodItems = useMemo(
+    () => (tokenGroups.length === 0 ? [...s.method] : s.method.filter((m) => matchesGroups(methodText(m), tokenGroups))),
+    [s.method, tokenGroups],
+  );
+  const projectItems = useMemo(
+    () => (tokenGroups.length === 0 ? [...s.projects] : s.projects.filter((p) => matchesGroups(projectText(p), tokenGroups))),
+    [s.projects, tokenGroups],
+  );
+  const reviewItems = useMemo(
+    () => (tokenGroups.length === 0 ? [...s.reviews] : s.reviews.filter((r) => matchesGroups(reviewText(r), tokenGroups))),
+    [s.reviews, tokenGroups],
+  );
+  const certItems = useMemo(
+    () => (tokenGroups.length === 0 ? [...s.certificates] : s.certificates.filter((c) => matchesGroups(certText(c), tokenGroups))),
+    [s.certificates, tokenGroups],
+  );
 
   /* «Знайдено N з M»: M — кількість одиниць контенту, які взагалі шукаються
      (абзаци + принципи + проєкти + відгуки + сертифікати). */
   const total =
-    site.about.length +
+    s.about.length +
     1 +
-    site.method.length +
-    site.projects.length +
-    site.reviews.length +
-    site.certificates.length;
+    s.method.length +
+    s.projects.length +
+    s.reviews.length +
+    s.certificates.length;
   const found =
     aboutItems.length +
     (educationMatches ? 1 : 0) +
@@ -925,13 +966,13 @@ export default function Home() {
           sections={[
             {
               id: "about",
-              label: "Про мене",
+              label: t("sectionAbout", lang),
               count: aboutItems.length + (educationMatches ? 1 : 0),
             },
-            { id: "method", label: "Як навчаю", count: methodItems.length },
-            { id: "work", label: "Проєкти", count: projectItems.length },
-            { id: "reviews", label: "Відгуки", count: reviewItems.length },
-            { id: "certs", label: "Сертифікати", count: certItems.length },
+            { id: "method", label: t("sectionMethod", lang), count: methodItems.length },
+            { id: "work", label: t("sectionWork", lang), count: projectItems.length },
+            { id: "reviews", label: t("sectionReviews", lang), count: reviewItems.length },
+            { id: "certs", label: t("sectionCerts", lang), count: certItems.length },
           ]}
         />
         <About
@@ -941,8 +982,8 @@ export default function Home() {
         />
         <Method items={methodItems} searching={searching} />
         <Work items={projectItems} searching={searching} />
-        <Reviews items={reviewItems} total={site.reviews.length} searching={searching} />
-        <Certificates items={certItems} total={site.certificates.length} searching={searching} />
+        <Reviews items={reviewItems} total={s.reviews.length} searching={searching} />
+        <Certificates items={certItems} total={s.certificates.length} searching={searching} />
         <Contact />
       </main>
       <Footer />

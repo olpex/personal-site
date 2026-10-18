@@ -7,9 +7,12 @@ type FilterGroup = { name: string; slug: string; count: number };
 export default function FilterChips({
   groups,
   onChange,
+  allLabel = "Усі",
 }: {
   groups: FilterGroup[];
   onChange: (active: string | null) => void;
+  /** Підпис першого чіпа («Усі» / «All») — локалізується батьком. */
+  allLabel?: string;
 }) {
   const [active, setActive] = useState<string | null>(null);
 
@@ -34,7 +37,7 @@ export default function FilterChips({
             : "border-line bg-paper text-ink hover:border-line-strong"
         }`}
       >
-        Усі
+        {allLabel}
       </button>
       {groups.map((g) => (
         <button

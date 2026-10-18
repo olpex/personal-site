@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { site } from "@/content/site";
 import ChatWidget from "@/components/chat-widget";
 import GoogleAnalytics from "@/components/google-analytics";
+import LangProviderClient from "@/components/lang-provider-client";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -191,32 +192,36 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${manrope.variable} ${spectral.variable} ${cormorant.variable} ${jetbrains.variable} ${caveat.variable} antialiased`}
     >
       <body className="grain bg-paper text-ink">
-        {/* Підсвічування знайденого в пошуку: лежить поза globals.css, бо
-            Lightning CSS (конвеєр Tailwind) не знає псевдоелемента
-            ::highlight() і сипле попередженнями на кожній збірці. */}
-        <link rel="stylesheet" href="/search-highlight.css" />
-        <a
-          href="#main"
-          className="label sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[70] focus:bg-ink focus:px-4 focus:py-2 focus:text-paper"
-        >
-          Перейти до вмісту
-        </a>
-        {children}
-        {/* Кнопка чату показується лише коли бот налаштований: інакше
-            відвідувач натрапив би на кнопку, що видає помилку. */}
-        <ChatWidget enabled={Boolean(process.env.TELEGRAM_SITE_BOT_TOKEN)} />
-        <Analytics />
-        <GoogleAnalytics />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }} />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@id": `${site.url}#org`, ...orgSchema }) }}
-        />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(course) }} />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }} />
-        {reviews.map((r, i) => (
-          <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(r) }} />
-        ))}
+        {/* Мова: uk — основна (SSR і перший рендер завжди українською);
+            збережений вибір EN застосовується клієнтом після хідратації. */}
+        <LangProviderClient>
+          {/* Підсвічування знайденого в пошуку: лежить поза globals.css, бо
+              Lightning CSS (конвеєр Tailwind) не знає псевдоелемента
+              ::highlight() і сипле попередженнями на кожній збірці. */}
+          <link rel="stylesheet" href="/search-highlight.css" />
+          <a
+            href="#main"
+            className="label sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[70] focus:bg-ink focus:px-4 focus:py-2 focus:text-paper"
+          >
+            Перейти до вмісту
+          </a>
+          {children}
+          {/* Кнопка чату показується лише коли бот налаштований: інакше
+              відвідувач натрапив би на кнопку, що видає помилку. */}
+          <ChatWidget enabled={Boolean(process.env.TELEGRAM_SITE_BOT_TOKEN)} />
+          <Analytics />
+          <GoogleAnalytics />
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }} />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@id": `${site.url}#org`, ...orgSchema }) }}
+          />
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(course) }} />
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }} />
+          {reviews.map((r, i) => (
+            <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(r) }} />
+          ))}
+        </LangProviderClient>
       </body>
     </html>
   );

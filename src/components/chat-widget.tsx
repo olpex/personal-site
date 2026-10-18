@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { buildRows, type Msg } from "@/lib/chat-thread";
+import { useLang } from "@/components/lang-context";
+import { t } from "@/lib/ui-strings";
 
 /**
  * Плаваюча кнопка чату + вікно-переписка.
@@ -38,7 +40,7 @@ const WAIT_TIMEOUT_MS = 30 * 60 * 1000;
 const SESSION_TTL_MS = 5 * 60 * 1000;
 const CODE_AT_KEY = "oparashchuk:chat-code-at";
 
-/** Файли з чату: той самий ліміт, що й на сервері (Vercel ріже тіло ~4.5 МБ). */
+/** Файли з чату: той самий ліміт, що й на сервері (Vercel ріже тіла ~4.5 МБ). */
 const MAX_FILE_MB = 4;
 const MAX_FILE_BYTES = MAX_FILE_MB * 1024 * 1024;
 
@@ -55,6 +57,7 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
   const [ready, setReady] = useState(false);
   const [draft, setDraft] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const { lang } = useLang();
 
   const panelRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -203,9 +206,9 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
         clearSessionStorage();
       }
     } catch {
-      if (!silent) setError("Немає зв'язку. Спробуйте ще раз.");
+      if (!silent) setError(t("chatErrorRetry", lang));
     }
-  }, [owner.length]);
+  }, [owner.length, lang]);
 
   useEffect(() => {
     if (!ready || !code) return;
@@ -289,7 +292,7 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
 
     try {
       const body = new FormData();
-      body.append("name", String(data.get("name") ?? "") || read(NAME_KEY) || "Відвідувач");
+      body.append("name", String(data.get("name") ?? "") || read(NAME_KEY) || t("chatVisitor", lang));
       body.append("message", text);
       body.append("company", String(data.get("company") ?? "")); // honeypot
       body.append("code", codeRef.current);
@@ -301,7 +304,7 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
       });
       const json = (await res.json()) as { ok?: boolean; id?: string; error?: string };
       if (!res.ok || !json.ok) {
-        setError(json.error ?? "Не вдалося надіслати.");
+        setError(json.error ?? t("chatErrorSend", lang));
         setState("error");
         return;
       }
@@ -330,7 +333,7 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
       // Негайно підтягуємо серверну стрічку — без очікування інтервалу.
       void poll(false);
     } catch {
-      setError("Немає зв'язку. Перевірте інтернет.");
+      setError(t("chatErrorOffline", lang));
       setState("error");
     }
   }
@@ -407,7 +410,7 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
           setNudge(false);
           touch();
         }}
-        aria-label={open ? "Згорнути чат" : "Відкрити чат"}
+        aria-label={open ? t("chatMinimize", lang) : t("chatOpen", lang)}
         aria-expanded={open}
         className={`chat-fab fixed bottom-5 right-5 z-[60] flex h-14 w-14 items-center justify-center rounded-full bg-ink text-paper shadow-lg transition-transform hover:scale-105 ${
           nudge ? "chat-fab-nudge" : ""
@@ -446,16 +449,16 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
         <div
           ref={panelRef}
           role="dialog"
-          aria-label="Чат із викладачем"
+          aria-label={t("chatAria", lang)}
           className="chat-panel fixed bottom-24 right-5 z-[60] flex h-[min(70vh,32rem)] w-[min(23rem,calc(100vw-2.5rem))] flex-col"
         >
           <div className="chat-panel-header flex items-start justify-between gap-3 border-b border-line px-4 py-3">
             <div>
-              <p className="flex items-center gap-2 text-sm font-bold tracking-[-0.01em]"><span className="flex h-7 w-7 items-center justify-center rounded-full bg-ink text-[10px] font-extrabold text-white">ОП</span>Запитати напряму</p>
+              <p className="flex items-center gap-2 text-sm font-bold tracking-[-0.01em]"><span className="flex h-7 w-7 items-center justify-center rounded-full bg-ink text-[10px] font-extrabold text-white">ОП</span>{t("chatTitle", lang)}</p>
               <p className="mt-0.5 text-[11px] leading-relaxed text-muted">
                 {hasCode
-                  ? "Пишіть уточнення — відповім у цьому вікні."
-                  : "Питання прийде мені в Telegram — відповім тут же."}
+                  ? t("chatHintCode", lang)
+                  : t("chatHintNew", lang)}
               </p>
             </div>
             <button
@@ -464,7 +467,7 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
                 setOpen(false);
                 setNudge(false);
               }}
-              aria-label="Згорнути"
+              aria-label={t("chatMinimizeX", lang)}
               className="-mr-1 -mt-0.5 shrink-0 text-lg leading-none text-muted transition-colors hover:text-ink"
             >
               ×
@@ -474,7 +477,7 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
           {/* Стрічка розмови */}
           <div ref={scrollRef} className="chat-scroll flex-1 overflow-y-auto px-4 py-4">
             {state === "idle" && rows.length === 0 ? (
-              <div className="chat-empty px-4 py-5"><p className="text-sm leading-relaxed text-ink-soft">Напишіть питання — я відповім особисто, зазвичай протягом дня.</p><p className="mt-2 text-xs leading-relaxed text-muted">Можна уточнювати скільки завгодно — вся переписка збережеться тут.</p></div>
+              <div className="chat-empty px-4 py-5"><p className="text-sm leading-relaxed text-ink-soft">{t("chatEmptyLead", lang)}</p><p className="mt-2 text-xs leading-relaxed text-muted">{t("chatEmptyNote", lang)}</p></div>
             ) : (
               <div className="flex flex-col gap-2.5">
                 {rows.map((row) => (
@@ -488,7 +491,7 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
                   </div>
                 ))}
                 {waiting ? (
-                  <p className="chat-hint">Питання надіслано. Відповідь з&apos;явиться тут.</p>
+                  <p className="chat-hint">{t("chatWaiting", lang)}</p>
                 ) : null}
               </div>
             )}
@@ -497,7 +500,7 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
           <form onSubmit={onSubmit} className="border-t border-line bg-white/80 px-4 py-3 backdrop-blur-sm">
               {!hasCode ? (
                 <label className="block">
-                  <span className="label text-[11px]">Ім&apos;я</span>
+                  <span className="label text-[11px]">{t("chatName", lang)}</span>
                   <input
                     name="name"
                     required
@@ -506,13 +509,13 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
                     autoComplete="name"
                     onInput={touch}
                     className={`mt-1.5 ${field}`}
-                    placeholder="Як до вас звертатися"
+                    placeholder={t("chatNamePh", lang)}
                   />
                 </label>
               ) : null}
 
               <label className={hasCode ? "block" : "mt-3 block"}>
-                <span className="label text-[11px]">{hasCode ? "Уточнення" : "Питання"}</span>
+                <span className="label text-[11px]">{hasCode ? t("chatFieldFollow", lang) : t("chatFieldQuestion", lang)}</span>
                 <textarea
                   name="message"
                   required={!file}
@@ -521,7 +524,7 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
                   rows={hasCode ? 2 : 3}
                   onInput={touch}
                   className={`mt-1.5 ${field} resize-none`}
-                  placeholder={hasCode ? "Що уточнити?" : "Що вас цікавить?"}
+                  placeholder={hasCode ? t("chatPhFollow", lang) : t("chatPhQuestion", lang)}
                 />
               </label>
 
@@ -551,7 +554,7 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
                     return;
                   }
                   if (picked.size > MAX_FILE_BYTES) {
-                    setError(`Файл завеликий — максимум ${MAX_FILE_MB} МБ.`);
+                    setError(t("chatFileTooBig", lang));
                     setFile(null);
                     if (fileRef.current) fileRef.current.value = "";
                     return;
@@ -570,7 +573,7 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
                     {file.name}
                   </span>
                   <span className="shrink-0 text-[10px] text-muted">
-                    {(file.size / 1024).toFixed(0)} КБ
+                    {(file.size / 1024).toFixed(0)} {lang === "uk" ? "КБ" : "KB"}
                   </span>
                   <button
                     type="button"
@@ -579,7 +582,7 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
                       if (fileRef.current) fileRef.current.value = "";
                       touch();
                     }}
-                    aria-label="Прибрати файл"
+                    aria-label={t("chatFileRemove", lang)}
                     className="shrink-0 text-sm leading-none text-muted transition-colors hover:text-ink"
                   >
                     ×
@@ -592,8 +595,8 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
                   type="button"
                   onClick={() => fileRef.current?.click()}
                   disabled={state === "sending"}
-                  title={`Прикріпити документ (до ${MAX_FILE_MB} МБ)`}
-                  aria-label="Прикріпити документ"
+                  title={t("chatFileTitle", lang)}
+                  aria-label={t("chatFile", lang)}
                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-line-strong bg-white text-muted shadow-sm transition-colors hover:border-ink hover:text-ink disabled:opacity-60"
                 >
                   <svg aria-hidden viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -611,24 +614,24 @@ export default function ChatWidget({ enabled = true }: { enabled?: boolean }) {
                   className="btn-wave-invert flex h-10 flex-1 items-center justify-center rounded-xl bg-ink px-4 text-sm font-semibold text-paper shadow-sm transition-all hover:translate-y-[-1px] hover:shadow-md active:translate-y-0 disabled:opacity-60"
                 >
                   <span className="wave-span">
-                    {state === "sending" ? "Надсилаю…" : hasCode ? "Надіслати" : "Відправити"}
+                    {state === "sending" ? t("chatSending", lang) : hasCode ? t("chatSend", lang) : t("chatSendNew", lang)}
                   </span>
                 </button>
                 {hasCode ? (
                   <button
                     type="button"
                     onClick={closeTalk}
-                    title="Закрити розмову"
+                    title={t("chatCloseTitle", lang)}
                     className="flex h-10 items-center justify-center rounded-xl border border-line-strong bg-white px-3.5 text-xs font-semibold text-ink transition-colors hover:border-ink hover:text-ink"
                   >
-                    Закрити
+                    {t("chatClose", lang)}
                   </button>
                 ) : null}
               </div>
 
               {hasCode && code ? (
                 <p className="mt-2 text-[10px] text-muted">
-                  Код розмови: <code className="text-ink-soft">#{code}</code>
+                  {t("chatErrorCode", lang)} <code className="text-ink-soft">#{code}</code>
                 </p>
               ) : null}
             </form>

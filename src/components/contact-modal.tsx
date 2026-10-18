@@ -2,6 +2,8 @@
 
 import { useRef, useState } from "react";
 import { site } from "@/content/site";
+import { useLang } from "@/components/lang-context";
+import { t } from "@/lib/ui-strings";
 
 /**
  * Кнопка «Написати мені» + модальне вікно з ПОШТОВОЮ формою.
@@ -38,6 +40,7 @@ export default function ContactModal({
   const openedAt = useRef<number>(0);
   const [state, setState] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [error, setError] = useState("");
+  const { lang } = useLang();
 
   const open = () => {
     openedAt.current = Date.now();
@@ -55,7 +58,7 @@ export default function ContactModal({
 
     const email = String(data.get("email") ?? "").trim();
     if (!EMAIL_RE.test(email)) {
-      setError("Вкажіть коректну електронну адресу — на неї прийде відповідь.");
+      setError(t("modalErrorEmail", lang));
       setState("error");
       return;
     }
@@ -77,20 +80,23 @@ export default function ContactModal({
       });
       const json = (await res.json()) as { ok?: boolean; error?: string };
       if (!res.ok || !json.ok) {
-        setError(json.error || "Не вдалося надіслати. Спробуйте ще раз.");
+        setError(json.error || t("modalErrorSend", lang));
         setState("error");
         return;
       }
       form.reset();
       setState("sent");
     } catch {
-      setError("Немає зв'язку. Перевірте інтернет і спробуйте ще раз.");
+      setError(t("modalErrorOffline", lang));
       setState("error");
     }
   }
 
   const field =
     "chat-field mt-2 w-full border border-line-strong bg-paper px-3.5 py-2.5 text-sm text-ink outline-none placeholder:text-muted";
+
+  const buttonLabel =
+    label ?? (trigger === "secondary" ? t("contactBtnEmail", lang) : trigger === "link" ? t("writeMe", lang) : t("contactBtn", lang));
 
   return (
     <>
@@ -103,7 +109,7 @@ export default function ContactModal({
             "btn-wave inline-flex min-h-12 items-center justify-center border border-line-strong bg-paper px-7 py-3 text-sm font-semibold tracking-wide transition-colors hover:border-ink hover:text-ink"
           }
         >
-          <span className="wave-span">{label ?? "Написати листа"}</span>
+          <span className="wave-span">{buttonLabel}</span>
         </button>
       ) : trigger === "button" ? (
         <button
@@ -112,7 +118,7 @@ export default function ContactModal({
           className="reveal btn-wave-invert group inline-flex h-12 items-center justify-center gap-3 bg-ink px-7 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-ink-soft"
         >
           <span className="wave-span inline-flex items-center gap-3">
-            Написати мені
+            {buttonLabel}
             <span aria-hidden className="transition-transform group-hover:translate-x-1">
               →
             </span>
@@ -124,7 +130,7 @@ export default function ContactModal({
           onClick={open}
           className="label btn-wave whitespace-nowrap border border-line bg-paper px-3.5 py-2 text-[11px] tracking-[0.08em] text-ink transition-colors hover:border-ink hover:text-ink"
         >
-          <span className="wave-span">Написати</span>
+          <span className="wave-span">{buttonLabel}</span>
         </button>
       )}
 
@@ -137,18 +143,18 @@ export default function ContactModal({
           <div className="chat-panel-header flex items-start justify-between gap-4 border-b border-line px-6 py-5">
             <div>
               <h2 id="contact-modal-title" className="flex items-center gap-2.5 text-lg font-bold tracking-[-0.01em]"><span aria-hidden className="flex h-7 w-7 items-center justify-center rounded-full bg-ink text-[10px] font-extrabold text-white">ОП</span><span>
-                {state === "sent" ? "Лист надіслано" : "Напишіть мені"}</span>
+                {state === "sent" ? t("modalTitleSent", lang) : t("modalTitle", lang)}</span>
               </h2>
               <p className="mt-1 text-xs leading-relaxed text-muted">
                 {state === "sent"
-                  ? "Відповім на вказану адресу — зазвичай протягом дня."
-                  : "Питання прийде мені на пошту. Відповідаю особисто."}
+                  ? t("modalSentText", lang)
+                  : t("modalHint", lang)}
               </p>
             </div>
             <button
               type="button"
               onClick={close}
-              aria-label="Закрити"
+              aria-label={t("modalClose", lang)}
               className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-black/[0.04] text-lg leading-none text-muted transition-colors hover:bg-black/10 hover:text-ink"
             >
               ×
@@ -161,7 +167,7 @@ export default function ContactModal({
                 ✓
               </span>
               <p className="mt-4 text-sm leading-relaxed text-ink-soft">
-                Дякую! Лист уже в мене. Відповім на адресу, яку ви вказали.
+                {t("modalSentThanks", lang)}
               </p>
               <div className="mt-7 flex flex-wrap items-center gap-4">
                 <button
@@ -169,20 +175,20 @@ export default function ContactModal({
                   onClick={close}
                   className="flex h-11 items-center rounded-xl border border-line-strong bg-white px-5 text-sm font-semibold shadow-sm transition-all hover:border-ink hover:text-ink"
                 >
-                  Закрити
+                  {t("modalClose", lang)}
                 </button>
                 <a
                   href={`mailto:${site.email}`}
                   className="rounded-xl border border-line-strong bg-white px-4 py-2 text-xs font-semibold text-ink shadow-sm transition-colors hover:border-ink hover:text-ink"
                 >
-                  написати ще раз із пошти
+                  {t("modalAgain", lang)}
                 </a>
               </div>
             </div>
           ) : (
             <div className="flex flex-col gap-5 bg-[#fcfcfd] px-6 py-6">
               <label className="block">
-                <span className="label">Ім&apos;я</span>
+                <span className="label">{t("modalName", lang)}</span>
                 <input
                   name="name"
                   required
@@ -190,12 +196,12 @@ export default function ContactModal({
                   maxLength={80}
                   autoComplete="name"
                   className={field}
-                  placeholder="Як до вас звертатися"
+                  placeholder={t("modalNamePh", lang)}
                 />
               </label>
 
               <label className="block">
-                <span className="label">Електронна адреса</span>
+                <span className="label">{t("modalEmail", lang)}</span>
                 <input
                   name="email"
                   type="email"
@@ -203,12 +209,12 @@ export default function ContactModal({
                   maxLength={120}
                   autoComplete="email"
                   className={field}
-                  placeholder="you@example.com — на неї прийде відповідь"
+                  placeholder={t("modalEmailPh", lang)}
                 />
               </label>
 
               <label className="block">
-                <span className="label">Текст</span>
+                <span className="label">{t("modalText", lang)}</span>
                 <textarea
                   name="message"
                   required
@@ -216,7 +222,7 @@ export default function ContactModal({
                   maxLength={4000}
                   rows={5}
                   className={`${field} resize-y`}
-                  placeholder="Що вас цікавить? Який курс, які терміни, що хочете опанувати?"
+                  placeholder={t("modalTextPh", lang)}
                 />
               </label>
 
@@ -241,7 +247,7 @@ export default function ContactModal({
                   className="btn-wave-invert flex h-11 items-center rounded-xl bg-ink px-6 text-sm font-semibold text-paper shadow-sm transition-all hover:translate-y-[-1px] hover:shadow-md active:translate-y-0 disabled:opacity-60"
                 >
                   <span className="wave-span">
-                    {state === "sending" ? "Надсилаю…" : "Відправити"}
+                    {state === "sending" ? t("modalSending", lang) : t("modalSend", lang)}
                   </span>
                 </button>
                 <button
@@ -249,7 +255,7 @@ export default function ContactModal({
                   onClick={close}
                   className="rounded-xl border border-line-strong bg-white px-4 py-2 text-xs font-semibold text-ink shadow-sm transition-colors hover:border-ink hover:text-ink"
                 >
-                  Відміна
+                  {t("modalCancel", lang)}
                 </button>
               </div>
             </div>

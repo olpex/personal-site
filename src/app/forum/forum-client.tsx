@@ -4,7 +4,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Footer } from "@/components/chrome";
 import ContactModal from "@/components/contact-modal";
+import LanguageToggle from "@/components/language-toggle";
 import Reveal from "@/components/reveal";
+import { useLang } from "@/components/lang-context";
+import { t } from "@/lib/ui-strings";
+import { forumTopicLabel } from "@/content/site-en";
 import {
   FORUM_TOPICS,
   formatForumDate,
@@ -24,6 +28,10 @@ import {
  * Чому коди в localStorage: браузер запам'ятовує id власних питань, і
  * коли власник відповідає — людина бачить статус, навіть якщо прийшла
  * з іншого пристрою (історія живе в репозиторії, а не в браузері).
+ *
+ * Мова: ТЕМА в даних завжди uk (валідація API + місток у Telegram);
+ * на сторінці показуємо переклад через forumTopicLabel. Власні питання
+ * зберігаються так, як їх написав автор — його мовою.
  */
 
 const CODES_KEY = "oparashchuk:forum-codes";
@@ -81,6 +89,7 @@ export default function ForumClient() {
   const [formError, setFormError] = useState("");
 
   const codesRef = useRef<string[]>([]);
+  const { lang } = useLang();
 
   const load = useCallback(async (withCodes: string[] | null = null) => {
     const codes = withCodes ?? codesRef.current;
@@ -94,7 +103,7 @@ export default function ForumClient() {
         error?: string;
       };
       if (!res.ok || !json.ok) {
-        setLoadError(json.error ?? "Не вдалося завантажити форум.");
+        setLoadError(json.error ?? t("forumLoadErr", lang));
         return;
       }
       setEntries(json.entries ?? []);
@@ -109,11 +118,11 @@ export default function ForumClient() {
       });
       setLoadError("");
     } catch {
-      setLoadError("Немає зв'язку. Спробуйте оновити сторінку.");
+      setLoadError(t("forumLoadErrOffline", lang));
     } finally {
       setLoading(false);
     }
-  }, [codesRef]);
+  }, [codesRef, lang]);
 
   useEffect(() => {
     codesRef.current = readCodes();
@@ -137,7 +146,7 @@ export default function ForumClient() {
   }, [entries]);
 
   const usedTopics = useMemo(
-    () => FORUM_TOPICS.filter((t) => topicCounts.has(t)),
+    () => FORUM_TOPICS.filter((tp) => topicCounts.has(tp)),
     [topicCounts],
   );
 
@@ -163,17 +172,17 @@ export default function ForumClient() {
     const cleanName = name.trim();
     const cleanQuestion = question.trim();
     if (cleanName.length < 2) {
-      setFormError("Як до вас звертатися? Хоча б ім'я.");
+      setFormError(t("forumErrName", lang));
       setFormState("error");
       return;
     }
     if (!topic) {
-      setFormError("Оберіть тему питання.");
+      setFormError(t("forumErrTopic", lang));
       setFormState("error");
       return;
     }
     if (cleanQuestion.length < 10) {
-      setFormError("Опишіть питання — хоча б кілька слів.");
+      setFormError(t("forumErrQuestion", lang));
       setFormState("error");
       return;
     }
@@ -194,7 +203,7 @@ export default function ForumClient() {
       });
       const json = (await res.json()) as { ok?: boolean; id?: string; error?: string };
       if (!res.ok || !json.ok) {
-        setFormError(json.error ?? "Не вдалося надіслати. Спробуйте ще раз.");
+        setFormError(json.error ?? t("forumErrSend", lang));
         setFormState("error");
         return;
       }
@@ -222,7 +231,7 @@ export default function ForumClient() {
       setQuestion("");
       setFormState("sent");
     } catch {
-      setFormError("Немає зв'язку. Перевірте інтернет і спробуйте ще раз.");
+      setFormError(t("forumErrOffline", lang));
       setFormState("error");
     }
   }
@@ -241,33 +250,32 @@ export default function ForumClient() {
             href="/"
             className="label link-underline flex h-11 items-center text-ink hover:text-ink"
           >
-            ← На головну
+            {t("forumBack", lang)}
           </Link>
           <div className="flex items-center gap-3">
             <a
               href="#ask"
               className="label link-underline hidden h-11 items-center text-ink sm:flex"
             >
-              Задати питання
+              {t("forumAskShort", lang)}
             </a>
             <ContactModal trigger="link" />
+            {/* Перемикач мови — на кожній сторінці: вибір спільний для
+                всього сайту (localStorage) і діє одразу. */}
+            <LanguageToggle compact />
           </div>
         </div>
       </header>
 
       <main id="main" className="gutter">
         <div className="shell border-b border-line py-14 md:py-20">
-          <p className="label">Питання й відповіді</p>
-          <h1 className="display mt-4 text-4xl md:text-6xl">Форум</h1>
+          <p className="label">{t("forumEyebrow", lang)}</p>
+          <h1 className="display mt-4 text-4xl md:text-6xl">{t("forumTitle", lang)}</h1>
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-ink-soft">
-            Запитуйте про теми курсів — штучний інтелект, кібербезпеку й OSINT,
-            вебдизайн, графічний дизайн, цифровий світ, обробку інформації — або
-            про співпрацю. Відповідаю особисто, і відповідь з&apos;являється тут
-            же, поряд із питанням.
+            {t("forumLead", lang)}
           </p>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">
-            Питання без відповіді на сторінці не показуються: спершу його
-            бачите лише ви. Щойно відповім — воно з&apos;явиться у списку нижче.
+            {t("forumLeadNote", lang)}
           </p>
         </div>
 
@@ -275,13 +283,12 @@ export default function ForumClient() {
         <section id="ask" className="scroll-mt-16 border-b border-line py-12 md:py-16">
           <div className="grid grid-cols-1 gap-y-10 lg:grid-cols-12 lg:gap-x-12">
             <div className="lg:col-span-3">
-              <h2 className="reveal display text-3xl">Задати питання</h2>
+              <h2 className="reveal display text-3xl">{t("forumAsk", lang)}</h2>
               <span aria-hidden className="reveal mt-5 block h-[3px] w-16">
                 <span className="accent-rule" />
               </span>
               <p className="mt-6 hidden text-sm leading-relaxed text-muted lg:block">
-                Відповідь публікується на цій сторінці — її побачать усі, кому
-                цікава та сама тема.
+                {t("forumAskAside", lang)}
               </p>
             </div>
 
@@ -289,7 +296,7 @@ export default function ForumClient() {
               <form onSubmit={onSubmit} className="max-w-2xl space-y-6" noValidate>
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   <label className="block">
-                    <span className="label">Ваше ім&apos;я</span>
+                    <span className="label">{t("forumName", lang)}</span>
                     <input
                       type="text"
                       name="name"
@@ -297,7 +304,7 @@ export default function ForumClient() {
                       onChange={(e) => setName(e.target.value)}
                       maxLength={80}
                       autoComplete="name"
-                      placeholder="Наприклад, Марія"
+                      placeholder={t("forumNamePh", lang)}
                       className={`mt-2 ${field}`}
                     />
                   </label>
@@ -306,21 +313,21 @@ export default function ForumClient() {
                     <input type="text" name="company" tabIndex={-1} autoComplete="off" />
                   </div>
                   <div className="sm:col-span-2">
-                    <span className="label">Тема</span>
-                    <div role="group" aria-label="Тема питання" className="mt-2 flex flex-wrap gap-2">
-                      {FORUM_TOPICS.map((t) => (
+                    <span className="label">{t("forumTopic", lang)}</span>
+                    <div role="group" aria-label={t("forumTopicAria", lang)} className="mt-2 flex flex-wrap gap-2">
+                      {FORUM_TOPICS.map((tp) => (
                         <button
-                          key={t}
+                          key={tp}
                           type="button"
-                          aria-pressed={topic === t}
-                          onClick={() => setTopic(t)}
+                          aria-pressed={topic === tp}
+                          onClick={() => setTopic(tp)}
                           className={`rounded-full border px-3.5 py-2 text-[11px] font-semibold tracking-[0.08em] transition-colors ${
-                            topic === t
+                            topic === tp
                               ? "border-accent bg-accent text-white"
                               : "border-line bg-paper text-ink hover:border-line-strong"
                           }`}
                         >
-                          {t}
+                          {forumTopicLabel(tp, lang)}
                         </button>
                       ))}
                     </div>
@@ -328,14 +335,14 @@ export default function ForumClient() {
                 </div>
 
                 <label className="block">
-                  <span className="label">Питання</span>
+                  <span className="label">{t("forumQuestion", lang)}</span>
                   <textarea
                     name="question"
                     value={question}
                     onChange={(e) => setQuestion(e.target.value)}
                     maxLength={1500}
                     rows={5}
-                    placeholder="Опишіть питання — чим конкретніше, тим корисніша відповідь."
+                    placeholder={t("forumQuestionPh", lang)}
                     className={`mt-2 resize-y ${field}`}
                   />
                   <span className="mt-2 block text-right text-xs text-muted">
@@ -350,13 +357,12 @@ export default function ForumClient() {
                     className="btn-wave-invert inline-flex h-12 items-center justify-center gap-3 bg-ink px-7 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-ink-soft disabled:opacity-60"
                   >
                     <span className="wave-span">
-                      {formState === "sending" ? "Надсилаю…" : "Надіслати питання"}
+                      {formState === "sending" ? t("forumSending", lang) : t("forumSubmit", lang)}
                     </span>
                   </button>
                   {formState === "sent" ? (
                     <p className="text-sm text-accent-ink" role="status">
-                      Дякую! Питання надіслано — відповідь з&apos;явиться на цій
-                      сторінці.
+                      {t("forumSent", lang)}
                     </p>
                   ) : formError ? (
                     <p className="text-sm text-accent-ink" role="alert">
@@ -372,16 +378,16 @@ export default function ForumClient() {
         {/* ── «Чекають відповіді» ───────────────────────────────── */}
         {pendingMine.length > 0 ? (
           <section className="border-b border-line py-10 md:py-12">
-            <h2 className="label">Чекають відповіді</h2>
+            <h2 className="label">{t("forumPending", lang)}</h2>
             <ul className="mt-4 space-y-3">
               {pendingMine.map((m) => (
                 <li
                   key={m.id}
                   className="flex flex-wrap items-baseline gap-x-4 gap-y-1 rounded-[12px] border border-line bg-paper-2/50 px-5 py-4"
                 >
-                  <span className="label">{m.topic}</span>
+                  <span className="label">{forumTopicLabel(m.topic, lang)}</span>
                   <span className="min-w-0 flex-1 text-sm text-ink-soft">{m.question}</span>
-                  <span className="label text-accent-ink">⏳ очікує відповіді</span>
+                  <span className="label text-accent-ink">{t("forumPendingTag", lang)}</span>
                 </li>
               ))}
             </ul>
@@ -391,18 +397,18 @@ export default function ForumClient() {
         {/* ── Список питань і відповідей ────────────────────────── */}
         <section className="py-12 md:py-16">
           <div className="flex flex-wrap items-center justify-between gap-4">
-            <h2 className="display text-3xl">Питання й відповіді</h2>
+            <h2 className="display text-3xl">{t("forumQa", lang)}</h2>
             <button
               type="button"
               onClick={() => void load()}
               className="label link-underline h-11 text-ink"
             >
-              Оновити
+              {t("forumRefresh", lang)}
             </button>
           </div>
 
           {usedTopics.length > 0 ? (
-            <div role="group" aria-label="Фільтр за темою" className="mt-6 flex flex-wrap gap-2">
+            <div role="group" aria-label={t("forumMeta", lang)} className="mt-6 flex flex-wrap gap-2">
               <button
                 type="button"
                 aria-pressed={topicFilter === null}
@@ -413,36 +419,35 @@ export default function ForumClient() {
                     : "border-line bg-paper text-ink hover:border-line-strong"
                 }`}
               >
-                Усі
+                {t("filterAll", lang)}
               </button>
-              {usedTopics.map((t) => (
+              {usedTopics.map((tp) => (
                 <button
-                  key={t}
+                  key={tp}
                   type="button"
-                  aria-pressed={topicFilter === slugify(t)}
-                  onClick={() => setTopicFilter(slugify(t))}
+                  aria-pressed={topicFilter === slugify(tp)}
+                  onClick={() => setTopicFilter(slugify(tp))}
                   className={`rounded-full border px-3.5 py-2 text-[11px] font-semibold tracking-[0.08em] transition-colors ${
-                    topicFilter === slugify(t)
+                    topicFilter === slugify(tp)
                       ? "border-accent bg-accent text-white"
                       : "border-line bg-paper text-ink hover:border-line-strong"
                   }`}
                 >
-                  {t} <span className="ml-1 opacity-50">({topicCounts.get(t) ?? 0})</span>
+                  {forumTopicLabel(tp, lang)} <span className="ml-1 opacity-50">({topicCounts.get(tp) ?? 0})</span>
                 </button>
               ))}
             </div>
           ) : null}
 
           {loading ? (
-            <p className="mt-10 text-sm text-muted">Завантажую…</p>
+            <p className="mt-10 text-sm text-muted">{t("forumLoading", lang)}</p>
           ) : loadError ? (
             <p className="mt-10 text-sm text-accent-ink" role="alert">
               {loadError}
             </p>
           ) : visible.length === 0 ? (
             <div className="chat-empty mt-10 max-w-xl px-6 py-8 text-sm leading-relaxed text-muted">
-              Поки що тут порожньо. Будьте першим — задайте питання у формі вище;
-              після відповіді воно з&apos;явиться тут.
+              {t("forumEmpty", lang)}
             </div>
           ) : (
             <ul className="mt-10 space-y-6">
@@ -454,7 +459,7 @@ export default function ForumClient() {
                   <article>
                     <header className="flex flex-wrap items-center gap-x-4 gap-y-2">
                       <span className="label border border-line px-2 py-1 text-ink-soft">
-                        {entry.topic}
+                        {forumTopicLabel(entry.topic, lang)}
                       </span>
                       <span className="label ml-auto">{formatForumDate(entry.at)}</span>
                     </header>
@@ -473,7 +478,7 @@ export default function ForumClient() {
                           className="border-l-[3px] border-accent pl-4 md:pl-5"
                         >
                           <p className="label">
-                            Відповідь
+                            {t("forumAnswerOne", lang)}
                             {entry.answers.length > 1 ? ` ${i + 1}` : ""} ·{" "}
                             {formatForumDateTime(a.at)}
                           </p>

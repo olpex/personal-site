@@ -2,11 +2,50 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { findRanges, tokenize } from "@/lib/search";
+import { useLang } from "@/components/lang-context";
+import { t } from "@/lib/ui-strings";
 
 /** Ім'я реєстру підсвічування (CSS Custom Highlight API). */
 const HIGHLIGHT = "site-search";
 
 export type SearchJump = { id: string; label: string; count: number };
+
+/* Синоніми запиту англійською: контент укр./angl. змішаний (цитати, назви
+ * сертифікатів лишились оригінальними), тож «teacher» має знаходити
+ * «викладач», «courses» — «курс». Додаються ДО нормалізованого запиту,
+ * тому працюють і в фільтрі, і в підсвічуванні. */
+const EN_SYNONYMS: Record<string, string[]> = {
+  teacher: ["викладач", "педагог"],
+  courses: ["курс"],
+  course: ["курс"],
+  certificates: ["сертифікат"],
+  certificate: ["сертифікат"],
+  reviews: ["відгук"],
+  review: ["відгук"],
+  projects: ["проєкт"],
+  project: ["проєкт"],
+  security: ["безпек", "кібербезпек"],
+  design: ["дизайн"],
+  web: ["веб"],
+  ai: ["штучн", "інтелект", "ші"],
+  osint: ["розвідк"],
+  digital: ["цифров"],
+  data: ["обробк", "інформац"],
+  information: ["інформац"],
+  topics: ["тем"],
+  contact: ["контакт"],
+  about: ["про мене"],
+};
+
+function expandTokens(tokens: string[]): string[] {
+  const out: string[] = [];
+  for (const token of tokens) {
+    out.push(token);
+    const syn = EN_SYNONYMS[token];
+    if (syn) out.push(...syn);
+  }
+  return [...new Set(out)];
+}
 
 /**
  * Миттєвий пошук по сторінці: поле + лічильник + перехід до знайденого.
@@ -32,6 +71,7 @@ export default function SiteSearch({
   sections: SearchJump[];
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const { lang } = useLang();
   const searching = query.trim().length > 0;
   const hits = useMemo(() => sections.filter((s) => s.count > 0), [sections]);
   /* Секції, у яких справді шукаємо, — рядком: масив `sections` батько
@@ -87,11 +127,11 @@ export default function SiteSearch({
       css.highlights.delete(HIGHLIGHT);
       if (!searching) return;
 
-      const tokens = tokenize(query);
+      const tokens = expandTokens(tokenize(query));
       if (tokens.length === 0) return;
 
       /* Підсвічуємо ЛИШЕ те, що фільтрується. Якщо взяти весь <main>,
-         знайдеться й «консультацій» у «Контактax» — при тому, що
+         знайдеться й «консультацій» у «Контактах» — при тому, що
          лічильник показує «нічого не знайдено»: текст там не фільтрується,
          а отже й не може бути результатом пошуку. */
       const roots = scopeIds
@@ -155,7 +195,7 @@ export default function SiteSearch({
             </svg>
           </span>
           <label htmlFor="site-search" className="label sr-only">
-            Пошук по сайту
+            {t("searchLabel", lang)}
           </label>
           <input
             id="site-search"
@@ -163,7 +203,7 @@ export default function SiteSearch({
             type="search"
             value={query}
             onChange={(event) => onChange(event.target.value)}
-            placeholder="Пошук по сайту: курс, тема, інструмент…"
+            placeholder={t("searchPlaceholder", lang)}
             autoComplete="off"
             spellCheck={false}
             enterKeyHint="search"
@@ -176,8 +216,8 @@ export default function SiteSearch({
                 onChange("");
                 inputRef.current?.focus();
               }}
-              aria-label="Скинути пошук"
-              title="Скинути пошук"
+              aria-label={t("searchClear", lang)}
+              title={t("searchClear", lang)}
               className="site-search-clear shrink-0"
             >
               ×
@@ -199,10 +239,14 @@ export default function SiteSearch({
                 {found}/{total}
               </span>
               <span aria-hidden className="hidden sm:inline">
-                {found > 0 ? `Знайдено ${found} із ${total}` : "Нічого не знайдено"}
+                {found > 0
+                  ? `${t("searchFound", lang)} ${found} ${t("searchFoundOf", lang)} ${total}`
+                  : t("searchNothing", lang)}
               </span>
               <span className="sr-only">
-                {found > 0 ? `Знайдено ${found} із ${total}` : "Нічого не знайдено"}
+                {found > 0
+                  ? `${t("searchFound", lang)} ${found} ${t("searchFoundOf", lang)} ${total}`
+                  : t("searchNothing", lang)}
               </span>
             </p>
             {/* Перехід до знайденого: без нього доводиться прокручувати
@@ -210,7 +254,7 @@ export default function SiteSearch({
                 немає, а лічильник уже показує, що щось є. */}
             {found > 0 ? (
               <nav
-                aria-label="Знайдене за розділами"
+                aria-label={t("searchBySections", lang)}
                 className="hidden min-w-0 items-center gap-4 overflow-x-auto overscroll-x-contain md:flex [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               >
                 {hits.map((section) => (
