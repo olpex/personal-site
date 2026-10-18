@@ -1,0 +1,340 @@
+{
+  "v": 1,
+  "texts": {
+    "role": {
+      "uk": "Викладач інформаційних технологій",
+      "en": "Information Technology Teacher"
+    },
+    "statement": {
+      "uk": "Викладаю сім напрямів — від обробки інформації та «Цифрового світу» до ШІ, кібербезпеки/OSINT, вебдизайну й графічного дизайну — як інтенсивні модулі, де кожен слухач завершує з готовим проєктом і чіткими критеріями оцінювання. Веду також профільні предмети за спеціальністю 4113 «Оператор з обробки інформації та програмного забезпечення».",
+      "en": "I teach seven subject areas — from information processing and the Digital World to AI, cybersecurity/OSINT, web design and graphic design — as intensive modules where every learner finishes with a completed project and clear assessment criteria. I also teach profile subjects within specialty 4113 “Information and Software Processing Operator”."
+    },
+    "portraitAlt": {
+      "uk": "Паращук Олег Леонідович — портрет викладача ЛЦПТО ДСЗ, Львів",
+      "en": "Oleh Parashchuk — portrait of a teacher, Lviv"
+    },
+    "educationLabel": {
+      "uk": "Освіта: Даугавпілський університет (Латвійська Республіка) — магістр інформатики та математики, фізико-математичний факультет (1989–1994); магістр економіки, економічний факультет (1995–2000)",
+      "en": "Education: Daugavpils University (Republic of Latvia) — master in informatics and mathematics, Faculty of Physics and Mathematics (1989–1994); master in economics, Faculty of Economics (1995–2000)"
+    },
+    "about[0]": {
+      "uk": "Викладач інформаційних технологій — спеціаліст вищої категорії, ступінь магістра. Веду 7 профільних курсів та 8 предметів в рамках професії 4113 «Оператор з обробки інформації та програмного забезпечення». Понад 30 років у викладанні, останні 7 — безперервно у Львівському центрі професійно-технічної освіти Державної служби зайнятості України.",
+      "en": "Information technology teacher — highest-category specialist with a master's degree. I teach 7 profile courses and 8 subjects within profession 4113 “Information and Software Processing Operator”. Over 30 years of teaching, the last 7 continuously at the Lviv Center for Vocational and Technical Education of the State Employment Service of Ukraine."
+    },
+    "about[1]": {
+      "uk": "Мій фокус — те, що актуально зараз: кібербезпека й OSINT, застосування ШІ в роботі та навчанні, вебдизайн. Будую курси як короткі модулі з практикою на реальних кейсах слухачів і щоденним зворотним зв'язком, пояснюю складне простою мовою — без води й жаргону. Під це системно навчаюсь сам: Google Cybersecurity, Cisco, Palo Alto Cybersecurity Foundation, Prometheus OSINT, EPAM AI-tools for Education, Google Академія ШІ, Moodle 4.0 — адміністрування й функціонал.",
+      "en": "My focus is on what’s relevant right now: cybersecurity and OSINT, the application of AI in work and learning, and web design. I structure my courses as short modules that include hands-on practice using students’ real-world case studies and daily feedback; I explain complex concepts in simple terms—without fluff or jargon. To support this, I’m systematically educating myself: Google Cybersecurity, Cisco, Palo Alto Cybersecurity Foundation, Prometheus OSINT, EPAM AI-tools for Education, Google AI Academy, and Moodle 4.0—administration and functionality."
+    },
+    "keywords[0]": {
+      "uk": "Обробка інформації",
+      "en": "Information processing"
+    },
+    "keywords[1]": {
+      "uk": "Цифровий світ",
+      "en": "Digital world"
+    },
+    "keywords[2]": {
+      "uk": "Штучний інтелект",
+      "en": "Artificial intelligence"
+    },
+    "keywords[3]": {
+      "uk": "Цифрова безпека",
+      "en": "Digital security"
+    },
+    "keywords[4]": {
+      "uk": "OSINT",
+      "en": "OSINT"
+    },
+    "keywords[5]": {
+      "uk": "WEB-дизайн",
+      "en": "Web design"
+    },
+    "keywords[6]": {
+      "uk": "Moodle",
+      "en": "Moodle"
+    },
+    "keywords[7]": {
+      "uk": "Google Classroom",
+      "en": "Google Classroom"
+    },
+    "method[0].title": {
+      "uk": "Короткі модулі, а не моноліт",
+      "en": "Short modules, not a monolith"
+    },
+    "method[0].body": {
+      "uk": "Курс розбито на теми, кожна закрита практикою. Слухач іде з заняття зробленим кроком, а не конспектом.",
+      "en": "The course is split into topics, each closed with practice. Learners leave every class with a done step, not with lecture notes."
+    },
+    "method[1].title": {
+      "uk": "Демонстрація наживо",
+      "en": "Live demonstrations"
+    },
+    "method[1].body": {
+      "uk": "Показую інструмент у роботі й одразу даю повторити самому — замість розповіді про те, як він працює.",
+      "en": "I show the tool in action and immediately have learners repeat it themselves — instead of telling how it works."
+    },
+    "method[2].title": {
+      "uk": "Реальні задачі слухачів",
+      "en": "Learners' real tasks"
+    },
+    "method[2].body": {
+      "uk": "Розбираємо кейси з їхньої роботи: що саме болить, те й стає прикладом на занятті.",
+      "en": "We work through cases from their own jobs: whatever hurts becomes the class example."
+    },
+    "method[3].title": {
+      "uk": "Проста мова й щоденний зв'язок",
+      "en": "Plain language and daily contact"
+    },
+    "method[3].body": {
+      "uk": "Питання можна ставити одразу — я на зв'язку й між заняттями, а не лише в аудиторії.",
+      "en": "Questions can be asked right away — I stay available between classes, not only in the classroom."
+    },
+    "facts[0].k": {
+      "uk": "Категорія",
+      "en": "Category"
+    },
+    "facts[0].v": {
+      "uk": "Спеціаліст вищої категорії · магістр",
+      "en": "Highest-category specialist · master's degree"
+    },
+    "facts[1].k": {
+      "uk": "Проєкти",
+      "en": "Projects"
+    },
+    "facts[1].v": {
+      "uk": "7 навчальних проєктів",
+      "en": "7 learning projects"
+    },
+    "facts[2].k": {
+      "uk": "Сертифікати",
+      "en": "Certificates"
+    },
+    "facts[2].v": {
+      "uk": "20 сертифікатів, у тому числі міжнародних",
+      "en": "20 certificates, including international ones"
+    },
+    "facts[3].k": {
+      "uk": "Відгуки",
+      "en": "Reviews"
+    },
+    "facts[3].v": {
+      "uk": "50+ схвальних · 2025–2026",
+      "en": "50+ positive · 2025–2026"
+    },
+    "reviewStats[0].k": {
+      "uk": "2025–2026",
+      "en": "2025–2026"
+    },
+    "reviewStats[0].v": {
+      "uk": "56 схвальних відгуків",
+      "en": "56 positive reviews"
+    },
+    "reviewStats[1].k": {
+      "uk": "5 напрямів",
+      "en": "5 areas"
+    },
+    "reviewStats[1].v": {
+      "uk": "ШІ · цифрова безпека й OSINT · ТКОІ · Цифровий світ · графічний дизайн",
+      "en": "AI · cybersecurity & OSINT · information processing · digital world · graphic design"
+    },
+    "projects[0].title": {
+      "uk": "Технології комп'ютерної обробки інформації",
+      "en": "Computer Information Processing Technologies"
+    },
+    "projects[0].kind": {
+      "uk": "Курс · 72 год",
+      "en": "Course · 72 h"
+    },
+    "projects[0].outcome": {
+      "uk": "Обробка даних, офісні застосунки, хмарні сховища та візуалізація. Слухачі завершують підсумковим проєктом на власних даних — з моїми конспектами, тестами й щоденним фідбеком.",
+      "en": "Data processing, office applications, cloud storage and visualisation. Learners finish with a final project on their own data — with my study guides, quizzes and daily feedback."
+    },
+    "projects[0].stack[0]": {
+      "uk": "Обробка даних",
+      "en": "Data processing"
+    },
+    "projects[0].stack[1]": {
+      "uk": "Хмарні сховища",
+      "en": "Cloud storage"
+    },
+    "projects[1].title": {
+      "uk": "Цифровий світ для початківців",
+      "en": "Digital World for Beginners"
+    },
+    "projects[1].kind": {
+      "uk": "Курс",
+      "en": "Course"
+    },
+    "projects[1].outcome": {
+      "uk": "Базова цифрова грамотність з нуля: файли, хмара, комунікація та безпечна робота з сервісами. Вся практика — на щоденних сценаріях самих слухачів.",
+      "en": "Basic digital literacy from scratch: files, the cloud, communication and safe use of online services. All practice is built on the learners' everyday scenarios."
+    },
+    "projects[1].stack[0]": {
+      "uk": "Цифрова грамотність",
+      "en": "Digital literacy"
+    },
+    "projects[1].stack[1]": {
+      "uk": "Хмара",
+      "en": "Cloud"
+    },
+    "projects[2].title": {
+      "uk": "Штучний інтелект: розвиток кар'єри",
+      "en": "Artificial Intelligence: Career Development"
+    },
+    "projects[2].kind": {
+      "uk": "Курс",
+      "en": "Course"
+    },
+    "projects[2].outcome": {
+      "uk": "Як ставити задачі ШІ, автоматизувати рутину, перевіряти факти й працювати етично. Фокус — на кар'єрних сценаріях слухачів; спираюсь на EPAM AI-tools та Google Академію ШІ.",
+      "en": "How to set tasks for AI, automate routine, verify facts and work ethically. The focus is on learners' career scenarios; built on EPAM AI-tools and the Google AI Academy."
+    },
+    "projects[2].stack[0]": {
+      "uk": "ШІ",
+      "en": "AI"
+    },
+    "projects[2].stack[1]": {
+      "uk": "Кар'єра",
+      "en": "Career"
+    },
+    "projects[3].title": {
+      "uk": "Основи цифрової безпеки і OSINT",
+      "en": "Digital Security and OSINT Basics"
+    },
+    "projects[3].kind": {
+      "uk": "Курс · 72 год",
+      "en": "Course · 72 h"
+    },
+    "projects[3].outcome": {
+      "uk": "Гігієна безпеки, перевірка джерел, робота з відкритими даними та практика OSINT на кейсах із верифікацією. Базується на моїх сертифікаціях Google Cybersecurity, Cisco, Prometheus OSINT.",
+      "en": "Security hygiene, source verification, working with open data and hands-on OSINT practice with fact-checking. Based on my Google Cybersecurity, Cisco and Prometheus OSINT certifications."
+    },
+    "projects[3].stack[0]": {
+      "uk": "OSINT",
+      "en": "OSINT"
+    },
+    "projects[3].stack[1]": {
+      "uk": "Верифікація",
+      "en": "Verification"
+    },
+    "projects[4].title": {
+      "uk": "Основи WEB-дизайну",
+      "en": "WEB Design Basics"
+    },
+    "projects[4].kind": {
+      "uk": "Курс · 144 год",
+      "en": "Course · 144 h"
+    },
+    "projects[4].outcome": {
+      "uk": "Найбільший за обсягом курс напряму: сітки, типографіка, прототипи та публікація сайту. Фінал — захист власного сайту слухача. Інструменти: HTML/CSS, WordPress, Adobe Photoshop/Illustrator/InDesign.",
+      "en": "The largest course in the area: grids, typography, prototypes and publishing a website. The final stage is the defence of each learner's own website. Tools: HTML/CSS, WordPress, Adobe Photoshop/Illustrator/InDesign."
+    },
+    "projects[4].stack[0]": {
+      "uk": "Сітки",
+      "en": "Grids"
+    },
+    "projects[4].stack[1]": {
+      "uk": "Типографіка",
+      "en": "Typography"
+    },
+    "projects[5].title": {
+      "uk": "Графічний дизайн",
+      "en": "Graphic Design"
+    },
+    "projects[5].kind": {
+      "uk": "Курс · 72 год",
+      "en": "Course · 72 h"
+    },
+    "projects[5].outcome": {
+      "uk": "Композиція, колір і типографіка, робота в графічних редакторах та Figma. Слухачі створюють макети для соцмереж і друкованих матеріалів — від логотипа до презентації — та завершують власним портфоліо.",
+      "en": "Composition, colour and typography, work in graphics editors and Figma. Learners create layouts for social media and print — from a logo to a presentation — and finish with their own portfolio."
+    },
+    "projects[5].stack[0]": {
+      "uk": "Figma",
+      "en": "Figma"
+    },
+    "projects[5].stack[1]": {
+      "uk": "Photoshop",
+      "en": "Photoshop"
+    },
+    "projects[6].title": {
+      "uk": "Авторська навчальна платформа викладача",
+      "en": "Author's Learning Platform"
+    },
+    "projects[6].kind": {
+      "uk": "Матеріали · відкритий доступ",
+      "en": "Materials · open access"
+    },
+    "projects[6].outcome": {
+      "uk": "Дев'ять готових презентацій для аудиторних занять курсу «Цифровий світ для початківців» — з конспектами викладача до кожного слайда (від основ кібербезпеки до державних онлайн-сервісів). Модулі курсу «Штучний інтелект» готуються. Веду заняття онлайн (Google Classroom, Meet, Zoom), адмініструю Moodle 4.0.",
+      "en": "Nine ready-made presentations for in-class sessions of the “Digital World for Beginners” course — with teacher's notes for every slide (from cybersecurity basics to government online services). Modules of the “Artificial Intelligence” course are in progress. I teach online (Google Classroom, Meet, Zoom) and administer Moodle 4.0."
+    },
+    "projects[6].stack[0]": {
+      "uk": "Презентації",
+      "en": "Presentations"
+    },
+    "projects[6].stack[1]": {
+      "uk": "Конспекти",
+      "en": "Study guides"
+    },
+    "projects[6].stack[2]": {
+      "uk": "Тести",
+      "en": "Quizzes"
+    },
+    "socials[0].label": {
+      "uk": "Авторська навчальна платформа викладача",
+      "en": "Author's learning platform"
+    },
+    "socials[1].label": {
+      "uk": "LinkedIn",
+      "en": "LinkedIn"
+    },
+    "socials[2].label": {
+      "uk": "YouTube — @youritperson",
+      "en": "YouTube — @youritperson"
+    },
+    "socials[3].label": {
+      "uk": "Telegram — @User132309",
+      "en": "Telegram — @User132309"
+    },
+    "about[2]": {
+      "uk": "Мій фокус — те, що актуально зараз: кібербезпека й OSINT, застосування ШІ в роботі та навчанні, вебдизайн. Будую курси як короткі модулі з практикою на реальних кейсах слухачів і щоденним зворотним зв'язком, пояснюю складне простою мовою — без води й жаргону. Під це системно навчаюсь сам: Google Cybersecurity, Cisco, Palo Alto Cybersecurity Foundation, Prometheus OSINT, EPAM AI-tools for Education, Google Академія ШІ, Moodle 4.0 — адміністрування й функціонал.",
+      "en": "My focus is on what’s relevant right now: cybersecurity and OSINT, the application of AI in work and learning, and web design. I structure my courses as short modules that include hands-on practice using students’ real-world case studies and daily feedback; I explain complex concepts in simple terms—without fluff or jargon. To support this, I’m systematically educating myself: Google Cybersecurity, Cisco, Palo Alto Cybersecurity Foundation, Prometheus OSINT, EPAM AI-tools for Education, Google AI Academy, and Moodle 4.0—administration and functionality."
+    }
+  },
+  "maps": {
+    "reviewGroupLabels": {
+      "ШІ та штучний інтелект": "AI & artificial intelligence",
+      "Графічний дизайн": "Graphic design",
+      "Технології комп'ютерної обробки інформації": "Information processing technologies",
+      "Кібербезпека й цифрова безпека": "Cyber & digital security",
+      "Цифровий світ": "Digital world"
+    },
+    "certGroupLabels": {
+      "Штучний інтелект": "Artificial intelligence",
+      "Кібербезпека й OSINT": "Cybersecurity & OSINT",
+      "Хмарні платформи й контент": "Cloud platforms & content"
+    },
+    "certNoteLabels": {
+      "6 міс., сертифікат": "6 months, certificate",
+      "1 міс.": "1 month"
+    },
+    "certHrefLabels": {
+      "Перевірити сертифікат на Coursera": "Verify the certificate on Coursera",
+      "Переглянути сертифікат (Google Drive)": "View the certificate (Google Drive)",
+      "Перевірити спеціалізацію на Coursera": "Verify the specialization on Coursera",
+      "Техноматика — інтерактивні курси e-learning": "Technomatika — interactive e-learning courses"
+    },
+    "forumTopicLabels": {
+      "Штучний інтелект": "Artificial intelligence",
+      "Кібербезпека й OSINT": "Cybersecurity & OSINT",
+      "WEB-дизайн": "Web design",
+      "Графічний дизайн": "Graphic design",
+      "Цифровий світ": "Digital world",
+      "Обробка інформації": "Information processing",
+      "Співпраця": "Collaboration",
+      "Особисте": "Personal",
+      "Інше": "Other"
+    }
+  }
+}
