@@ -762,11 +762,29 @@
   transform: scaleX(1);
 }
 
-/* Один прохід золотої хвилі по рядку ролі — та сама мова, що на hover:
-   фон обрізається по тексту, краї = currentColor (у спокої текст як
-   звичайний). Запускається, коли ім'я стало. */
+/* Золотий прохід по тексту шапки — та сама мова, що на hover: фон
+   обрізається по тексту, краї = currentColor (у спокої текст виглядає
+   точно як звичайний). Запускається, коли ім'я стало.
+
+   ДВА такти замість одного (2026-10-26): власник попросив, щоб хвиля не
+   спинялася на рядку ролі, а в тому ж порядку йшла далі — на місце
+   роботи. Порадок той самий, зсув у часі, проміжок між тактами той самий
+   50мс, що й у решті хореографії:
+     роль               3150 → 4150мс
+     назва закладу      4200 → 5200мс
+   Затримка — властивість РЯДКА (`--wave-delay` у розмітці page.tsx),
+   тож порядок тактів читається там, де стоять самі рядки, а не тільки
+   тут; у стилях лишається типове значення першого такту.
+
+   ПАСТКА (перевірено заміром): у назві закладу кілька рядків, а інлайн-
+   елемент браузер малює ПО-ФРАГМЕНТНО — кожен рядок отримує власну копію
+   градієнта своєї ширини (box-decoration-break на це не впливає: зрізаний
+   і клонований рендер дають той самий кадр). Тому прохід по закладу — це
+   один такт на 1с по ВСІХ його рядках одночасно, і довший рядок «біжить»
+   швидше за короткий у стільки разів, у скільки він довший. */
 @supports (background-clip: text) or (-webkit-background-clip: text) {
-  .hero-role {
+  .hero-role,
+  .hero-org {
     background-image: var(--wave);
     background-repeat: no-repeat;
     background-position: 100% 100%;
@@ -774,14 +792,14 @@
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    /* Останній такт: хвиля стартує, коли повільна лінія під іменем
-       дійшла до краю. Лінія тепер 1500→3100мс (посунута на +100мс
-       разом із хмарою), тож і хвиля зсунута 3050 → 3150мс — проміжок
-       50мс між тактами збережено. */
-    transition: background-position 1s linear 3150ms;
+    /* Перший такт лишається типовим (3150мс = коли повільна лінія під
+       іменем дійшла до краю: лінія 1500→3100мс); другий такт задає сам
+       рядок закладу через --wave-delay. */
+    transition: background-position 1s linear var(--wave-delay, 3150ms);
   }
 
-  .reveal[data-visible="true"] .hero-role {
+  .reveal[data-visible="true"] .hero-role,
+  .reveal[data-visible="true"] .hero-org {
     background-position: 0% 0%;
   }
 }
@@ -1277,6 +1295,7 @@ a:hover .nudge {
   .hero-name-rule,
   .hero-baseline,
   .hero-role,
+  .hero-org,
   .lift,
   .nudge,
   .accent-rule,
@@ -1326,7 +1345,8 @@ a:hover .nudge {
     transform: scaleX(1);
   }
 
-  .hero-role {
+  .hero-role,
+  .hero-org {
     background-image: none;
     -webkit-text-fill-color: currentColor;
   }
@@ -1349,7 +1369,8 @@ a:hover .nudge {
   .link-wave,
   .btn-wave .wave-span,
   .btn-wave-invert .wave-span,
-  .hero-role {
+  .hero-role,
+  .hero-org {
     background-image: none;
     -webkit-text-fill-color: currentColor;
   }
