@@ -110,6 +110,40 @@ function CountUp({
 function Hero() {
   const s = useSite();
   const { lang } = useLang();
+
+  /* Швидкість золотої хвилі — ОДНАКОВА на роль і на заклад (2026-10-26):
+     градієнт-підкладка вдвічі ширша за блок (background-size:300%), тож
+     за такт вона зсувається на 2×ширини блока: швидкість смуги =
+     2×ширина / тривалість. При спільній тривалості 1с ширший блок біжить
+     швидше в px/с — саме те, що було видно на закладі. Тому тривалість
+     закладу = 1с × (ширина закладу / ширина ролі): смуга йде тим самим
+     темпом у пікселях за секунду, а сам прохід триває довше, бо текст
+     довший. Раніше тут був доданок висоти рядка (+lh) — замір на проді
+     дав ним +3.5% швидкості закладу; прибрано. Ширина залежить від мови
+     (EN-назва довша) і від екрана, тож міряємо в рантаймі й перемірюємо
+     на зміну мови, resize і після завантаження шрифтів. ВАЖЛИВО: такт
+     закладу — CSS-анімація, а не перехід (перехід фіксує тривалість
+     у мить створення, тобто до завантаження шрифтів і до перемикання
+     мови — через це EN біг зі старою швидкістю). Механіка — globals.css. */
+  useEffect(() => {
+    const role = document.querySelector<HTMLElement>(".hero-role");
+    const org = document.querySelector<HTMLElement>(".hero-org");
+    if (!role || !org) return;
+    const measure = () => {
+      const roleW = [...role.getClientRects()].reduce((m, r) => Math.max(m, r.width), 0);
+      const orgW = [...org.getClientRects()].reduce((m, r) => Math.max(m, r.width), 0);
+      if (!roleW || !orgW) return;
+      const duration = Math.min(Math.max(Math.round((orgW / roleW) * 1000), 600), 4000);
+      org.style.setProperty("--wave-duration", `${duration}ms`);
+    };
+    measure();
+    // Шрифти міняють ширину рядків (Cormorant/Spectral ≠ системні фолбеки),
+    // а resize міняє самі розбиття на рядки — перемірюємо.
+    document.fonts?.ready.then(measure).catch(() => {});
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [lang, s.org]);
+
   return (
     <section id="top" className="gutter grain-hero relative">
       {/* На мобільному порядок інший, ніж на десктопі: ім'я -> роль ->
@@ -151,7 +185,9 @@ function Hero() {
                 щоб прохід не спинявся на рядку ролі, а в тому ж порядку
                 йшов далі — на місце роботи. Затримка 4200мс = кінець
                 першого такту (3150 + 1с) плюс той самий проміжок 50мс,
-                що й між рештою тактів. Механіка — globals.css. */}
+                що й між рештою тактів. Тривалість такту (--wave-duration)
+                рахує Hero зі ширин рядків — щоб швидкість хвилі в px/с
+                була такою самою, як на рядку ролі. Механіка — globals.css. */}
               <span className="hero-org serif-accent text-ink [--wave-delay:4200ms]">
                 {s.org}
               </span>
